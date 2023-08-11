@@ -1,0 +1,12 @@
+name = "node-with-r2-poc"
+main = "src/worker.ts"
+compatibility_date = "2023-08-07"
+
+[vars]
+DIRECTORY_LISTING = true
+ORIGIN_SERVER = "https://origin.nodejs.org/dist"
+
+[[r2_buckets]]
+binding = "R2_BUCKET"
+preview_bucket_name = "node-poc-dev"
+bucket_name = "node-poc-prod"
