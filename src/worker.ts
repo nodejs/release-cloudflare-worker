@@ -2,8 +2,8 @@ import render from 'render2';
 
 export interface Env {
     R2_BUCKET: R2Bucket;
-    PATH_PREFIX: string;
-    ORIGIN_SERVER: string;
+    CACHE_CONTROL: string;
+    DIRECTORY_CACHE_CONTROL: string;
 }
 
 export default {
@@ -19,14 +19,6 @@ export default {
             });
         }
 
-        let response: Response = await render.fetch(request, env, ctx);
-        if (response.status === 404) {
-            // Didn't find whatever we were looking for,
-            //	check the origin server
-            console.log('Origin call');
-            const path = new URL(request.url).pathname;
-            return fetch(env.ORIGIN_SERVER + path);
-        }
-        return response;
+        return await render.fetch(request, env, ctx);
     },
 };
