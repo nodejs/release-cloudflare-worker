@@ -4,8 +4,8 @@ compatibility_date = "2023-08-07"
 
 [vars]
 DIRECTORY_LISTING = true
-CACHE_CONTROL = 'public'
-DIRECTORY_CACHE_CONTROL = 'public'
+CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
+DIRECTORY_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
 
 [[r2_buckets]]
 binding = "R2_BUCKET"
