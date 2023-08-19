@@ -24,12 +24,16 @@ export default {
         let r2Path: string = url.pathname;
         if (url.pathname.startsWith('/dist')) {
             r2Path = `/nodejs/release${url.pathname.substring(5)}`;
-        } else if (url.pathname.startsWith('/download') || url.pathname.startsWith('/docs')) {
-            r2Path = '/nodejs';
+        } else if (url.pathname.startsWith('/download')) {
+            r2Path = `/nodejs${url.pathname.substring(9)}`;
+        } else if (url.pathname.startsWith('/docs')) {
+            r2Path = `/nodejs/docs${url.pathname.substring(5)}`;
         } else if (url.pathname.startsWith('/api')) {
-            r2Path = '/nodejs/docs/latest';
+            r2Path = `/nodejs/docs/latest/api${url.pathname.substring(4)}`;
+        } else if (!url.pathname.startsWith('/metrics')) {
+            return new Response(undefined, { status: 401 });
         }
-        console.debug(r2Path)
+        r2Path = decodeURIComponent(r2Path);
 
         return await render.fetch(r2Path, request, env, ctx);
     },

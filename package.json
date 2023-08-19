@@ -15,6 +15,6 @@
         "wrangler": "^3.0.0"
     },
     "dependencies": {
-        "render2": "^1.2.1"
+        "range-parser": "^1.2.1"
     }
 }
