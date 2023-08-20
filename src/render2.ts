@@ -87,14 +87,22 @@ async function makeListingResponse(path: string, env: Env, request: Request): Pr
         `<td><a href="../">../</a></td>` +
         `<td>-</td><td>-</td></tr>`);
     }
-
+    
+    // Without a trailing slash, browsers (at least Firefox)
+    //  will interpret these hrefs as if they're pointing to
+    //  something in the same parent path. (ex/ link to `latest/`
+    //  when at http://localhost/dist will send you to http://localhost/latest/)
+    // TODO(flakey5): don't parse url here, we already do this
+    //  earlier on
+    const url = new URL(request.url)
+    const urlPath = url.pathname + (url.pathname[url.pathname.length - 1] == '/' ? '' : '/'); 
     for (let dir of listing.delimitedPrefixes) {
       if (dir.endsWith("/")) dir = dir.substring(0, dir.length - 1)
       let name = dir.substring(path.length, dir.length)
       if (name.startsWith(".") && env.HIDE_HIDDEN_FILES) continue;
       htmlList.push(
         `      <tr>` +
-        `<td><a href="${encodeURIComponent(name)}/">${name}/</a></td>` +
+        `<td><a href="${urlPath}${encodeURIComponent(name)}/">${name}/</a></td>` +
         `<td>-</td><td>-</td></tr>`);
     }
     for (let file of listing.objects) {
@@ -107,7 +115,7 @@ async function makeListingResponse(path: string, env: Env, request: Request): Pr
 
       htmlList.push(
         `      <tr>` +
-        `<td><a href="${encodeURIComponent(name)}">${name}</a></td>` +
+        `<td><a href="${urlPath}${encodeURIComponent(name)}">${name}</a></td>` +
         `<td>${dateStr}</td><td>${niceBytes(file.size)}</td></tr>`);
 
       if (lastModified == null || file.uploaded > lastModified) {

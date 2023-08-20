@@ -35,6 +35,10 @@ export default {
         }
         r2Path = decodeURIComponent(r2Path);
 
+        if (r2Path[r2Path.length - 1] != '/' && r2Path.lastIndexOf('.') == -1) {
+            r2Path += '/';
+        }
+
         return await render.fetch(r2Path, request, env, ctx);
     },
 };
