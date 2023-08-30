@@ -1,14 +1,19 @@
-name = "node-with-r2-poc"
+name = "node-dist-worker-poc"
 main = "src/worker.ts"
 compatibility_date = "2023-08-07"
 
 [vars]
-DIRECTORY_LISTING = true
+DIRECTORY_LISTING = 'restricted'
 CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
 DIRECTORY_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
+COMMONLY_UPDATED_PATHS = [
+    '/dist',
+    '/dist/',
+    '/dist/latest',
+    '/dist/latest/',
+]
 
 [[r2_buckets]]
 binding = "R2_BUCKET"
 preview_bucket_name = "node-poc-dev"
-bucket_name = "node-poc-dev" # Best practice is to have two buckets but I don't wanna deal with that right now
-# bucket_name = "node-poc-prod"
+bucket_name = "node-poc-prod"

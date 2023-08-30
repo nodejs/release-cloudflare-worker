@@ -1,161 +1,13 @@
-import parseRange from 'range-parser';
-
-export interface Env {
-  R2_BUCKET: R2Bucket;
-  ALLOWED_ORIGINS?: string;
-  CACHE_CONTROL?: string;
-  PATH_PREFIX?: string;
-  INDEX_FILE?: string;
-  NOTFOUND_FILE?: string;
-  DIRECTORY_LISTING?: boolean;
-  HIDE_HIDDEN_FILES?: boolean;
-  DIRECTORY_CACHE_CONTROL?: string;
-}
-
-const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-
-type ParsedRange = { offset: number; length: number } | { suffix: number };
-
-function rangeHasLength(
-  object: ParsedRange
-): object is { offset: number; length: number } {
-  return (<{ offset: number; length: number }>object).length !== undefined;
-}
-
-function hasBody(object: R2Object | R2ObjectBody): object is R2ObjectBody {
-  return (<R2ObjectBody>object).body !== undefined;
-}
-
-function hasSuffix(range: ParsedRange): range is { suffix: number } {
-  return (<{ suffix: number }>range).suffix !== undefined;
-}
-
-function getRangeHeader(range: ParsedRange, fileSize: number): string {
-  return `bytes ${hasSuffix(range) ? fileSize - range.suffix : range.offset}-${
-    hasSuffix(range) ? fileSize - 1 : range.offset + range.length - 1
-  }/${fileSize}`;
-}
-
-// some ideas for this were taken from / inspired by
-// https://github.com/cloudflare/workerd/blob/main/samples/static-files-from-disk/static.js
-async function makeListingResponse(
-  url: URL,
-  path: string,
-  env: Env,
-  request: Request
-): Promise<Response | null> {
-  if (path === '/') path = '';
-  else if (path !== '' && !path.endsWith('/')) {
-    path += '/';
-  }
-  let listing = await env.R2_BUCKET.list({ prefix: path, delimiter: '/' });
-
-  if (listing.delimitedPrefixes.length === 0 && listing.objects.length === 0) {
-    return null;
-  }
-
-  let html: string = '';
-  let lastModified: Date | null = null;
-
-  if (request.method === 'GET') {
-    let htmlList = [];
-
-    if (path !== '') {
-      htmlList.push(
-        `      <tr>` +
-          `<td><a href="../">../</a></td>` +
-          `<td>-</td><td>-</td></tr>`
-      );
-    }
-
-    // Without a trailing slash, browsers (at least Firefox)
-    //  will interpret these hrefs as if they're pointing to
-    //  something in the same parent path. (ex/ link to `latest/`
-    //  when at http://localhost/dist will send you to http://localhost/latest/)
-    const urlPath =
-      url.pathname + (url.pathname[url.pathname.length - 1] == '/' ? '' : '/');
-    for (let dir of listing.delimitedPrefixes) {
-      if (dir.endsWith('/')) dir = dir.substring(0, dir.length - 1);
-      let name = dir.substring(path.length, dir.length);
-      if (name.startsWith('.') && env.HIDE_HIDDEN_FILES) continue;
-      htmlList.push(
-        `      <tr>` +
-          `<td><a href="${urlPath}${encodeURIComponent(
-            name
-          )}/">${name}/</a></td>` +
-          `<td>-</td><td>-</td></tr>`
-      );
-    }
-    for (let file of listing.objects) {
-      let name = file.key.substring(path.length, file.key.length);
-      if (name.startsWith('.') && env.HIDE_HIDDEN_FILES) continue;
-
-      let dateStr = file.uploaded.toISOString();
-      dateStr = dateStr.split('.')[0].replace('T', ' ');
-      dateStr = dateStr.slice(0, dateStr.lastIndexOf(':')) + 'Z';
-
-      htmlList.push(
-        `      <tr>` +
-          `<td><a href="${urlPath}${encodeURIComponent(
-            name
-          )}">${name}</a></td>` +
-          `<td>${dateStr}</td><td>${niceBytes(file.size)}</td></tr>`
-      );
-
-      if (lastModified == null || file.uploaded > lastModified) {
-        lastModified = file.uploaded;
-      }
-    }
-
-    if (path === '') path = '/';
-
-    // TODO(@flakey5): use urlPath here instead of path
-    html = `<!DOCTYPE html>
-<html>
-  <head>
-    <title>Index of ${urlPath}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta charset="utf-8">
-    <style type="text/css">
-      td { padding-right: 16px; text-align: right; font-family: monospace }
-      td:nth-of-type(1) { text-align: left; overflow-wrap: anywhere }
-      td:nth-of-type(3) { white-space: nowrap }
-      th { text-align: left; }
-      @media (prefers-color-scheme: dark) {
-        body {
-          color: white;
-          background-color: #1c1b22;
-        }
-        a {
-          color: #3391ff;
-        }
-        a:visited {
-          color: #C63B65;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <h1>Index of ${urlPath}</h1>
-    <table>
-      <tr><th>Filename</th><th>Modified</th><th>Size</th></tr>
-${htmlList.join('\n')}
-    </table>
-  </body>
-</html>
-  `;
-  }
-
-  return new Response(html === '' ? null : html, {
-    status: 200,
-    headers: {
-      'access-control-allow-origin': env.ALLOWED_ORIGINS || '',
-      'last-modified': lastModified === null ? '' : lastModified.toUTCString(),
-      'content-type': 'text/html',
-      'cache-control': env.DIRECTORY_CACHE_CONTROL || 'no-store',
-    },
-  });
-}
+import { Env } from './env';
+import cachePurgeHandler from './handlers/cachePurge';
+import directoryHandler from './handlers/directory';
+import fileHandler from './handlers/file';
+import {
+  isCacheEnabled,
+  isDirectoryPath,
+  mapUrlPathToBucketPath,
+} from './util';
+import responses from './responses';
 
 export default {
   async fetch(
@@ -163,260 +15,63 @@ export default {
     env: Env,
     ctx: ExecutionContext
   ): Promise<Response> {
-    const allowedMethods = ['GET', 'HEAD', 'OPTIONS'];
-    if (allowedMethods.indexOf(request.method) === -1)
-      return new Response('Method Not Allowed', { status: 405, headers: { Allow: allowedMethods.join(', ') } });
-
-    if (request.method === 'OPTIONS') {
-      return new Response(null, {
-        headers: { allow: allowedMethods.join(', ') },
-      });
-    }
-
-    let triedIndex = false;
-
-    let response: Response | undefined;
-    
-    const isCachingEnabled = env.CACHE_CONTROL !== 'no-store';
     const cache = caches.default;
-    if (isCachingEnabled) {
-      response = await cache.match(request);
-    }
-    
-    // Since we produce this result from the request, we don't need to strictly use an R2Range
-    let range: ParsedRange | undefined;
-    if (!response || !(response.ok || response.status == 304)) {
-      console.warn('Cache miss');
-      
-      const url = new URL(request.url);
-      let path = (env.PATH_PREFIX ?? '') + url.pathname;
-      if (url.pathname.startsWith('/dist')) {
-        path = `/nodejs/release${url.pathname.substring(5)}`;
-      } else if (url.pathname.startsWith('/download')) {
-        path = `/nodejs${url.pathname.substring(9)}`;
-      } else if (url.pathname.startsWith('/docs')) {
-        path = `/nodejs/docs${url.pathname.substring(5)}`;
-      } else if (url.pathname.startsWith('/api')) {
-        path = `/nodejs/docs/latest/api${url.pathname.substring(4)}`;
-      } else if (!url.pathname.startsWith('/metrics')) {
-        return new Response(undefined, { status: 401 });
-      }
-      path = decodeURIComponent(path);
-
-      // directory logic
-      // `path.lastIndexOf('.') == -1` is a Node-specific
-      //  heuristic here. There aren't any files that don't
-      //  have file extensions, so, if there are no file extensions
-      //  specified in the url, treat it like a directory.
-      if (path[path.length - 1] == '/' || path.lastIndexOf('.') == -1) {
-        if (path[path.length - 1] !== '/') {
-          path += '/';
-        }
-        // if theres an index file, try that. 404 logic down below has dir fallback.
-        if (env.INDEX_FILE && env.INDEX_FILE !== '') {
-          path += env.INDEX_FILE;
-          triedIndex = true;
-        } else if (env.DIRECTORY_LISTING) {
-          // return the dir listing
-          let listResponse = await makeListingResponse(url, path, env, request);
-
-          if (listResponse !== null) {
-            if (listResponse.headers.get('cache-control') !== 'no-store') {
-              ctx.waitUntil(cache.put(request, listResponse.clone()));
-            }
-            return listResponse;
-          }
-        }
-      } else if (url.pathname.endsWith('.json')) {
-        env.ALLOWED_ORIGINS = '*';
+    if (request.method !== 'GET' && request.method !== 'HEAD') {
+      // This endpoint is called from the sync script to purge
+      //  directories that are commonly updated so we don't need to
+      //  wait for the cache to expire
+      if (
+        isCacheEnabled(env) &&
+        env.PURGE_API_KEY !== undefined &&
+        request.method === 'POST' &&
+        request.url === '/_cf/cache-purge'
+      ) {
+        return cachePurgeHandler(request, cache, env);
       }
 
-      if (path !== '/' && path.startsWith('/')) {
-        path = path.substring(1);
-      }
-
-      let file: R2Object | R2ObjectBody | null | undefined;
-
-      // Range handling
-      if (request.method === 'GET') {
-        const rangeHeader = request.headers.get('range');
-        if (rangeHeader) {
-          file = await env.R2_BUCKET.head(path);
-          if (file === null)
-            return new Response('File Not Found', { status: 404 });
-          const parsedRanges = parseRange(file.size, rangeHeader);
-          // R2 only supports 1 range at the moment, reject if there is more than one
-          if (
-            parsedRanges !== -1 &&
-            parsedRanges !== -2 &&
-            parsedRanges.length === 1 &&
-            parsedRanges.type === 'bytes'
-          ) {
-            let firstRange = parsedRanges[0];
-            range =
-              file.size === firstRange.end + 1
-                ? { suffix: file.size - firstRange.start }
-                : {
-                    offset: firstRange.start,
-                    length: firstRange.end - firstRange.start + 1,
-                  };
-          } else {
-            return new Response('Range Not Satisfiable', { status: 416 });
-          }
-        }
-      }
-
-      // Etag/If-(Not)-Match handling
-      // R2 requires that etag checks must not contain quotes, and the S3 spec only allows one etag
-      // This silently ignores invalid or weak (W/) headers
-      const getHeaderEtag = (header: string | null) =>
-        header?.trim().replace(/^['"]|['"]$/g, '');
-      const ifMatch = getHeaderEtag(request.headers.get('if-match'));
-      const ifNoneMatch = getHeaderEtag(request.headers.get('if-none-match'));
-
-      const ifModifiedSince = Date.parse(
-        request.headers.get('if-modified-since') || ''
-      );
-      const ifUnmodifiedSince = Date.parse(
-        request.headers.get('if-unmodified-since') || ''
-      );
-
-      const ifRange = request.headers.get('if-range');
-      if (range && ifRange && file) {
-        const maybeDate = Date.parse(ifRange);
-
-        if (isNaN(maybeDate) || new Date(maybeDate) > file.uploaded) {
-          // httpEtag already has quotes, no need to use getHeaderEtag
-          if (ifRange.startsWith('W/') || ifRange !== file.httpEtag)
-            range = undefined;
-        }
-      }
-
-      if (ifMatch || ifUnmodifiedSince) {
-        file = await env.R2_BUCKET.get(path, {
-          onlyIf: {
-            etagMatches: ifMatch,
-            uploadedBefore: ifUnmodifiedSince
-              ? new Date(ifUnmodifiedSince)
-              : undefined,
-          },
-          range,
-        });
-
-        if (file && !hasBody(file)) {
-          return new Response('Precondition Failed', { status: 412 });
-        }
-      }
-
-      if (ifNoneMatch || ifModifiedSince) {
-        // if-none-match overrides if-modified-since completely
-        if (ifNoneMatch) {
-          file = await env.R2_BUCKET.get(path, {
-            onlyIf: { etagDoesNotMatch: ifNoneMatch },
-            range,
-          });
-        } else if (ifModifiedSince) {
-          file = await env.R2_BUCKET.get(path, {
-            onlyIf: { uploadedAfter: new Date(ifModifiedSince) },
-            range,
-          });
-        }
-        if (file && !hasBody(file)) {
-          return new Response(null, { status: 304 });
-        }
-      }
-
-      file =
-        request.method === 'HEAD'
-          ? await env.R2_BUCKET.head(path)
-          : file && hasBody(file)
-          ? file
-          : await env.R2_BUCKET.get(path, { range });
-
-      let notFound: boolean = false;
-
-      if (file === null) {
-        if (env.INDEX_FILE && triedIndex) {
-          // remove the index file since it doesnt exist
-          path = path.substring(0, path.length - env.INDEX_FILE.length);
-        }
-
-        if (env.DIRECTORY_LISTING && (path.endsWith('/') || path === '')) {
-          // return the dir listing
-          let listResponse = await makeListingResponse(url, path, env, request);
-
-          if (listResponse !== null) {
-            if (listResponse.headers.get('cache-control') !== 'no-store') {
-              ctx.waitUntil(cache.put(request, listResponse.clone()));
-            }
-            return listResponse;
-          }
-        }
-
-        if (env.NOTFOUND_FILE && env.NOTFOUND_FILE != '') {
-          notFound = true;
-          path = env.NOTFOUND_FILE;
-          file =
-            request.method === 'HEAD'
-              ? await env.R2_BUCKET.head(path)
-              : await env.R2_BUCKET.get(path);
-        }
-
-        // if its still null, either 404 is disabled or that file wasn't found either
-        // this isn't an else because then there would have to be two of theem
-        if (file == null) {
-          return new Response('File Not Found', { status: 404 });
-        }
-      }
-
-      response = new Response(
-        hasBody(file) && file.size !== 0 ? file.body : null,
-        {
-          status: notFound ? 404 : range ? 206 : 200,
-          headers: {
-            'accept-ranges': 'bytes',
-            'access-control-allow-origin': env.ALLOWED_ORIGINS || '',
-
-            etag: notFound ? '' : file.httpEtag,
-            // if the 404 file has a custom cache control, we respect it
-            'cache-control':
-              file.httpMetadata?.cacheControl ??
-              (notFound ? '' : env.CACHE_CONTROL || ''),
-            expires: file.httpMetadata?.cacheExpiry?.toUTCString() ?? '',
-            'last-modified': notFound ? '' : file.uploaded.toUTCString(),
-
-            'content-encoding': file.httpMetadata?.contentEncoding ?? '',
-            'content-type':
-              file.httpMetadata?.contentType ?? 'application/octet-stream',
-            'content-language': file.httpMetadata?.contentLanguage ?? '',
-            'content-disposition': file.httpMetadata?.contentDisposition ?? '',
-            'content-range':
-              range && !notFound ? getRangeHeader(range, file.size) : '',
-            'content-length': (range && !notFound
-              ? rangeHasLength(range)
-                ? range.length
-                : range.suffix
-              : file.size
-            ).toString(),
-          },
-        }
-      );
-
-      if (request.method === 'GET' && !range && isCachingEnabled && !notFound)
-        ctx.waitUntil(cache.put(request, response.clone()));
+      return responses.METHOD_NOT_ALLOWED;
     }
 
+    if (isCacheEnabled(env)) {
+      // Caching is enabled, let's see if the request is cached
+      const response = await cache.match(request);
+      if (response !== undefined) {
+        console.log('Cache hit');
+        response.headers.append('x-cache-status', 'hit');
+        return response;
+      }
+
+      console.log('Cache miss');
+    }
+
+    const url = new URL(request.url);
+    let bucketPath = mapUrlPathToBucketPath(url, env);
+    if (bucketPath === undefined) {
+      // Directory listing is restricted and we're not on
+      //  a supported path, block request
+      return new Response('Unauthorized', { status: 401 });
+    }
+    bucketPath = decodeURIComponent(bucketPath);
+
+    let response: Response;
+    if (isDirectoryPath(bucketPath)) {
+      // Directory requested, try listing it
+      if (env.DIRECTORY_LISTING === 'off') {
+        // File not found since we should only be allowing
+        //  file paths if directory listing is off
+        return responses.FILE_NOT_FOUND(request);
+      }
+      response = await directoryHandler(url, request, bucketPath, env);
+    } else {
+      // File requested, try to serve it
+      response = await fileHandler(url, request, bucketPath, env);
+    }
+
+    // Cache response if cache is enabled
+    if (isCacheEnabled(env) && response.status !== 304) {
+      ctx.waitUntil(cache.put(request, response.clone()));
+    }
+    response.headers.append('x-cache-status', 'miss');
     return response;
   },
 };
-
-function niceBytes(x: number) {
-  let l = 0,
-    n = parseInt(x.toString(), 10) || 0;
-
-  while (n >= 1000 && ++l) {
-    n = n / 1000;
-  }
-
-  return n.toFixed(n < 10 && l > 0 ? 1 : 0) + ' ' + units[l];
-}
