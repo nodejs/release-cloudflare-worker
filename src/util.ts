@@ -33,24 +33,30 @@ export function mapUrlPathToBucketPath(url: URL, env: Env): string | undefined {
   // Example: /docs/asd/123
   const splitPath = url.pathname.split('/'); // ['', 'docs', 'asd', '123']
   const basePath = splitPath[1]; // 'docs'
+  let bucketPath: string;
   switch (basePath) {
     case 'dist':
     case 'download':
     case 'docs':
     case 'api':
-      return urlToBucketPathMap[basePath];
+      bucketPath = urlToBucketPathMap[basePath];
+      break;
     case 'metrics':
       // Substring to cut off the first /
-      return url.pathname.substring(1);
+      bucketPath = url.pathname.substring(1);
+      break;
     default: {
       if (env.DIRECTORY_LISTING === 'restricted') {
         return undefined;
       } else {
         // Substring to cut off the first /
-        return url.pathname.substring(1);
+        bucketPath = url.pathname.substring(1);
       }
+      break;
     }
   }
+
+  return decodeURIComponent(bucketPath);
 }
 
 /**
@@ -74,8 +80,8 @@ export function isDirectoryPath(path: string): boolean {
  * @returns Something like `4.5 KB` or `8.7 MB`
  */
 export function niceBytes(bytes: number): string {
-  let l = 0,
-    n = parseInt(bytes.toString(), 10) || 0;
+  let l = 0;
+  let n = parseInt(bytes.toString(), 10) || 0;
 
   while (n >= 1000 && ++l) {
     n = n / 1000;

@@ -9,69 +9,92 @@ import {
 } from './util';
 import responses from './responses';
 
-export default {
-  async fetch(
-    request: Request,
-    env: Env,
-    ctx: ExecutionContext
-  ): Promise<Response> {
+interface Worker {
+  /**
+   * Worker entrypoint
+   * @see https://developers.cloudflare.com/workers/runtime-apis/fetch-event/#syntax-es-modules
+   */
+  fetch: (r: Request, e: Env, c: ExecutionContext) => Promise<Response>;
+}
+
+const cloudflareWorker: Worker = {
+  fetch: async (request, env, ctx) => {
     const cache = caches.default;
-    if (request.method !== 'GET' && request.method !== 'HEAD') {
+
+    const shouldServeCache = isCacheEnabled(env);
+
+    if (['GET', 'HEAD'].includes(request.method) === false) {
       // This endpoint is called from the sync script to purge
       //  directories that are commonly updated so we don't need to
       //  wait for the cache to expire
       if (
-        isCacheEnabled(env) &&
-        env.PURGE_API_KEY !== undefined &&
+        shouldServeCache &&
         request.method === 'POST' &&
         request.url === '/_cf/cache-purge'
       ) {
         return cachePurgeHandler(request, cache, env);
       }
 
+      if (request.method === 'OPTIONS') {
+        return new Response(undefined, {
+          headers: {
+            Allow: 'GET, HEAD, OPTIONS',
+          },
+        });
+      }
+
       return responses.METHOD_NOT_ALLOWED;
     }
 
-    if (isCacheEnabled(env)) {
+    if (shouldServeCache) {
       // Caching is enabled, let's see if the request is cached
       const response = await cache.match(request);
-      if (response !== undefined) {
-        console.log('Cache hit');
+
+      if (typeof response !== 'undefined') {
         response.headers.append('x-cache-status', 'hit');
+
         return response;
       }
-
-      console.log('Cache miss');
     }
 
-    const url = new URL(request.url);
-    let bucketPath = mapUrlPathToBucketPath(url, env);
-    if (bucketPath === undefined) {
+    let url: URL;
+    try {
+      url = new URL(request.url);
+    } catch (e) {
+      return new Response(undefined, { status: 400 });
+    }
+
+    const bucketPath = mapUrlPathToBucketPath(url, env);
+
+    if (typeof bucketPath === 'undefined') {
       // Directory listing is restricted and we're not on
       //  a supported path, block request
       return new Response('Unauthorized', { status: 401 });
     }
-    bucketPath = decodeURIComponent(bucketPath);
 
-    let response: Response;
-    if (isDirectoryPath(bucketPath)) {
-      // Directory requested, try listing it
-      if (env.DIRECTORY_LISTING === 'off') {
-        // File not found since we should only be allowing
-        //  file paths if directory listing is off
-        return responses.FILE_NOT_FOUND(request);
-      }
-      response = await directoryHandler(url, request, bucketPath, env);
-    } else {
-      // File requested, try to serve it
-      response = await fileHandler(url, request, bucketPath, env);
+    const isPathADirectory = isDirectoryPath(bucketPath);
+
+    if (isPathADirectory && env.DIRECTORY_LISTING === 'off') {
+      // File not found since we should only be allowing
+      //  file paths if directory listing is off
+      return responses.FILE_NOT_FOUND(request);
     }
+
+    const response: Response = isPathADirectory
+      ? // Directory requested, try listing it
+        await directoryHandler(url, request, bucketPath, env)
+      : // File requested, try to serve it
+        await fileHandler(url, request, bucketPath, env);
 
     // Cache response if cache is enabled
-    if (isCacheEnabled(env) && response.status !== 304) {
+    if (shouldServeCache && response.status !== 304) {
       ctx.waitUntil(cache.put(request, response.clone()));
     }
+
     response.headers.append('x-cache-status', 'miss');
+
     return response;
   },
 };
+
+export default cloudflareWorker;
