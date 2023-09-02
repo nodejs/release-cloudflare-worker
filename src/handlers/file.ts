@@ -23,6 +23,17 @@ function getStatusCode(request: Request, objectHasBody: boolean): number {
     // We have the full object body
     return 200;
   }
+
+  if (
+    request.headers.has('if-modified') ||
+    request.headers.has('if-unmodified-since') ||
+    request.headers.has('if-match') ||
+    request.headers.has('if-none-match')
+  ) {
+    // No body due to precondition failure
+    return 412;
+  }
+
   // We weren't given a body
   return 304;
 }
@@ -42,10 +53,15 @@ export default async (
 ): Promise<Response> => {
   let file: R2Object | null = null;
   if (request.method === 'GET') {
-    file = await env.R2_BUCKET.get(bucketPath, {
-      onlyIf: request.headers,
-      range: request.headers,
-    });
+    try {
+      file = await env.R2_BUCKET.get(bucketPath, {
+        onlyIf: request.headers,
+        range: request.headers,
+      });
+    } catch (e) {
+      // Unquoted etags make R2 api throw an error
+      return responses.BAD_REQUEST;
+    }
   } else if (request.method === 'HEAD') {
     file = await env.R2_BUCKET.head(bucketPath);
   } else {
@@ -65,22 +81,22 @@ export default async (
       status: getStatusCode(request, hasBody),
       headers: {
         etag: file.httpEtag,
-        'Accept-Range': 'bytes',
+        'accept-range': 'bytes',
 
-        'Access-Control-Allow-Origin': url.pathname.endsWith('.json')
+        'access-control-allow-origin': url.pathname.endsWith('.json')
           ? '*'
           : '',
 
-        'Cache-Control': cacheControl,
+        'cache-control': cacheControl,
         expires: file.httpMetadata?.cacheExpiry?.toUTCString() ?? '',
 
-        'Last-Modified': file.uploaded.toUTCString(),
-        'Content-Encoding': file.httpMetadata?.contentEncoding ?? '',
-        'Content-Type':
+        'last-modified': file.uploaded.toUTCString(),
+        'content-encoding': file.httpMetadata?.contentEncoding ?? '',
+        'content-type':
           file.httpMetadata?.contentType ?? 'application/octet-stream',
-        'Content-Language': file.httpMetadata?.contentLanguage ?? '',
-        'Content-Disposition': file.httpMetadata?.contentDisposition ?? '',
-        'Content-Length': file.size.toString(),
+        'content-language': file.httpMetadata?.contentLanguage ?? '',
+        'content-disposition': file.httpMetadata?.contentDisposition ?? '',
+        'content-length': file.size.toString(),
       },
     }
   );
