@@ -2,8 +2,11 @@ name = "node-dist-worker-poc"
 main = "src/worker.ts"
 compatibility_date = "2023-08-07"
 
+# Dev (default)
 [vars]
-DIRECTORY_LISTING = 'restricted'
+workers_dev = true
+ENVIRONMENT = 'dev'
+DIRECTORY_LISTING = 'on'
 CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
 DIRECTORY_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
 COMMONLY_UPDATED_PATHS = [
@@ -16,4 +19,44 @@ COMMONLY_UPDATED_PATHS = [
 [[r2_buckets]]
 binding = "R2_BUCKET"
 preview_bucket_name = "node-poc-dev"
+bucket_name = "node-poc-dev"
+
+# Staging
+[env.staging]
+[env.staging.vars]
+workers_dev = true
+ENVIRONMENT = 'staging'
+DIRECTORY_LISTING = 'restricted'
+CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
+DIRECTORY_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
+COMMONLY_UPDATED_PATHS = [
+    '/dist',
+    '/dist/',
+    '/dist/latest',
+    '/dist/latest/',
+]
+
+[[env.staging.r2_buckets]]
+binding = "R2_BUCKET"
+preview_bucket_name = "node-poc-dev"
+bucket_name = "node-poc-staging"
+
+# Prod
+[env.prod]
+[env.prod.vars]
+workers_dev = true # for now we're using a workers.dev domain
+ENVIRONMENT = 'prod'
+DIRECTORY_LISTING = 'restricted'
+CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
+DIRECTORY_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
+COMMONLY_UPDATED_PATHS = [
+    '/dist',
+    '/dist/',
+    '/dist/latest',
+    '/dist/latest/',
+]
+
+[[env.prod.r2_buckets]]
+binding = "R2_BUCKET"
+preview_bucket_name = "node-poc-prod"
 bucket_name = "node-poc-prod"
