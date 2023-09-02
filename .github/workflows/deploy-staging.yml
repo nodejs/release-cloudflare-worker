@@ -1,18 +1,31 @@
-name: Deploy worker (staging)
+name: Deploy Worker
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
-  deploy-staging:
+  deploy:
+    name: Deploy Cloudflare Worker
     runs-on: ubuntu-latest
+
     steps:
-      - name: Code checkout
-        uses: actions/checkout@v2
-      - name: Deploy
-        uses: cloudflare/wrangler-action@v3
+      - name: Git Checkout
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744
+
+      - name: Deploy to Staging
+        if: github.event_name == 'push'
+        uses: cloudflare/wrangler-action@09fc6b504568cf179b085df24393f237fea6c7f6
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           command: deploy --env staging
+
+      - name: Deploy to Production
+        if: github.event_name == 'workflow_dispatch'
+        uses: cloudflare/wrangler-action@09fc6b504568cf179b085df24393f237fea6c7f6
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          command: deploy --env prod
+        
