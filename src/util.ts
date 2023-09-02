@@ -73,7 +73,7 @@ export function isDirectoryPath(path: string): boolean {
  * @param bytes Bytes
  * @returns Something like `4.5 KB` or `8.7 MB`
  */
-export function niceBytes(bytes: number) {
+export function niceBytes(bytes: number): string {
   let l = 0,
     n = parseInt(bytes.toString(), 10) || 0;
 

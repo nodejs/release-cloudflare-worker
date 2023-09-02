@@ -3,12 +3,20 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "deploy": "wrangler deploy",
+    "deploy:staging": "wrangler deploy -e staging",
+    "deploy:prod": "wrangler deploy -e prod",
     "start": "wrangler dev",
-    "format": "prettier -u --write \"**/*.{ts,json}\""
+    "format": "prettier -u --write \"**/*.{ts,js,json}\"",
+    "check-format": "prettier -u --check \"**/*.{ts,js,json}\"",
+    "lint": "eslint ./src"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20230419.0",
+    "@typescript-eslint/eslint-plugin": "^6.5.0",
+    "@typescript-eslint/parser": "^6.5.0",
+    "eslint": "^8.48.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
     "prettier": "^3.0.1",
     "typescript": "^5.0.4",
     "wrangler": "^3.0.0"

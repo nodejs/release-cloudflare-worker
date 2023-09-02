@@ -1,0 +1,37 @@
+name: Format
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  format-ts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v2
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/workflows/format.yml') }}
+          restore-keys: ${{ runner.os }}-npm-
+      - name: Install dependencies
+        run: npm install
+      - name: Run Prettier
+        run: npm run check-format
+  lint-ts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v2
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/workflows/format.yml') }}
+          restore-keys: ${{ runner.os }}-npm-
+      - name: Install dependencies
+        run: npm install
+      - name: Run Eslint
+        run: npm run lint
