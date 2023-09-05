@@ -23,5 +23,8 @@
     "tsx": "^3.12.8",
     "typescript": "^5.0.4",
     "wrangler": "^3.0.0"
+  },
+  "dependencies": {
+    "zod": "^3.22.2"
   }
 }

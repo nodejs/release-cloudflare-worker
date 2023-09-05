@@ -1,13 +1,16 @@
 #!/bin/bash
 # Syncs the local /dist folder -> R2 bucket
-# Usage: ./sync.sh <account tag>
+# Usage: CF_ACCOUNT_ID=<account tag> ./sync.sh
 
-ENDPOINT=https://$1.r2.cloudflarestorage.com
+ENDPOINT=https://$CF_ACCOUNT_TAG.r2.cloudflarestorage.com
 DIST=/home/dist/
 
-aws s3 sync $DIST s3://node-poc-staging/ --endpoint-url=$ENDPOINT --profile staging
-aws s3 sync $DIST s3://node-poc-prod/ --endpoint-url=$ENDPOINT --profile prod
+CACHE_PURGE_PATH=$(dirname "$0")/cache-purge.js
 
-if [[ -v DIST_WORKER_API_KEY ]]; 
-    curl -X "DELETE" -H "x-api-key: $DIST_WORKER_API_KEY" https://nodejs.org/_cf/cache-purge
-fi
+echo ---------------------------------
+echo Syncing staging bucket
+aws s3 sync $DIST s3://node-poc-staging/ --endpoint-url=$ENDPOINT --profile staging | $CACHE_PURGE_PATH node-poc-staging
+echo ---------------------------------
+echo Syncing prod bucket
+aws s3 sync $DIST s3://node-poc-prod/ --endpoint-url=$ENDPOINT --profile prod | $CACHE_PURGE_PATH node-poc-prod
+echo ---------------------------------
