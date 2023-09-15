@@ -22,7 +22,10 @@ export function isCacheEnabled(env: Env): boolean {
  * @returns Mapped path if the resource is accessible, undefined
  *  if the eyeball should not be trying to access the resource
  */
-export function mapUrlPathToBucketPath(url: URL, env: Env): string | undefined {
+export function mapUrlPathToBucketPath(
+  url: URL,
+  env: Pick<Env, 'DIRECTORY_LISTING'>
+): string | undefined {
   const urlToBucketPathMap = {
     dist: `nodejs/release${url.pathname.substring(5)}`,
     download: `nodejs${url.pathname.substring(9)}`,

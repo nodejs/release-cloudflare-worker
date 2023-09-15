@@ -118,7 +118,7 @@ function renderDirectoryListing(
           <h1>Index of ${url.pathname}</h1>
           <table>
             <tr><th>Filename</th><th>Modified</th><th>Size</th></tr>
-            ${tableElements}
+            ${tableElements.join('\n')}
           </table>
         </body>
       </html>`,

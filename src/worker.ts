@@ -60,7 +60,7 @@ async function getHandler(
   try {
     url = new URL(request.url);
   } catch (e) {
-    return new Response(undefined, { status: 400 });
+    return responses.BAD_REQUEST;
   }
 
   const bucketPath = mapUrlPathToBucketPath(url, env);
@@ -86,7 +86,7 @@ async function getHandler(
       await fileHandler(url, request, bucketPath, env);
 
   // Cache response if cache is enabled
-  if (shouldServeCache && response.status !== 304) {
+  if (shouldServeCache && response.status !== 304 && response.status !== 206) {
     ctx.waitUntil(cache.put(request, response.clone()));
   }
 

@@ -2,22 +2,25 @@
   "name": "node-with-r2-poc",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "deploy:staging": "wrangler deploy -e staging",
-    "deploy:prod": "wrangler deploy -e prod",
-    "start": "wrangler dev",
+    "start": "wrangler dev --remote",
     "format": "prettier -u --write \"**/*.{ts,js,json}\"",
     "check-format": "prettier -u --check \"**/*.{ts,js,json}\"",
-    "lint": "eslint ./src"
+    "lint": "eslint ./src",
+    "test:unit": "node --loader tsx ./tests/unit/util.test.ts",
+    "test:e2e": "wrangler deploy --dry-run --outdir=dist && node --loader tsx ./tests/e2e/index.test.ts"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20230419.0",
+    "@types/node": "^20.5.8",
     "@typescript-eslint/eslint-plugin": "^6.5.0",
     "@typescript-eslint/parser": "^6.5.0",
     "eslint": "^8.48.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
     "prettier": "^3.0.1",
+    "tsx": "^3.12.8",
     "typescript": "^5.0.4",
     "wrangler": "^3.0.0"
   }

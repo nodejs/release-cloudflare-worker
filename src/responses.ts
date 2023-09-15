@@ -8,6 +8,9 @@ export default {
       Allow: 'GET, HEAD, OPTIONS',
     },
   }),
+  BAD_REQUEST: new Response(undefined, {
+    status: 400,
+  }),
   FILE_NOT_FOUND: (request: Request): Response => {
     return new Response(
       request.method !== 'HEAD' ? 'File not found' : undefined,
