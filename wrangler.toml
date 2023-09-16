@@ -4,7 +4,6 @@ compatibility_date = "2023-08-07"
 
 # Dev (default)
 [vars]
-workers_dev = true
 ENVIRONMENT = 'dev'
 DIRECTORY_LISTING = 'on'
 CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
@@ -31,8 +30,15 @@ bucket_name = "dist-staging"
 
 # Prod
 [env.prod]
+env.prod.routes = [
+    { pattern = 'nodejs.org/dist/*', zone_name = 'nodejs.org' },
+    { pattern = 'nodejs.org/download/*', zone_name = 'nodejs.org' },
+    { pattern = 'nodejs.org/docs/*', zone_name = 'nodejs.org' },
+    { pattern = 'nodejs.org/api/*', zone_name = 'nodejs.org' },
+    { pattern = 'nodejs.org/metrics/*', zone_name = 'nodejs.org' },
+]
+
 [env.prod.vars]
-workers_dev = true # for now we're using a workers.dev domain
 ENVIRONMENT = 'prod'
 DIRECTORY_LISTING = 'restricted'
 CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
