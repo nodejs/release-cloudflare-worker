@@ -53,7 +53,7 @@ export default async (
   env: Env
 ): Promise<Response> => {
   const providedApiKey = request.headers.get('x-api-key');
-  if (providedApiKey !== env.PURGE_API_KEY) {
+  if (providedApiKey !== env.CACHE_PURGE_API_KEY) {
     return new Response(undefined, { status: 403 });
   }
 

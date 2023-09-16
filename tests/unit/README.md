@@ -1,8 +1,6 @@
 # Unit Tests
 These are for testing specific functions in the worker.
 
-<br />
-
 Test file names correspond to the file name in the [`src`](../../src) directory that is being tested.
 For example, [`./util.test.ts`](./util.test.ts) tests functions defined from [`src/util.ts`](../../src/util.ts).
 

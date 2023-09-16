@@ -1,4 +1,4 @@
-name = "node-dist-worker-poc"
+name = "dist-worker"
 main = "src/worker.ts"
 compatibility_date = "2023-08-07"
 
@@ -9,17 +9,11 @@ ENVIRONMENT = 'dev'
 DIRECTORY_LISTING = 'on'
 CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
 DIRECTORY_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
-COMMONLY_UPDATED_PATHS = [
-    '/dist',
-    '/dist/',
-    '/dist/latest',
-    '/dist/latest/',
-]
 
 [[r2_buckets]]
 binding = "R2_BUCKET"
-preview_bucket_name = "node-poc-dev"
-bucket_name = "node-poc-dev"
+preview_bucket_name = "dist-dev"
+bucket_name = "dist-dev"
 
 # Staging
 [env.staging]
@@ -29,17 +23,11 @@ ENVIRONMENT = 'staging'
 DIRECTORY_LISTING = 'restricted'
 CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
 DIRECTORY_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
-COMMONLY_UPDATED_PATHS = [
-    '/dist',
-    '/dist/',
-    '/dist/latest',
-    '/dist/latest/',
-]
 
 [[env.staging.r2_buckets]]
 binding = "R2_BUCKET"
-preview_bucket_name = "node-poc-dev"
-bucket_name = "node-poc-staging"
+preview_bucket_name = "dist-dev"
+bucket_name = "dist-staging"
 
 # Prod
 [env.prod]
@@ -49,14 +37,8 @@ ENVIRONMENT = 'prod'
 DIRECTORY_LISTING = 'restricted'
 CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
 DIRECTORY_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
-COMMONLY_UPDATED_PATHS = [
-    '/dist',
-    '/dist/',
-    '/dist/latest',
-    '/dist/latest/',
-]
 
 [[env.prod.r2_buckets]]
 binding = "R2_BUCKET"
-preview_bucket_name = "node-poc-prod"
-bucket_name = "node-poc-prod"
+preview_bucket_name = "dist-prod"
+bucket_name = "dist-prod"

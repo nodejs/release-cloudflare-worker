@@ -3,8 +3,6 @@ These are for testing the entire worker from client to server.
 The [Miniflare 3 API](https://latest.miniflare.dev) is used to spin up a local
 [Workerd](https://github.com/cloudflare/workerd) instance that the tests interact with.
 
-<br />
-
 Test file names correspond to what's being tested. For example, [./directory.test.ts](./directory.test.ts)
 contains tests related to directory listing or directories as a whole.
 
