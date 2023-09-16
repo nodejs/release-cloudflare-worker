@@ -100,14 +100,21 @@ async function postHandler(
   env: Env,
   cache: Cache
 ): Promise<Response> {
+  let url: URL;
+  try {
+    url = new URL(request.url);
+  } catch (e) {
+    return responses.BAD_REQUEST;
+  }
+
   // This endpoint is called from the sync script to purge
   //  directories that are commonly updated so we don't need to
   //  wait for the cache to expire
-  if (isCacheEnabled(env) && request.url === '/_cf/cache-purge') {
-    return cachePurgeHandler(request, cache, env);
+  if (isCacheEnabled(env) && url.pathname === '/_cf/cache-purge') {
+    return cachePurgeHandler(url, request, cache, env);
   }
 
-  return new Response(undefined, { status: 404 });
+  return new Response(url.pathname, { status: 404 });
 }
 
 export default cloudflareWorker;

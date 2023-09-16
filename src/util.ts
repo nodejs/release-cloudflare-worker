@@ -63,6 +63,36 @@ export function mapUrlPathToBucketPath(
 }
 
 /**
+ * Maps a path in the R2 bucket to the url used to access it
+ * @param bucketPath Path to map
+ * @param env Worker env
+ * @returns All possible url paths that lead to that resource,
+ *  or undefined if it's inaccessible from a url path
+ */
+export function mapBucketPathToUrlPath(
+  bucketPath: string,
+  env: Pick<Env, 'DIRECTORY_LISTING'>
+): string[] | undefined {
+  if (bucketPath.startsWith('nodejs/releases')) {
+    const path = bucketPath.substring(15);
+    return [`/dist${path}`, `/download/releases${path}`];
+  } else if (bucketPath.startsWith('nodejs/docs/latest/api')) {
+    const path = bucketPath.substring(22);
+    return [`/api${path}`, `/docs/latest/api${path}`];
+  } else if (bucketPath.startsWith('nodejs/docs')) {
+    return [`/docs${bucketPath.substring(11)}`];
+  } else if (bucketPath.startsWith('nodejs')) {
+    return [`/download${bucketPath.substring(6)}`];
+  } else if (bucketPath.startsWith('metrics')) {
+    return ['/' + bucketPath];
+  }
+
+  return env.DIRECTORY_LISTING === 'restricted'
+    ? undefined
+    : ['/' + bucketPath];
+}
+
+/**
  * Checks if a R2 path is for a directory or not.
  *  If a path ends in a `/` or there's no file
  *  extension, it's considered a directory path
