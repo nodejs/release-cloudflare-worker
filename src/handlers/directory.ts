@@ -156,9 +156,9 @@ export default async (
   const response = renderDirectoryListing(url, bucketPath, objects);
   return new Response(request.method === 'GET' ? response.html : null, {
     headers: {
-      'Last-Modified': response.lastModified,
-      'Content-Type': 'text/html',
-      'Cache-Control': env.DIRECTORY_CACHE_CONTROL || 'no-store',
+      'last-modified': response.lastModified,
+      'content-type': 'text/html',
+      'cache-control': env.DIRECTORY_CACHE_CONTROL || 'no-store',
     },
   });
 };

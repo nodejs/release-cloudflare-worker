@@ -14,7 +14,7 @@ export interface Env {
   /**
    * Api key for /_cf/cache-purge. If undefined, the endpoint is disabled.
    */
-  PURGE_API_KEY?: string;
+  CACHE_PURGE_API_KEY?: string;
   /**
    * Cache control header for files
    */
@@ -23,10 +23,4 @@ export interface Env {
    * Cache control header for directory listing
    */
   DIRECTORY_CACHE_CONTROL: string;
-  /**
-   * List of paths that are commonly updated
-   * These are purged from cache when /_cf/cache-purge
-   *  is hit.
-   */
-  COMMONLY_UPDATED_PATHS: string[];
 }

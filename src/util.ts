@@ -63,7 +63,7 @@ export function mapUrlPathToBucketPath(
 }
 
 /**
- * Maps a path in the R2 bucket to the url used to access it
+ * Maps a path in the R2 bucket to the urls used to access it
  * @param bucketPath Path to map
  * @param env Worker env
  * @returns All possible url paths that lead to that resource,

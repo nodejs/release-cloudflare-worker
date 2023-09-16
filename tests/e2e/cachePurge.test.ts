@@ -15,7 +15,7 @@ describe('Cache Purge Tests', () => {
         DIRECTORY_LISTING: 'restricted',
         CACHE_CONTROL: 'public',
         DIRECTORY_CACHE_CONTROL: 'public',
-        PURGE_API_KEY: API_KEY,
+        CACHE_PURGE_API_KEY: API_KEY,
       },
     });
 
