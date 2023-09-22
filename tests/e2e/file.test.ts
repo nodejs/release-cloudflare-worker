@@ -14,7 +14,7 @@ describe('File Tests', () => {
       modules: true,
       bindings: {
         DIRECTORY_LISTING: 'restricted',
-        CACHE_CONTROL: cacheControl,
+        FILE_CACHE_CONTROL: cacheControl,
         DIRECTORY_CACHE_CONTROL: 'no-store',
       },
       r2Persist: './tests/e2e/test-data',

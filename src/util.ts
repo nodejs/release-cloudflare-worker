@@ -1,3 +1,9 @@
+import {
+  API_PATH_PREFIX,
+  DIST_PATH_PREFIX,
+  DOCS_PATH_PREFIX,
+  DOWNLOAD_PATH_PREFIX,
+} from './constants/r2Prefixes';
 import { Env } from './env';
 
 const units = ['B', 'KB', 'MB', 'GB', 'TB'];
@@ -9,9 +15,25 @@ const units = ['B', 'KB', 'MB', 'GB', 'TB'];
  */
 export function isCacheEnabled(env: Env): boolean {
   return (
-    env.CACHE_CONTROL !== 'no-store' ||
+    env.FILE_CACHE_CONTROL !== 'no-store' ||
     env.DIRECTORY_CACHE_CONTROL !== 'no-store'
   );
+}
+
+/**
+ * @param request Request object
+ * @returns {@link URL} instance if url is valid, a 400
+ *  response otherwise
+ */
+export function parseUrl(request: Request): URL | undefined {
+  let url: URL | undefined = undefined;
+  try {
+    url = new URL(request.url);
+  } catch (e) {
+    console.error(e);
+  }
+
+  return url;
 }
 
 /**
@@ -26,40 +48,25 @@ export function mapUrlPathToBucketPath(
   url: URL,
   env: Pick<Env, 'DIRECTORY_LISTING'>
 ): string | undefined {
-  const urlToBucketPathMap = {
-    dist: `nodejs/release${url.pathname.substring(5)}`,
-    download: `nodejs${url.pathname.substring(9)}`,
-    docs: `nodejs/docs${url.pathname.substring(5)}`,
-    api: `nodejs/docs/latest/api${url.pathname.substring(4)}`,
+  const urlToBucketPathMap: Record<string, string> = {
+    dist: DIST_PATH_PREFIX + url.pathname.substring(5),
+    download: DOWNLOAD_PATH_PREFIX + url.pathname.substring(9),
+    docs: DOCS_PATH_PREFIX + url.pathname.substring(5),
+    api: API_PATH_PREFIX + url.pathname.substring(4),
+    metrics: url.pathname.substring(1), // substring to cut off the /
   };
 
   // Example: /docs/asd/123
+  let bucketPath: string | undefined = undefined;
   const splitPath = url.pathname.split('/'); // ['', 'docs', 'asd', '123']
   const basePath = splitPath[1]; // 'docs'
-  let bucketPath: string;
-  switch (basePath) {
-    case 'dist':
-    case 'download':
-    case 'docs':
-    case 'api':
-      bucketPath = urlToBucketPathMap[basePath];
-      break;
-    case 'metrics':
-      // Substring to cut off the first /
-      bucketPath = url.pathname.substring(1);
-      break;
-    default: {
-      if (env.DIRECTORY_LISTING === 'restricted') {
-        return undefined;
-      } else {
-        // Substring to cut off the first /
-        bucketPath = url.pathname.substring(1);
-      }
-      break;
-    }
+  if (basePath in urlToBucketPathMap) {
+    bucketPath = urlToBucketPathMap[basePath];
+  } else if (env.DIRECTORY_LISTING !== 'restricted') {
+    bucketPath = url.pathname.substring(1);
   }
 
-  return decodeURIComponent(bucketPath);
+  return bucketPath !== undefined ? decodeURIComponent(bucketPath) : undefined;
 }
 
 /**
@@ -73,15 +80,15 @@ export function mapBucketPathToUrlPath(
   bucketPath: string,
   env: Pick<Env, 'DIRECTORY_LISTING'>
 ): string[] | undefined {
-  if (bucketPath.startsWith('nodejs/releases')) {
+  if (bucketPath.startsWith(DIST_PATH_PREFIX)) {
     const path = bucketPath.substring(15);
     return [`/dist${path}`, `/download/releases${path}`];
-  } else if (bucketPath.startsWith('nodejs/docs/latest/api')) {
+  } else if (bucketPath.startsWith(API_PATH_PREFIX)) {
     const path = bucketPath.substring(22);
     return [`/api${path}`, `/docs/latest/api${path}`];
-  } else if (bucketPath.startsWith('nodejs/docs')) {
+  } else if (bucketPath.startsWith(DOCS_PATH_PREFIX)) {
     return [`/docs${bucketPath.substring(11)}`];
-  } else if (bucketPath.startsWith('nodejs')) {
+  } else if (bucketPath.startsWith(DOWNLOAD_PATH_PREFIX)) {
     return [`/download${bucketPath.substring(6)}`];
   } else if (bucketPath.startsWith('metrics')) {
     return ['/' + bucketPath];

@@ -1,6 +1,6 @@
-import { Env } from '../env';
-import responses from '../responses';
-import { niceBytes } from '../util';
+import { Env } from '../../env';
+import responses from '../../responses';
+import { niceBytes } from '../../util';
 
 /**
  * Renders the html for a single listing entry
@@ -133,12 +133,12 @@ function renderDirectoryListing(
  * @param bucketPath Path in R2 bucket
  * @param env Worker env
  */
-export default async (
+export async function listDirectory(
   url: URL,
   request: Request,
   bucketPath: string,
   env: Env
-): Promise<Response> => {
+): Promise<Response> {
   if (!bucketPath.endsWith('/')) {
     bucketPath += '/';
   }
@@ -161,4 +161,4 @@ export default async (
       'cache-control': env.DIRECTORY_CACHE_CONTROL || 'no-store',
     },
   });
-};
+}

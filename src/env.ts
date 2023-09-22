@@ -18,7 +18,7 @@ export interface Env {
   /**
    * Cache control header for files
    */
-  CACHE_CONTROL: string;
+  FILE_CACHE_CONTROL: string;
   /**
    * Cache control header for directory listing
    */

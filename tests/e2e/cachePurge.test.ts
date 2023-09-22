@@ -13,7 +13,7 @@ describe('Cache Purge Tests', () => {
       modules: true,
       bindings: {
         DIRECTORY_LISTING: 'restricted',
-        CACHE_CONTROL: 'public',
+        FILE_CACHE_CONTROL: 'public',
         DIRECTORY_CACHE_CONTROL: 'public',
         CACHE_PURGE_API_KEY: API_KEY,
       },

@@ -1,6 +1,6 @@
-import { Env } from '../env';
-import { objectHasBody } from '../util';
-import responses from '../responses';
+import { Env } from '../../env';
+import { objectHasBody } from '../../util';
+import responses from '../../responses';
 
 /**
  * Decides on what status code to return to
@@ -45,12 +45,12 @@ function getStatusCode(request: Request, objectHasBody: boolean): number {
  * @param bucketPath Path in R2 bucket
  * @param env Worker env
  */
-export default async (
+export async function getFile(
   url: URL,
   request: Request,
   bucketPath: string,
   env: Env
-): Promise<Response> => {
+): Promise<Response> {
   let file: R2Object | null = null;
   if (request.method === 'GET') {
     try {
@@ -74,7 +74,7 @@ export default async (
 
   const hasBody = objectHasBody(file);
   const cacheControl =
-    file.httpMetadata?.cacheControl ?? (env.CACHE_CONTROL || 'no-store');
+    file.httpMetadata?.cacheControl ?? (env.FILE_CACHE_CONTROL || 'no-store');
   return new Response(
     hasBody && file.size != 0 ? (file as R2ObjectBody).body : null,
     {
@@ -100,4 +100,4 @@ export default async (
       },
     }
   );
-};
+}
