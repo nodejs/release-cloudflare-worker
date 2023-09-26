@@ -22,7 +22,7 @@ bucket_name = "dist-dev"
 [env.staging.vars]
 workers_dev = true
 ENVIRONMENT = 'staging'
-DIRECTORY_LISTING = 'on'
+DIRECTORY_LISTING = 'restricted'
 FILE_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
 DIRECTORY_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
 
@@ -36,7 +36,7 @@ bucket_name = "dist-staging"
 [env.prod.vars]
 workers_dev = false
 ENVIRONMENT = 'prod'
-DIRECTORY_LISTING = 'on'
+DIRECTORY_LISTING = 'restricted'
 FILE_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
 DIRECTORY_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
 
