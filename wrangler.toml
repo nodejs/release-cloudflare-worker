@@ -1,6 +1,8 @@
 name = "dist-worker"
 main = "src/worker.ts"
 compatibility_date = "2023-08-07"
+account_id = "07be8d2fbc940503ca1be344714cb0d1"
+
 
 # Dev (default)
 [vars]
@@ -20,7 +22,7 @@ bucket_name = "dist-dev"
 [env.staging.vars]
 workers_dev = true
 ENVIRONMENT = 'staging'
-DIRECTORY_LISTING = 'restricted'
+DIRECTORY_LISTING = 'on'
 FILE_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
 DIRECTORY_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
 
@@ -32,9 +34,9 @@ bucket_name = "dist-staging"
 # Prod
 [env.prod]
 [env.prod.vars]
-workers_dev = true # for now we're using a workers.dev domain
+workers_dev = false
 ENVIRONMENT = 'prod'
-DIRECTORY_LISTING = 'restricted'
+DIRECTORY_LISTING = 'on'
 FILE_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
 DIRECTORY_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
 
