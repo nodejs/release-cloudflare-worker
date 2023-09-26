@@ -1,5 +1,5 @@
 {
-  "name": "node-with-r2-poc",
+  "name": "release-cloudflare-worker",
   "version": "0.0.0",
   "private": true,
   "type": "module",
