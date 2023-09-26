@@ -13,7 +13,7 @@ describe('Directory Tests (Restricted Directory Listing)', () => {
       modules: true,
       bindings: {
         DIRECTORY_LISTING: 'restricted',
-        CACHE_CONTROL: 'no-store',
+        FILE_CACHE_CONTROL: 'no-store',
         DIRECTORY_CACHE_CONTROL: 'no-store',
       },
       r2Persist: './tests/e2e/test-data',

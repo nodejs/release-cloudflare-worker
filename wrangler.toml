@@ -7,7 +7,7 @@ compatibility_date = "2023-08-07"
 workers_dev = true
 ENVIRONMENT = 'dev'
 DIRECTORY_LISTING = 'on'
-CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
+FILE_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
 DIRECTORY_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
 
 [[r2_buckets]]
@@ -21,7 +21,7 @@ bucket_name = "dist-dev"
 workers_dev = true
 ENVIRONMENT = 'staging'
 DIRECTORY_LISTING = 'restricted'
-CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
+FILE_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
 DIRECTORY_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
 
 [[env.staging.r2_buckets]]
@@ -35,7 +35,7 @@ bucket_name = "dist-staging"
 workers_dev = true # for now we're using a workers.dev domain
 ENVIRONMENT = 'prod'
 DIRECTORY_LISTING = 'restricted'
-CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
+FILE_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
 DIRECTORY_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
 
 [[env.prod.r2_buckets]]

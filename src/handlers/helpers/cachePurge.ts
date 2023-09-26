@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { Env } from '../env';
-import responses from '../responses';
-import { mapBucketPathToUrlPath } from '../util';
+import { Env } from '../../env';
+import responses from '../../responses';
+import { mapBucketPathToUrlPath } from '../../util';
 
 const CachePurgeBodySchema = z.object({
   paths: z.array(z.string()),
@@ -46,12 +46,12 @@ async function parseBody(request: Request): Promise<CachePurgeBody | Response> {
  * @param cache Cache to purge
  * @param env Worker env
  */
-export default async (
+export async function cachePurge(
   url: URL,
   request: Request,
   cache: Cache,
   env: Env
-): Promise<Response> => {
+): Promise<Response> {
   const providedApiKey = request.headers.get('x-api-key');
   if (providedApiKey !== env.CACHE_PURGE_API_KEY) {
     return new Response(undefined, { status: 403 });
@@ -81,4 +81,4 @@ export default async (
   await Promise.allSettled(promises);
 
   return new Response(undefined, { status: 204 });
-};
+}
