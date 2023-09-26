@@ -32,13 +32,15 @@ type DirectoryListingResponse = {
  * Renders the html for a directory listing response
  * @param url Parsed url of the request
  * @param bucketPath Path in R2 bucket
+ * @param delimitedPrefixes Directories in the bucket
  * @param listingResponse Listing response to render
  * @returns {@link DirectoryListingResponse} instance
  */
 function renderDirectoryListing(
   url: URL,
   bucketPath: string,
-  listingResponse: R2Objects
+  delimitedPrefixes: Set<string>,
+  objects: R2Object[]
 ): DirectoryListingResponse {
   // Holds all the html for each directory and file
   //  we're listing
@@ -50,7 +52,7 @@ function renderDirectoryListing(
     : `${url.pathname}/`;
 
   // Render directories first
-  for (const directory of listingResponse.delimitedPrefixes) {
+  for (const directory of delimitedPrefixes) {
     // R2 sends us back the absolute path of the directory, cut it
     const name = directory.substring(bucketPath.length);
     const elementHtml = renderTableElement(
@@ -64,7 +66,7 @@ function renderDirectoryListing(
 
   // Render files second
   let lastModified: Date | undefined = undefined;
-  for (const object of listingResponse.objects) {
+  for (const object of objects) {
     // R2 sends us back the absolute path of the object, cut it
     const name = object.key.substring(bucketPath.length);
 
@@ -143,17 +145,34 @@ export async function listDirectory(
     bucketPath += '/';
   }
 
-  const objects = await env.R2_BUCKET.list({
-    prefix: bucketPath,
-    delimiter: '/',
-  });
+  const delimitedPrefixes = new Set<string>();
+  const objects = new Array<R2Object>();
+  let truncated = true;
+  let cursor: string | undefined;
+  while (truncated) {
+    const result = await env.R2_BUCKET.list({
+      prefix: bucketPath,
+      delimiter: '/',
+      cursor,
+    });
+    result.delimitedPrefixes.forEach(prefix => delimitedPrefixes.add(prefix));
+    objects.push(...result.objects);
+    truncated = result.truncated;
+    cursor = result.truncated ? result.cursor : undefined;
+  }
+
   // Directory needs either subdirectories or files in it,
   //  cannot be empty
-  if (objects.delimitedPrefixes.length === 0 && objects.objects.length === 0) {
+  if (delimitedPrefixes.size === 0 && objects.length === 0) {
     return responses.DIRECTORY_NOT_FOUND(request);
   }
 
-  const response = renderDirectoryListing(url, bucketPath, objects);
+  const response = renderDirectoryListing(
+    url,
+    bucketPath,
+    delimitedPrefixes,
+    objects
+  );
   return new Response(request.method === 'GET' ? response.html : null, {
     headers: {
       'last-modified': response.lastModified,
