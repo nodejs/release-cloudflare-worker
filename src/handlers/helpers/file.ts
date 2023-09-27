@@ -25,10 +25,8 @@ function getStatusCode(request: Request, objectHasBody: boolean): number {
   }
 
   if (
-    request.headers.has('if-modified') ||
-    request.headers.has('if-unmodified-since') ||
     request.headers.has('if-match') ||
-    request.headers.has('if-none-match')
+    request.headers.has('if-unmodified-since')
   ) {
     // No body due to precondition failure
     return 412;
