@@ -1,5 +1,9 @@
 export interface Env {
   /**
+   * Environment the worker is running in
+   */
+  ENVIRONMENT: 'dev' | 'staging' | 'prod';
+  /**
    * R2 bucket we read from
    */
   R2_BUCKET: R2Bucket;
