@@ -99,6 +99,18 @@ export function mapBucketPathToUrlPath(
     : ['/' + bucketPath];
 }
 
+export function hasTrailingSlash(path: string): boolean {
+  return path[path.length - 1] === '/';
+}
+
+export function isExtensionless(path: string): boolean {
+  // `path.lastIndexOf('.') == -1` is a Node-specific
+  //  heuristic here. There aren't any files that don't
+  //  have file extensions, so, if there are no file extensions
+  //  specified in the url, treat it like a directory.
+  return path.lastIndexOf('.') === -1;
+}
+
 /**
  * Checks if a R2 path is for a directory or not.
  *  If a path ends in a `/` or there's no file
@@ -107,11 +119,7 @@ export function mapBucketPathToUrlPath(
  * @returns True if it's for a directory
  */
 export function isDirectoryPath(path: string): boolean {
-  // `path.lastIndexOf('.') == -1` is a Node-specific
-  //  heuristic here. There aren't any files that don't
-  //  have file extensions, so, if there are no file extensions
-  //  specified in the url, treat it like a directory.
-  return path[path.length - 1] == '/' || path.lastIndexOf('.') == -1;
+  return hasTrailingSlash(path) || isExtensionless(path);
 }
 
 /**

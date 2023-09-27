@@ -24,15 +24,16 @@ describe('Directory Tests (Restricted Directory Listing)', () => {
     url = await mf.ready;
   });
 
-  it('allows `/dist` and returns expected html', async () => {
-    const [res, expectedHtml] = await Promise.all([
-      mf.dispatchFetch(`${url}dist`),
+  it('redirects `/dist` to `/dist/` and returns expected html', async () => {
+    const [originalRes, expectedHtml] = await Promise.all([
+      mf.dispatchFetch(`${url}dist`, { redirect: 'manual' }),
       readFile('./tests/e2e/test-data/expected-html/dist.html', {
         encoding: 'utf-8',
       }),
     ]);
 
-    assert.strictEqual(res.status, 200);
+    assert.strictEqual(originalRes.status, 301);
+    const res = await mf.dispatchFetch(originalRes.headers.get('location')!);
 
     // Assert that the html matches what we're expecting
     //  to be returned. If this passes, we can assume
@@ -48,8 +49,12 @@ describe('Directory Tests (Restricted Directory Listing)', () => {
     assert.strictEqual(res.status, 200);
   });
 
-  it('allows `/download`', async () => {
-    const res = await mf.dispatchFetch(`${url}download`);
+  it('redirects `/download` to `/download/`', async () => {
+    const originalRes = await mf.dispatchFetch(`${url}download`, {
+      redirect: 'manual',
+    });
+    assert.strictEqual(originalRes.status, 301);
+    const res = await mf.dispatchFetch(originalRes.headers.get('location')!);
     assert.strictEqual(res.status, 200);
   });
 
@@ -58,8 +63,12 @@ describe('Directory Tests (Restricted Directory Listing)', () => {
     assert.strictEqual(res.status, 200);
   });
 
-  it('allows `/docs`', async () => {
-    const res = await mf.dispatchFetch(`${url}docs`);
+  it('redirects `/docs` to `/docs/`', async () => {
+    const originalRes = await mf.dispatchFetch(`${url}docs`, {
+      redirect: 'manual',
+    });
+    assert.strictEqual(originalRes.status, 301);
+    const res = await mf.dispatchFetch(originalRes.headers.get('location')!);
     assert.strictEqual(res.status, 200);
   });
 
@@ -68,8 +77,12 @@ describe('Directory Tests (Restricted Directory Listing)', () => {
     assert.strictEqual(res.status, 200);
   });
 
-  it('allows `/api`', async () => {
-    const res = await mf.dispatchFetch(`${url}api`);
+  it('redirects `/api` to `/api/`', async () => {
+    const originalRes = await mf.dispatchFetch(`${url}api`, {
+      redirect: 'manual',
+    });
+    assert.strictEqual(originalRes.status, 301);
+    const res = await mf.dispatchFetch(originalRes.headers.get('location')!);
     assert.strictEqual(res.status, 200);
   });
 
@@ -78,8 +91,12 @@ describe('Directory Tests (Restricted Directory Listing)', () => {
     assert.strictEqual(res.status, 200);
   });
 
-  it('allows `/metrics`', async () => {
-    const res = await mf.dispatchFetch(`${url}metrics`);
+  it('redirects `/metrics` to `/metrics/`', async () => {
+    const originalRes = await mf.dispatchFetch(`${url}metrics`, {
+      redirect: 'manual',
+    });
+    assert.strictEqual(originalRes.status, 301);
+    const res = await mf.dispatchFetch(originalRes.headers.get('location')!);
     assert.strictEqual(res.status, 200);
   });
 
@@ -92,7 +109,7 @@ describe('Directory Tests (Restricted Directory Listing)', () => {
     let res = await mf.dispatchFetch(url);
     assert.strictEqual(res.status, 401);
 
-    res = await mf.dispatchFetch(`${url}/asd`);
+    res = await mf.dispatchFetch(`${url}/asd/`);
     assert.strictEqual(res.status, 401);
 
     res = await mf.dispatchFetch(`${url}/asd/123/`);
@@ -100,7 +117,7 @@ describe('Directory Tests (Restricted Directory Listing)', () => {
   });
 
   it('returns 404 for unknown directory', async () => {
-    const res = await mf.dispatchFetch(`${url}/dist/asd123`);
+    const res = await mf.dispatchFetch(`${url}/dist/asd123/`);
     assert.strictEqual(res.status, 404);
 
     const body = await res.text();

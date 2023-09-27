@@ -2,6 +2,7 @@ import responses from '../responses';
 import {
   isCacheEnabled,
   isDirectoryPath,
+  hasTrailingSlash,
   mapUrlPathToBucketPath,
   parseUrl,
 } from '../util';
@@ -39,6 +40,9 @@ const getHandler: Handler = async (request, env, ctx, cache) => {
     // File not found since we should only be allowing
     //  file paths if directory listing is off
     return responses.FILE_NOT_FOUND(request);
+  } else if (isPathADirectory && !hasTrailingSlash(bucketPath)) {
+    url.pathname += '/';
+    return Response.redirect(url.toString(), 301);
   }
 
   const response: Response = isPathADirectory
