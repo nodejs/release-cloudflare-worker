@@ -10,35 +10,6 @@ import htmlTemplate from '../../templates/directoryListing.out.js';
 // Applies the Template into a Handlebars Template Function
 const handleBarsTemplate = Handlebars.template(htmlTemplate);
 
-type DirectoryListingEntry = {
-  href: string;
-  name: string;
-  lastModified: string;
-  size: string;
-};
-
-/**
- * Renders the html for a single listing entry
- * @param href Absolute path to the file or directory
- * @param name Name of the file or directory
- * @param lastModified Last modified UTC timestamp, omit if directory
- * @param size Size of the file, omit if directory
- * @returns Rendered html
- */
-function getTableEntry(
-  href: string,
-  name: string,
-  lastModified: string = '-',
-  size: string = '-'
-): DirectoryListingEntry {
-  return {
-    href,
-    name,
-    lastModified,
-    size,
-  };
-}
-
 type DirectoryListingResponse = {
   html: string;
   lastModified: string;
@@ -60,11 +31,15 @@ function renderDirectoryListing(
   delimitedPrefixes: Set<string>,
   objects: R2Object[]
 ): DirectoryListingResponse {
-  // Holds all the html for each directory and file
-  //  we're listing
-  const tableElements = new Array<DirectoryListingEntry>();
+  // Holds all the html for each directory and file we're listing
+  const tableElements = [];
 
-  tableElements.push(getTableEntry('../', '../'));
+  tableElements.push({
+    href: '../',
+    name: '../',
+    lastModified: '-',
+    size: '-',
+  });
 
   const urlPathname = url.pathname.endsWith('/')
     ? url.pathname
@@ -74,15 +49,14 @@ function renderDirectoryListing(
   for (const directory of delimitedPrefixes) {
     // R2 sends us back the absolute path of the directory, cut it
     const name = directory.substring(bucketPath.length);
+    const extra = encodeURIComponent(name.substring(0, name.length - 1));
 
-    const tableEntry = getTableEntry(
-      `${urlPathname}${encodeURIComponent(
-        name.substring(0, name.length - 1)
-      )}/`,
-      name
-    );
-
-    tableElements.push(tableEntry);
+    tableElements.push({
+      href: `${urlPathname}${extra}/`,
+      name,
+      lastModified: '-',
+      size: '-',
+    });
   }
 
   // Render files second
@@ -104,14 +78,12 @@ function renderDirectoryListing(
     dateStr = dateStr.split('.')[0].replace('T', ' ');
     dateStr = dateStr.slice(0, dateStr.lastIndexOf(':')) + 'Z';
 
-    const tableEntry = getTableEntry(
-      `${urlPathname}${encodeURIComponent(name)}`,
+    tableElements.push({
+      href: `${urlPathname}${encodeURIComponent(name)}`,
       name,
-      dateStr,
-      niceBytes(object.size)
-    );
-
-    tableElements.push(tableEntry);
+      lastModified: dateStr,
+      size: niceBytes(object.size),
+    });
   }
 
   return {
