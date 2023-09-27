@@ -1,6 +1,7 @@
 import { Env } from '../../env';
 import responses from '../../responses';
 import { niceBytes } from '../../util';
+import { getFile } from './file';
 
 /**
  * Renders the html for a single listing entry
@@ -156,7 +157,15 @@ export async function listDirectory(
       cursor,
     });
     result.delimitedPrefixes.forEach(prefix => delimitedPrefixes.add(prefix));
-    objects.push(...result.objects);
+
+    for (const object of result.objects) {
+      // Check if there's an index file and use it if there is
+      if (object.key.endsWith('index.html')) {
+        return getFile(url, request, bucketPath + 'index.html', env);
+      }
+      objects.push(object);
+    }
+
     truncated = result.truncated;
     cursor = result.truncated ? result.cursor : undefined;
   }
