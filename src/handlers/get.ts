@@ -41,7 +41,8 @@ const getHandler: Handler = async (request, env, ctx, cache) => {
     //  file paths if directory listing is off
     return responses.FILE_NOT_FOUND(request);
   } else if (isPathADirectory && !hasTrailingSlash(bucketPath)) {
-    return Response.redirect(url.toString() + '/', 301);
+    url.pathname += '/';
+    return Response.redirect(url.toString(), 301);
   }
 
   const response: Response = isPathADirectory
