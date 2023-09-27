@@ -1,38 +1,9 @@
-import handlebars from 'handlebars';
+import Handlebars from 'handlebars';
 import { Env } from '../../env';
 import responses from '../../responses';
 import { niceBytes } from '../../util';
 import { getFile } from './serveFile';
-
-// Compiles the Handlebars Template for Directory Listing
-const directoryListingTemplate = handlebars.compile(`
-<html>
-<head>
-  <title>Index of {{pathname}}</title>
-  <meta name='viewport' content='width=device-width, initial-scale=1.0' />
-  <meta charset='utf-8' />
-  <style type='text/css'>
-    td { padding-right: 16px; text-align: right; font-family: monospace }
-    td:nth-of-type(1) { text-align: left; overflow-wrap: anywhere }
-    td:nth-of-type(3) { white-space: nowrap } th { text-align: left; } @media
-    (prefers-color-scheme: dark) { body { color: white; background-color:
-    #1c1b22; } a { color: #3391ff; } a:visited { color: #C63B65; } }
-  </style>
-</head>
-<body>
-  <h1>Index of {{pathname}}</h1>
-  <table>
-    <tr><th>Filename</th><th>Modified</th><th>Size</th></tr>
-    {{#each entries}}
-      <tr>
-        <td><a href='{{href}}'>{{name}}</a></td>
-        <td>{{lastModified}}</td>
-        <td>{{size}}</td>
-      </tr>
-    {{/each}}
-  </table>
-</body>
-</html>`);
+import '../../content/compiled/directoryListing.precompiled';
 
 type DirectoryListingEntry = {
   href: string;
@@ -139,7 +110,7 @@ function renderDirectoryListing(
   }
 
   return {
-    html: directoryListingTemplate({
+    html: Handlebars.templates['directoryListing.hbs']({
       pathname: url.pathname,
       entries: tableElements,
     }),

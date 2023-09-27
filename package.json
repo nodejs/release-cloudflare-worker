@@ -9,7 +9,8 @@
     "prettier": "prettier --check \"**/*.{ts,js,json,md,hbs}\"",
     "lint": "eslint ./src",
     "test:unit": "node --loader tsx ./tests/unit/util.test.ts",
-    "test:e2e": "wrangler deploy --dry-run --outdir=dist && node --loader tsx ./tests/e2e/index.test.ts"
+    "test:e2e": "wrangler deploy --dry-run --outdir=dist && node --loader tsx ./tests/e2e/index.test.ts",
+    "build:handlebars": "handlebars src/content/directoryListing.hbs -f src/content/compiled/directoryListing.precompiled.js"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20230922.0",
