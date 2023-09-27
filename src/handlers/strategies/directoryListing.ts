@@ -3,7 +3,12 @@ import { Env } from '../../env';
 import responses from '../../responses';
 import { niceBytes } from '../../util';
 import { getFile } from './serveFile';
-import '../../content/compiled/directoryListing.precompiled';
+
+// Imports the Precompiled Handlebars Template
+import htmlTemplate from '../../templates/directoryListing.out.js';
+
+// Applies the Template into a Handlebars Template Function
+const handleBarsTemplate = Handlebars.template(htmlTemplate);
 
 type DirectoryListingEntry = {
   href: string;
@@ -70,14 +75,14 @@ function renderDirectoryListing(
     // R2 sends us back the absolute path of the directory, cut it
     const name = directory.substring(bucketPath.length);
 
-    const elementHtml = getTableEntry(
+    const tableEntry = getTableEntry(
       `${urlPathname}${encodeURIComponent(
         name.substring(0, name.length - 1)
       )}/`,
       name
     );
 
-    tableElements.push(elementHtml);
+    tableElements.push(tableEntry);
   }
 
   // Render files second
@@ -99,18 +104,18 @@ function renderDirectoryListing(
     dateStr = dateStr.split('.')[0].replace('T', ' ');
     dateStr = dateStr.slice(0, dateStr.lastIndexOf(':')) + 'Z';
 
-    const elementHtml = getTableEntry(
+    const tableEntry = getTableEntry(
       `${urlPathname}${encodeURIComponent(name)}`,
       name,
       dateStr,
       niceBytes(object.size)
     );
 
-    tableElements.push(elementHtml);
+    tableElements.push(tableEntry);
   }
 
   return {
-    html: Handlebars.templates['directoryListing.hbs']({
+    html: handleBarsTemplate({
       pathname: url.pathname,
       entries: tableElements,
     }),

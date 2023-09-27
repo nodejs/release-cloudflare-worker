@@ -1,1 +1,3 @@
-src/content/compiled
+node_modules/
+dist/
+src/templates/*.out.js

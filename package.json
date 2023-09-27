@@ -10,7 +10,7 @@
     "lint": "eslint ./src",
     "test:unit": "node --loader tsx ./tests/unit/util.test.ts",
     "test:e2e": "wrangler deploy --dry-run --outdir=dist && node --loader tsx ./tests/e2e/index.test.ts",
-    "build:handlebars": "handlebars src/content/directoryListing.hbs -f src/content/compiled/directoryListing.precompiled.js"
+    "build:handlebars": "node scripts/compile-handlebars.js"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20230922.0",
@@ -20,7 +20,9 @@
     "eslint": "^8.50.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
+    "glob": "^10.3.10",
     "prettier": "^3.0.3",
+    "terser": "^5.20.0",
     "tsx": "^3.13.0",
     "typescript": "^5.2.2",
     "wrangler": "^3.10.0"

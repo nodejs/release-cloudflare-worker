@@ -27,7 +27,7 @@ describe('Directory Tests (Restricted Directory Listing)', () => {
   it('redirects `/dist` to `/dist/` and returns expected html', async () => {
     const [originalRes, expectedHtml] = await Promise.all([
       mf.dispatchFetch(`${url}dist`, { redirect: 'manual' }),
-      readFile('./tests/e2e/test-data/expected-html/dist.hbs', {
+      readFile('./tests/e2e/test-data/expected-html/dist.txt', {
         encoding: 'utf-8',
       }),
     ]);
@@ -40,7 +40,7 @@ describe('Directory Tests (Restricted Directory Listing)', () => {
     //  it'll pass for the other listings and therefore
     //  don't need to test it over and over again
     const body = await res.text();
-    assert.strictEqual(body, expectedHtml.replaceAll('\r', ''));
+    assert.strictEqual(body, expectedHtml.replaceAll('\n', ''));
   });
 
   it('allows `/dist/`', async () => {

@@ -7,8 +7,8 @@ import {
   parseUrl,
 } from '../util';
 import { Handler } from './handler';
-import { listDirectory } from './helpers/directoryListing';
-import { getFile } from './helpers/serveFile';
+import { listDirectory } from './strategies/directoryListing';
+import { getFile } from './strategies/serveFile';
 
 const getHandler: Handler = async (request, env, ctx, cache) => {
   const shouldServeCache = isCacheEnabled(env);
