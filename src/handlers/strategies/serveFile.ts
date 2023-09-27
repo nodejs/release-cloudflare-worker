@@ -97,7 +97,6 @@ export async function getFile(
         'last-modified': file.uploaded.toUTCString(),
         'content-encoding': file.httpMetadata?.contentEncoding ?? '',
         'content-type':
-          // @TODO: Explain why defaults to Octet Stream
           file.httpMetadata?.contentType ?? 'application/octet-stream',
         'content-language': file.httpMetadata?.contentLanguage ?? '',
         'content-disposition': file.httpMetadata?.contentDisposition ?? '',
