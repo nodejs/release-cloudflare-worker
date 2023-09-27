@@ -1,10 +1,11 @@
 import responses from '../responses';
 import { isCacheEnabled, parseUrl } from '../util';
 import { Handler } from './handler';
-import { cachePurge } from './helpers/cachePurge';
+import { cachePurge } from './strategies/cachePurge';
 
 const postHandler: Handler = async (request, env, _, cache) => {
   const url = parseUrl(request);
+
   if (url === undefined) {
     return responses.BAD_REQUEST;
   }

@@ -20,6 +20,7 @@ function getStatusCode(request: Request, objectHasBody: boolean): number {
       //  only part of the object
       return 206;
     }
+
     // We have the full object body
     return 200;
   }
@@ -50,20 +51,25 @@ export async function getFile(
   env: Env
 ): Promise<Response> {
   let file: R2Object | null = null;
-  if (request.method === 'GET') {
-    try {
-      file = await env.R2_BUCKET.get(bucketPath, {
-        onlyIf: request.headers,
-        range: request.headers,
-      });
-    } catch (e) {
-      // Unquoted etags make R2 api throw an error
-      return responses.BAD_REQUEST;
-    }
-  } else if (request.method === 'HEAD') {
-    file = await env.R2_BUCKET.head(bucketPath);
-  } else {
-    return responses.METHOD_NOT_ALLOWED;
+
+  switch (request.method) {
+    case 'GET':
+      try {
+        file = await env.R2_BUCKET.get(bucketPath, {
+          onlyIf: request.headers,
+          range: request.headers,
+        });
+
+        break;
+      } catch (e) {
+        // Unquoted etags make R2 api throw an error
+        return responses.BAD_REQUEST;
+      }
+    case 'HEAD':
+      file = await env.R2_BUCKET.head(bucketPath);
+      break;
+    default:
+      return responses.METHOD_NOT_ALLOWED;
   }
 
   if (file === null) {
@@ -71,8 +77,10 @@ export async function getFile(
   }
 
   const hasBody = objectHasBody(file);
+
   const cacheControl =
     file.httpMetadata?.cacheControl ?? (env.FILE_CACHE_CONTROL || 'no-store');
+
   return new Response(
     hasBody && file.size != 0 ? (file as R2ObjectBody).body : null,
     {
@@ -80,14 +88,12 @@ export async function getFile(
       headers: {
         etag: file.httpEtag,
         'accept-range': 'bytes',
-
+        // @TODO: Explain why JSON files can be accessed anywhere
         'access-control-allow-origin': url.pathname.endsWith('.json')
           ? '*'
           : '',
-
         'cache-control': cacheControl,
         expires: file.httpMetadata?.cacheExpiry?.toUTCString() ?? '',
-
         'last-modified': file.uploaded.toUTCString(),
         'content-encoding': file.httpMetadata?.contentEncoding ?? '',
         'content-type':

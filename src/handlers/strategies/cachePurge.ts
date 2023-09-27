@@ -6,6 +6,7 @@ import { mapBucketPathToUrlPath } from '../../util';
 const CachePurgeBodySchema = z.object({
   paths: z.array(z.string()),
 });
+
 type CachePurgeBody = z.infer<typeof CachePurgeBodySchema>;
 
 /**
@@ -21,6 +22,7 @@ async function parseBody(request: Request): Promise<CachePurgeBody | Response> {
   }
 
   let bodyObject: object;
+
   try {
     // Parse body to an object
     bodyObject = await request.json<object>();
@@ -31,6 +33,7 @@ async function parseBody(request: Request): Promise<CachePurgeBody | Response> {
 
   // Validate the body's contents
   const parseResult = CachePurgeBodySchema.safeParse(bodyObject);
+
   if (!parseResult.success) {
     return responses.BAD_REQUEST;
   }
@@ -53,11 +56,13 @@ export async function cachePurge(
   env: Env
 ): Promise<Response> {
   const providedApiKey = request.headers.get('x-api-key');
+
   if (providedApiKey !== env.CACHE_PURGE_API_KEY) {
     return new Response(undefined, { status: 403 });
   }
 
   const body = await parseBody(request);
+
   if (body instanceof Response) {
     return body;
   }
@@ -67,17 +72,20 @@ export async function cachePurge(
   //  https://nodejs.org. For dev, it might be
   //  http://localhost:8787
   const baseUrl = `${url.protocol}//${url.host}`;
-
   const promises = new Array<Promise<boolean>>();
+
   for (const path of body.paths) {
     const urlPaths = mapBucketPathToUrlPath(path, env);
+
     if (typeof urlPaths === 'undefined') {
       continue;
     }
+
     for (const urlPath of urlPaths) {
       promises.push(cache.delete(new Request(`${baseUrl}/${urlPath}`)));
     }
   }
+
   await Promise.allSettled(promises);
 
   return new Response(undefined, { status: 204 });

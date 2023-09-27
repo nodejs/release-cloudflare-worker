@@ -1,22 +1,23 @@
 {
-  "env": {
-    "es2022": true
-  },
-  "root": true,
-  "plugins": ["@typescript-eslint", "prettier"],
+  "extends": ["eslint:recommended", "prettier"],
+  "env": { "es2022": true, "node": true },
+  "parserOptions": { "sourceType": "module" },
   "overrides": [
     {
-      "files": ["*.ts"],
+      "files": ["scripts/*.js"],
+      "env": { "node": true }
+    },
+    {
+      "files": ["src/**/*.ts"],
+      "plugins": ["@typescript-eslint"],
       "parser": "@typescript-eslint/parser",
       "parserOptions": {
-        "sourceType": "module",
-        "project": "./tsconfig.json"
+        "project": "./tsconfig.json",
+        "sourceType": "module"
       },
       "extends": [
-        "eslint:recommended",
         "plugin:@typescript-eslint/eslint-recommended",
-        "plugin:@typescript-eslint/recommended",
-        "prettier"
+        "plugin:@typescript-eslint/recommended"
       ],
       "rules": {
         "no-unused-vars": "off",
@@ -30,8 +31,7 @@
             "ignoreRestSiblings": true
           }
         ],
-        "@typescript-eslint/explicit-function-return-type": "error",
-        "prettier/prettier": "error"
+        "@typescript-eslint/explicit-function-return-type": "error"
       }
     }
   ]
