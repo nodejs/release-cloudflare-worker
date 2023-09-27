@@ -26,7 +26,8 @@ export function isCacheEnabled(env: Env): boolean {
  *  response otherwise
  */
 export function parseUrl(request: Request): URL | undefined {
-  let url: URL | undefined = undefined;
+  let url: URL | undefined;
+
   try {
     url = new URL(request.url);
   } catch (e) {
@@ -57,9 +58,12 @@ export function mapUrlPathToBucketPath(
   };
 
   // Example: /docs/asd/123
-  let bucketPath: string | undefined = undefined;
+  let bucketPath: string | undefined;
+
   const splitPath = url.pathname.split('/'); // ['', 'docs', 'asd', '123']
+
   const basePath = splitPath[1]; // 'docs'
+
   if (basePath in urlToBucketPathMap) {
     bucketPath = urlToBucketPathMap[basePath];
   } else if (env.DIRECTORY_LISTING !== 'restricted') {
@@ -80,6 +84,7 @@ export function mapBucketPathToUrlPath(
   bucketPath: string,
   env: Pick<Env, 'DIRECTORY_LISTING'>
 ): string[] | undefined {
+  // @TODO: Use a switch statement or a Design Pattern here
   if (bucketPath.startsWith(DIST_PATH_PREFIX)) {
     const path = bucketPath.substring(15);
     return [`/dist${path}`, `/download/releases${path}`];
@@ -123,7 +128,7 @@ export function isDirectoryPath(path: string): boolean {
 }
 
 /**
- * Converts raw size into readable bytes
+ * Converts raw size into human readable bytes
  * @param bytes Bytes
  * @returns Something like `4.5 KB` or `8.7 MB`
  */

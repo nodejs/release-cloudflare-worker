@@ -1,13 +1,10 @@
 {
-  "env": {
-    "es2022": true
-  },
-  "root": true,
-  "plugins": ["@typescript-eslint", "prettier"],
   "overrides": [
     {
       "files": ["*.ts"],
+      "plugins": ["@typescript-eslint", "prettier"],
       "parser": "@typescript-eslint/parser",
+      "env": { "es2022": true },
       "parserOptions": {
         "sourceType": "module",
         "project": "./tsconfig.json"

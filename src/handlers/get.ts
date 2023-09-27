@@ -7,11 +7,12 @@ import {
   parseUrl,
 } from '../util';
 import { Handler } from './handler';
-import { listDirectory } from './helpers/directory';
-import { getFile } from './helpers/file';
+import { listDirectory } from './helpers/directoryListing';
+import { getFile } from './helpers/serveFile';
 
 const getHandler: Handler = async (request, env, ctx, cache) => {
   const shouldServeCache = isCacheEnabled(env);
+
   if (shouldServeCache) {
     // Caching is enabled, let's see if the request is cached
     const response = await cache.match(request);
@@ -22,6 +23,7 @@ const getHandler: Handler = async (request, env, ctx, cache) => {
   }
 
   const url = parseUrl(request);
+
   if (url === undefined) {
     return responses.BAD_REQUEST;
   }
@@ -54,11 +56,14 @@ const getHandler: Handler = async (request, env, ctx, cache) => {
   // Cache response if cache is enabled
   if (shouldServeCache && response.status !== 304 && response.status !== 206) {
     const cached = response.clone();
+
     cached.headers.append('x-cache-status', 'hit');
+
     ctx.waitUntil(cache.put(request, cached));
   }
 
   response.headers.append('x-cache-status', 'miss');
+
   return response;
 };
 

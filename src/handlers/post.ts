@@ -5,6 +5,7 @@ import { cachePurge } from './helpers/cachePurge';
 
 const postHandler: Handler = async (request, env, _, cache) => {
   const url = parseUrl(request);
+
   if (url === undefined) {
     return responses.BAD_REQUEST;
   }

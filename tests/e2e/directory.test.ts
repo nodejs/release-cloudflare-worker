@@ -27,7 +27,7 @@ describe('Directory Tests (Restricted Directory Listing)', () => {
   it('redirects `/dist` to `/dist/` and returns expected html', async () => {
     const [originalRes, expectedHtml] = await Promise.all([
       mf.dispatchFetch(`${url}dist`, { redirect: 'manual' }),
-      readFile('./tests/e2e/test-data/expected-html/dist.html', {
+      readFile('./tests/e2e/test-data/expected-html/dist.hbs', {
         encoding: 'utf-8',
       }),
     ]);
