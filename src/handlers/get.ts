@@ -13,12 +13,9 @@ const getHandler: Handler = async (request, env, ctx, cache) => {
   const shouldServeCache = isCacheEnabled(env);
   if (shouldServeCache) {
     // Caching is enabled, let's see if the request is cached
-    const cached = await cache.match(request);
+    const response = await cache.match(request);
 
-    if (typeof cached !== 'undefined') {
-      const response = cached.clone();
-      response.headers.append('x-cache-status', 'hit');
-
+    if (typeof response !== 'undefined') {
       return response;
     }
   }
@@ -52,7 +49,9 @@ const getHandler: Handler = async (request, env, ctx, cache) => {
 
   // Cache response if cache is enabled
   if (shouldServeCache && response.status !== 304 && response.status !== 206) {
-    ctx.waitUntil(cache.put(request, response.clone()));
+    const cached = response.clone();
+    cached.headers.append('x-cache-status', 'hit');
+    ctx.waitUntil(cache.put(request, cached));
   }
 
   response.headers.append('x-cache-status', 'miss');
