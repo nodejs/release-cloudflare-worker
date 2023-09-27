@@ -14,8 +14,8 @@ DIRECTORY_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
 
 [[r2_buckets]]
 binding = "R2_BUCKET"
-preview_bucket_name = "dist-dev"
-bucket_name = "dist-dev"
+preview_bucket_name = "dist-prod"
+bucket_name = "dist-prod"
 
 # Staging
 [env.staging]
@@ -28,8 +28,8 @@ DIRECTORY_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
 
 [[env.staging.r2_buckets]]
 binding = "R2_BUCKET"
-preview_bucket_name = "dist-dev"
-bucket_name = "dist-staging"
+preview_bucket_name = "dist-prod"
+bucket_name = "dist-prod"
 
 # Prod
 [env.prod]
