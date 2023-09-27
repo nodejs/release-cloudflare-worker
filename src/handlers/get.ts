@@ -13,9 +13,10 @@ const getHandler: Handler = async (request, env, ctx, cache) => {
   const shouldServeCache = isCacheEnabled(env);
   if (shouldServeCache) {
     // Caching is enabled, let's see if the request is cached
-    const response = await cache.match(request);
+    const cached = await cache.match(request);
 
-    if (typeof response !== 'undefined') {
+    if (typeof cached !== 'undefined') {
+      const response = cached.clone();
       response.headers.append('x-cache-status', 'hit');
 
       return response;
