@@ -1,4 +1,4 @@
-import responses from '../responses';
+import responses from '../commonResponses';
 import { isCacheEnabled, parseUrl } from '../util';
 import { Handler } from './handler';
 import { cachePurge } from './strategies/cachePurge';

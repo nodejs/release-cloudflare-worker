@@ -1,4 +1,4 @@
-import responses from '../responses';
+import responses from '../commonResponses';
 import {
   isCacheEnabled,
   isDirectoryPath,
@@ -22,13 +22,13 @@ const getHandler: Handler = async (request, env, ctx, cache) => {
     }
   }
 
-  const url = parseUrl(request);
+  const requestUrl = parseUrl(request);
 
-  if (url === undefined) {
+  if (requestUrl === undefined) {
     return responses.BAD_REQUEST;
   }
 
-  const bucketPath = mapUrlPathToBucketPath(url, env);
+  const bucketPath = mapUrlPathToBucketPath(requestUrl, env);
 
   if (typeof bucketPath === 'undefined') {
     // Directory listing is restricted and we're not on
@@ -38,28 +38,37 @@ const getHandler: Handler = async (request, env, ctx, cache) => {
 
   const isPathADirectory = isDirectoryPath(bucketPath);
 
-  if (isPathADirectory && env.DIRECTORY_LISTING === 'off') {
-    // File not found since we should only be allowing
-    //  file paths if directory listing is off
-    return responses.FILE_NOT_FOUND(request);
-  } else if (isPathADirectory && !hasTrailingSlash(bucketPath)) {
-    url.pathname += '/';
-    return Response.redirect(url.toString(), 301);
+  if (isPathADirectory) {
+    if (env.DIRECTORY_LISTING === 'off') {
+      // File not found since we should only be allowing
+      //  file paths if directory listing is off
+      return responses.FILE_NOT_FOUND(request);
+    }
+
+    if (!hasTrailingSlash(bucketPath)) {
+      // We always want to add trailing slashes to a directory URL
+      requestUrl.pathname += '/';
+
+      return Response.redirect(requestUrl.toString(), 301);
+    }
   }
 
-  const response: Response = isPathADirectory
-    ? // Directory requested, try listing it
-      await listDirectory(url, request, bucketPath, env)
-    : // File requested, try to serve it
-      await getFile(url, request, bucketPath, env);
+  // This returns a Promise that returns either a directory listing
+  // or a file response based on the requested URL
+  const responsePromise: Promise<Response> = isPathADirectory
+    ? listDirectory(requestUrl, request, bucketPath, env)
+    : getFile(requestUrl, request, bucketPath, env);
+
+  // waits for the response to be resolved (async R2 request)
+  const response = await responsePromise;
 
   // Cache response if cache is enabled
   if (shouldServeCache && response.status !== 304 && response.status !== 206) {
-    const cached = response.clone();
+    const cachedResponse = response.clone();
 
-    cached.headers.append('x-cache-status', 'hit');
+    cachedResponse.headers.append('x-cache-status', 'hit');
 
-    ctx.waitUntil(cache.put(request, cached));
+    ctx.waitUntil(cache.put(request, cachedResponse));
   }
 
   response.headers.append('x-cache-status', 'miss');

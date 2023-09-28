@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { Env } from '../../env';
-import responses from '../../responses';
+import responses from '../../commonResponses';
 import { mapBucketPathToUrlPath } from '../../util';
 
 const CachePurgeBodySchema = z.object({

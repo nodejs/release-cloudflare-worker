@@ -1,6 +1,6 @@
 import { Env } from '../../env';
 import { objectHasBody } from '../../util';
-import responses from '../../responses';
+import responses from '../../commonResponses';
 
 /**
  * Decides on what status code to return to

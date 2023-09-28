@@ -1,5 +1,5 @@
 import { Env } from './env';
-import responses from './responses';
+import responses from './commonResponses';
 import handlers from './handlers';
 
 interface Worker {

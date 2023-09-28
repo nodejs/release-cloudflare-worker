@@ -1,6 +1,6 @@
 import Handlebars from 'handlebars';
 import { Env } from '../../env';
-import responses from '../../responses';
+import responses from '../../commonResponses';
 import { niceBytes } from '../../util';
 import { getFile } from './serveFile';
 
@@ -34,6 +34,7 @@ function renderDirectoryListing(
   // Holds all the html for each directory and file we're listing
   const tableElements = [];
 
+  // Add the default parent directory listing
   tableElements.push({
     href: '../',
     name: '../',
@@ -41,12 +42,10 @@ function renderDirectoryListing(
     size: '-',
   });
 
-  const urlPathname = url.pathname.endsWith('/')
-    ? url.pathname
-    : `${url.pathname}/`;
+  const urlPathname = `${url.pathname}${url.pathname.endsWith('/') ? '' : '/'}`;
 
-  // Render directories first
-  for (const directory of delimitedPrefixes) {
+  // Renders all the subdirectories within the Directory
+  delimitedPrefixes.forEach(directory => {
     // R2 sends us back the absolute path of the directory, cut it
     const name = directory.substring(bucketPath.length);
     const extra = encodeURIComponent(name.substring(0, name.length - 1));
@@ -57,12 +56,13 @@ function renderDirectoryListing(
       lastModified: '-',
       size: '-',
     });
-  }
+  });
 
-  // Render files second
+  // Last time any of the files within the directory got modified
   let lastModified: Date | undefined = undefined;
 
-  for (const object of objects) {
+  // Renders all the Files within the Directory
+  objects.forEach(object => {
     // R2 sends us back the absolute path of the object, cut it
     const name = object.key.substring(bucketPath.length);
 
@@ -84,15 +84,18 @@ function renderDirectoryListing(
       lastModified: dateStr,
       size: niceBytes(object.size),
     });
-  }
+  });
 
-  return {
-    html: handleBarsTemplate({
-      pathname: url.pathname,
-      entries: tableElements,
-    }),
-    lastModified: (lastModified ?? new Date()).toUTCString(),
-  };
+  // Renders the Handlebars Template with the populated data
+  const renderedListing = handleBarsTemplate({
+    pathname: url.pathname,
+    entries: tableElements,
+  });
+
+  // Gets an UTC-string on the ISO-8901 format of last modified date
+  const lastModifiedUTC = (lastModified ?? new Date()).toUTCString();
+
+  return { html: renderedListing, lastModified: lastModifiedUTC };
 }
 
 /**
@@ -108,12 +111,9 @@ export async function listDirectory(
   bucketPath: string,
   env: Env
 ): Promise<Response> {
-  if (!bucketPath.endsWith('/')) {
-    bucketPath += '/';
-  }
-
   const delimitedPrefixes = new Set<string>();
-  const objects = new Array<R2Object>();
+  const objects: R2Object[] = [];
+
   let truncated = true;
   let cursor: string | undefined;
 
@@ -126,21 +126,21 @@ export async function listDirectory(
 
     result.delimitedPrefixes.forEach(prefix => delimitedPrefixes.add(prefix));
 
-    for (const object of result.objects) {
-      // Check if there's an index file and use it if there is
-      if (object.key.endsWith('index.html')) {
-        return getFile(url, request, bucketPath + 'index.html', env);
-      }
+    const hasIndexFile = result.objects.find(object =>
+      object.key.endsWith('index.html')
+    );
 
-      objects.push(object);
+    if (hasIndexFile !== undefined && hasIndexFile !== null) {
+      return getFile(url, request, `${bucketPath}index.html`, env);
     }
+
+    objects.push(...result.objects);
 
     truncated = result.truncated;
     cursor = result.truncated ? result.cursor : undefined;
   }
 
-  // Directory needs either subdirectories or files in it,
-  //  cannot be empty
+  // Directory needs either subdirectories or files in it cannot be empty
   if (delimitedPrefixes.size === 0 && objects.length === 0) {
     return responses.DIRECTORY_NOT_FOUND(request);
   }
