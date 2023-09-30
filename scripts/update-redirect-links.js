@@ -22,7 +22,7 @@ const client = new S3Client({
   const linker = new Linker({ baseDir: RELEASE_DIR, docsDir: DOCS_DIR });
   const links = await linker.getLinks(allDirs, dir => listDirectory(`${dir}/`));
   await writeFile(
-    './src/constants/links.json',
+    './src/constants/redirectLinks.json',
     JSON.stringify(Array.from(links), null, 2) + '\n'
   );
 })();

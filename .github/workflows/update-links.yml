@@ -1,4 +1,4 @@
-name: Update Links
+name: Update Redirect Links
 
 on:
   workflow_dispatch:
@@ -6,8 +6,8 @@ on:
     - cron: "0 0 * * *"
 
 jobs:
-  update-links:
-    name: Update Links
+  update-redirect-links:
+    name: Update Redirect Links
     runs-on: ubuntu-latest
 
     steps:
@@ -26,8 +26,8 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Update Links
-        run: node scripts/update-links.js
+      - name: Update Redirect Links
+        run: node scripts/update-redirect-links.js && npm run format
         env:
           CF_ACCESS_KEY_ID: ${{ secrets.CF_ACCESS_KEY_ID }}
           CF_SECRET_ACCESS_KEY: ${{ secrets.CF_SECRET_ACCESS_KEY }}
@@ -35,11 +35,11 @@ jobs:
       - name: Open PR with updates
         uses: peter-evans/create-pull-request@v5
         with:
-          commit-message: Update links
+          commit-message: Update Redirect links
           title: "chore: update redirect links"
           body: |
             This PR updates the links for url redirects.
-          branch: update-links
+          branch: update-redirect-links
           delete-branch: true
           base: main
         

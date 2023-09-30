@@ -13,6 +13,7 @@
     "build:handlebars": "node scripts/compile-handlebars.js"
   },
   "devDependencies": {
+    "@aws-sdk/client-s3": "^3.421.0",
     "@cloudflare/workers-types": "^4.20230922.0",
     "@types/node": "^20.7.0",
     "@typescript-eslint/eslint-plugin": "^6.7.3",
@@ -29,7 +30,6 @@
     "wrangler": "^3.10.0"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.421.0",
     "handlebars": "^4.7.8",
     "zod": "^3.22.2"
   }
