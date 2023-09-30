@@ -13,6 +13,7 @@
     "build:handlebars": "node scripts/compile-handlebars.js"
   },
   "devDependencies": {
+    "@aws-sdk/client-s3": "^3.421.0",
     "@cloudflare/workers-types": "^4.20230922.0",
     "@types/node": "^20.7.0",
     "@typescript-eslint/eslint-plugin": "^6.7.3",
@@ -21,6 +22,7 @@
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
     "glob": "^10.3.10",
+    "nodejs-latest-linker": "github:nodejs/nodejs-latest-linker#bf9c4bb08fa9ce2854d35e410d42b89b69ffe2ab",
     "prettier": "^3.0.3",
     "terser": "^5.20.0",
     "tsx": "^3.13.0",
