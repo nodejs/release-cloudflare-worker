@@ -1,0 +1,44 @@
+name: Update Links
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  update-links:
+    name: Update Links
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744
+
+      - name: Cache Dependencies
+        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8
+        with:
+          path: |
+            ~/.npm
+            node_modules/.cache
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/workflows/format.yml') }}
+          restore-keys: ${{ runner.os }}-npm-
+      
+      - name: Install dependencies
+        run: npm install
+
+      - name: Update Links
+        run: node scripts/update-links.js
+        env:
+          CF_ACCESS_KEY_ID: ${{ secrets.CF_ACCESS_KEY_ID }}
+          CF_SECRET_ACCESS_KEY: ${{ secrets.CF_SECRET_ACCESS_KEY }}
+
+      - name: Open PR with updates
+        uses: peter-evans/create-pull-request@v5
+        with:
+          commit-message: Update links
+          title: "chore: update redirect links"
+          body: |
+            This PR updates the links for url redirects.
+          branch: update-links
+          delete-branch: true
+        
