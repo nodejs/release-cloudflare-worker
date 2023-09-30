@@ -21,6 +21,7 @@
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
     "glob": "^10.3.10",
+    "nodejs-latest-linker": "github:nodejs/nodejs-latest-linker#bf9c4bb08fa9ce2854d35e410d42b89b69ffe2ab",
     "prettier": "^3.0.3",
     "terser": "^5.20.0",
     "tsx": "^3.13.0",
@@ -28,6 +29,7 @@
     "wrangler": "^3.10.0"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.421.0",
     "handlebars": "^4.7.8",
     "zod": "^3.22.2"
   }
