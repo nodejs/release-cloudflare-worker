@@ -3,7 +3,7 @@
 //  later on.
 // (e.g. url path `/dist` points to R2 path `nodejs/release`)
 // See https://raw.githubusercontent.com/nodejs/build/main/ansible/www-standalone/resources/config/nodejs.org
-import map from './links.json';
+import map from './redirectLinks.json';
 
 export const REDIRECT_MAP = new Map(map as [string, string][]);
 
