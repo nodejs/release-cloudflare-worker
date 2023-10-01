@@ -24,7 +24,8 @@ templatesToParse.then(files => {
   files.forEach(filename => {
     const filePath = join(__dirname, '..', filename);
 
-    const sourceTemplate = readFileSync(filePath, 'utf8');
+    // Add <!DOCTYPE html> here because prettier removes it for whatever reason
+    const sourceTemplate = '<!DOCTYPE html>' + readFileSync(filePath, 'utf8');
 
     const compiledTemplate = Handlebars.precompile(sourceTemplate, {
       knownHelpersOnly: true,
@@ -44,7 +45,7 @@ templatesToParse.then(files => {
     // We minify the resulting JavaScript file with Terser and
     // then write on the same directory but with `.out.js` extension
     minify(javascriptTemplate).then(({ code }) =>
-      writeFileSync(outputFilename, code, 'utf8')
+      writeFileSync(outputFilename, code + '\n', 'utf8')
     );
   });
 });
