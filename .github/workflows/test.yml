@@ -27,7 +27,7 @@ jobs:
         run: npm install
 
       - name: Run Tests
-        run: npm run test:unit
+        run: node --test --test-reporter=@reporters/github --test-reporter-destination=stdout --test-reporter=spec --test-reporter-destination=stdout --loader=tsx ./tests/e2e/index.test.ts
   e2e-test:
     name: E2E Tests
     runs-on: ubuntu-latest
@@ -49,4 +49,4 @@ jobs:
         run: npm install
 
       - name: Run Tests
-        run: npm run test:e2e
+        run: node --test --test-reporter=@reporters/github --test-reporter-destination=stdout --test-reporter=spec --test-reporter-destination=stdout --loader=tsx ./tests/unit/index.test.ts
