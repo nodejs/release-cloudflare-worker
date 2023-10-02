@@ -63,34 +63,6 @@ describe('Directory Tests (Restricted Directory Listing)', () => {
     assert.strictEqual(res.status, 200);
   });
 
-  it('redirects `/docs` to `/docs/`', async () => {
-    const originalRes = await mf.dispatchFetch(`${url}docs`, {
-      redirect: 'manual',
-    });
-    assert.strictEqual(originalRes.status, 301);
-    const res = await mf.dispatchFetch(originalRes.headers.get('location')!);
-    assert.strictEqual(res.status, 200);
-  });
-
-  it('allows `/docs/`', async () => {
-    const res = await mf.dispatchFetch(`${url}docs/`);
-    assert.strictEqual(res.status, 200);
-  });
-
-  it('redirects `/api` to `/api/`', async () => {
-    const originalRes = await mf.dispatchFetch(`${url}api`, {
-      redirect: 'manual',
-    });
-    assert.strictEqual(originalRes.status, 301);
-    const res = await mf.dispatchFetch(originalRes.headers.get('location')!);
-    assert.strictEqual(res.status, 200);
-  });
-
-  it('allows `/api/`', async () => {
-    const res = await mf.dispatchFetch(`${url}api/`);
-    assert.strictEqual(res.status, 200);
-  });
-
   it('redirects `/metrics` to `/metrics/`', async () => {
     const originalRes = await mf.dispatchFetch(`${url}metrics`, {
       redirect: 'manual',

@@ -10,27 +10,23 @@ import htmlTemplate from '../../templates/directoryListing.out.js';
 // Applies the Template into a Handlebars Template Function
 const handleBarsTemplate = Handlebars.template(htmlTemplate);
 
-type DirectoryListingResponse = {
-  html: string;
-  lastModified: string;
-};
-
 /**
  * @TODO: Simplify the iteration logic or make it more readable
  *
  * Renders the html for a directory listing response
  * @param url Parsed url of the request
- * @param bucketPath Path in R2 bucket
+ * @param request Request object itself
  * @param delimitedPrefixes Directories in the bucket
  * @param listingResponse Listing response to render
  * @returns {@link DirectoryListingResponse} instance
  */
-function renderDirectoryListing(
+export function renderDirectoryListing(
   url: URL,
-  bucketPath: string,
+  request: Request,
   delimitedPrefixes: Set<string>,
-  objects: R2Object[]
-): DirectoryListingResponse {
+  objects: R2Object[],
+  env: Env
+): Response {
   // Holds all the html for each directory and file we're listing
   const tableElements = [];
 
@@ -45,9 +41,7 @@ function renderDirectoryListing(
   const urlPathname = `${url.pathname}${url.pathname.endsWith('/') ? '' : '/'}`;
 
   // Renders all the subdirectories within the Directory
-  delimitedPrefixes.forEach(directory => {
-    // R2 sends us back the absolute path of the directory, cut it
-    const name = directory.substring(bucketPath.length);
+  delimitedPrefixes.forEach(name => {
     const extra = encodeURIComponent(name.substring(0, name.length - 1));
 
     tableElements.push({
@@ -63,8 +57,7 @@ function renderDirectoryListing(
 
   // Renders all the Files within the Directory
   objects.forEach(object => {
-    // R2 sends us back the absolute path of the object, cut it
-    const name = object.key.substring(bucketPath.length);
+    const name = object.key;
 
     // Find the most recent date a file in this
     //  directory was modified, we'll use it
@@ -95,7 +88,13 @@ function renderDirectoryListing(
   // Gets an UTC-string on the ISO-8901 format of last modified date
   const lastModifiedUTC = (lastModified ?? new Date()).toUTCString();
 
-  return { html: renderedListing, lastModified: lastModifiedUTC };
+  return new Response(request.method === 'GET' ? renderedListing : null, {
+    headers: {
+      'last-modified': lastModifiedUTC,
+      'content-type': 'text/html',
+      'cache-control': env.DIRECTORY_CACHE_CONTROL || 'no-store',
+    },
+  });
 }
 
 /**
@@ -124,7 +123,10 @@ export async function listDirectory(
       cursor,
     });
 
-    result.delimitedPrefixes.forEach(prefix => delimitedPrefixes.add(prefix));
+    // R2 sends us back the absolute path of the object, cut it
+    result.delimitedPrefixes.forEach(prefix =>
+      delimitedPrefixes.add(prefix.substring(bucketPath.length))
+    );
 
     const hasIndexFile = result.objects.find(object =>
       object.key.endsWith('index.html')
@@ -134,7 +136,13 @@ export async function listDirectory(
       return getFile(url, request, `${bucketPath}index.html`, env);
     }
 
-    objects.push(...result.objects);
+    // R2 sends us back the absolute path of the object, cut it
+    result.objects.forEach(object =>
+      objects.push({
+        ...object,
+        key: object.key.substring(bucketPath.length),
+      } as R2Object)
+    );
 
     truncated = result.truncated;
     cursor = result.truncated ? result.cursor : undefined;
@@ -145,18 +153,5 @@ export async function listDirectory(
     return responses.DIRECTORY_NOT_FOUND(request);
   }
 
-  const response = renderDirectoryListing(
-    url,
-    bucketPath,
-    delimitedPrefixes,
-    objects
-  );
-
-  return new Response(request.method === 'GET' ? response.html : null, {
-    headers: {
-      'last-modified': response.lastModified,
-      'content-type': 'text/html',
-      'cache-control': env.DIRECTORY_CACHE_CONTROL || 'no-store',
-    },
-  });
+  return renderDirectoryListing(url, request, delimitedPrefixes, objects, env);
 }

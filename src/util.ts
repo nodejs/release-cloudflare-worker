@@ -3,6 +3,7 @@ import {
   DIST_PATH_PREFIX,
   DOCS_PATH_PREFIX,
   DOWNLOAD_PATH_PREFIX,
+  REDIRECT_MAP,
 } from './constants/r2Prefixes';
 import { Env } from './env';
 
@@ -52,8 +53,7 @@ export function mapUrlPathToBucketPath(
   const urlToBucketPathMap: Record<string, string> = {
     dist: DIST_PATH_PREFIX + url.pathname.substring(5),
     download: DOWNLOAD_PATH_PREFIX + url.pathname.substring(9),
-    docs: DOCS_PATH_PREFIX + url.pathname.substring(5),
-    api: API_PATH_PREFIX + url.pathname.substring(4),
+    api: API_PATH_PREFIX + (url.pathname.substring(4) || '/'),
     metrics: url.pathname.substring(1), // substring to cut off the /
   };
 
@@ -61,10 +61,16 @@ export function mapUrlPathToBucketPath(
   let bucketPath: string | undefined;
 
   const splitPath = url.pathname.split('/'); // ['', 'docs', 'asd', '123']
-
   const basePath = splitPath[1]; // 'docs'
 
-  if (basePath in urlToBucketPathMap) {
+  if (
+    REDIRECT_MAP.has(`${DOWNLOAD_PATH_PREFIX}/${splitPath[1]}/${splitPath[2]}`)
+  ) {
+    // All items in REDIRECT_MAP are three levels deep, that is asserted in tests
+    bucketPath = `${REDIRECT_MAP.get(
+      `${DOWNLOAD_PATH_PREFIX}/${splitPath[1]}/${splitPath[2]}`
+    )}/${splitPath.slice(3).join('/')}`;
+  } else if (basePath in urlToBucketPathMap) {
     bucketPath = urlToBucketPathMap[basePath];
   } else if (env.DIRECTORY_LISTING !== 'restricted') {
     bucketPath = url.pathname.substring(1);
@@ -88,7 +94,10 @@ export function mapBucketPathToUrlPath(
   if (bucketPath.startsWith(DIST_PATH_PREFIX)) {
     const path = bucketPath.substring(15);
     return [`/dist${path}`, `/download/releases${path}`];
-  } else if (bucketPath.startsWith(API_PATH_PREFIX)) {
+  } else if (
+    bucketPath.startsWith(API_PATH_PREFIX) ||
+    bucketPath.startsWith('nodejs/docs/latest/api')
+  ) {
     const path = bucketPath.substring(22);
     return [`/api${path}`, `/docs/latest/api${path}`];
   } else if (bucketPath.startsWith(DOCS_PATH_PREFIX)) {

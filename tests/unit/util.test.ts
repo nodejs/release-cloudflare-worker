@@ -6,8 +6,20 @@ import {
   mapUrlPathToBucketPath,
   niceBytes,
 } from '../../src/util';
+import { REDIRECT_MAP } from '../../src/constants/r2Prefixes';
 
 describe('mapUrlPathToBucketPath', () => {
+  it('expects all items in REDIRECT_MAP to be pathes in the length of 3', () => {
+    // If this test breaks, the code will and we'll need to fix the code
+    REDIRECT_MAP.forEach((val, key) => {
+      assert.strictEqual(
+        key.split('/').length,
+        3,
+        `expected ${key} to be a path with 3 slashes`
+      );
+    });
+  });
+
   it('converts `/unknown-base-path` to undefined when DIRECTORY_LISTING=restricted', () => {
     const result = mapUrlPathToBucketPath(
       new URL('http://localhost/unknown-base-path'),
@@ -65,38 +77,37 @@ describe('mapUrlPathToBucketPath', () => {
     assert.strictEqual(result, 'nodejs/releases');
   });
 
-  it('converts `/docs` to `nodejs/docs`', () => {
-    const result = mapUrlPathToBucketPath(new URL('http://localhost/docs'), {
-      DIRECTORY_LISTING: 'restricted',
-    });
-    assert.strictEqual(result, 'nodejs/docs');
-  });
-
-  it('converts `/docs/latest` to `nodejs/docs/latest`', () => {
+  it('converts `/docs/latest` to `nodejs/release/v.X.X.X/docs/`', () => {
     const result = mapUrlPathToBucketPath(
       new URL('http://localhost/docs/latest'),
       {
         DIRECTORY_LISTING: 'restricted',
       }
     );
-    assert.strictEqual(result, 'nodejs/docs/latest');
+    assert.match(result ?? '', /^nodejs\/release\/v.\d+\.\d+\.\d+\/docs\/$/);
   });
 
-  it('converts `/api` to `nodejs/docs`', () => {
+  it('converts `/api` to `nodejs/release/v.X.X.X/docs/api/`', () => {
     const result = mapUrlPathToBucketPath(new URL('http://localhost/api'), {
       DIRECTORY_LISTING: 'restricted',
     });
-    assert.strictEqual(result, 'nodejs/docs/latest/api');
+    assert.match(
+      result ?? '',
+      /^nodejs\/release\/v.\d+\.\d+\.\d+\/docs\/api\/$/
+    );
   });
 
-  it('converts `/api/assert.html` to `nodejs/docs/latest/api/assert.html`', () => {
+  it('converts `/api/assert.html` to `nodejs/release/v.X.X.X/docs/api/assert.html`', () => {
     const result = mapUrlPathToBucketPath(
       new URL('http://localhost/api/assert.html'),
       {
         DIRECTORY_LISTING: 'restricted',
       }
     );
-    assert.strictEqual(result, 'nodejs/docs/latest/api/assert.html');
+    assert.match(
+      result ?? '',
+      /^nodejs\/release\/v.\d+\.\d+\.\d+\/docs\/api\/assert\.html$/
+    );
   });
 });
 

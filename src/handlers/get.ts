@@ -1,4 +1,5 @@
 import responses from '../commonResponses';
+import { VIRTUAL_DIRS } from '../constants/r2Prefixes';
 import {
   isCacheEnabled,
   isDirectoryPath,
@@ -7,7 +8,10 @@ import {
   parseUrl,
 } from '../util';
 import { Handler } from './handler';
-import { listDirectory } from './strategies/directoryListing';
+import {
+  listDirectory,
+  renderDirectoryListing,
+} from './strategies/directoryListing';
 import { getFile } from './strategies/serveFile';
 
 const getHandler: Handler = async (request, env, ctx, cache) => {
@@ -45,7 +49,7 @@ const getHandler: Handler = async (request, env, ctx, cache) => {
       return responses.FILE_NOT_FOUND(request);
     }
 
-    if (!hasTrailingSlash(bucketPath)) {
+    if (bucketPath && !hasTrailingSlash(requestUrl.pathname)) {
       // We always want to add trailing slashes to a directory URL
       requestUrl.pathname += '/';
 
@@ -53,14 +57,20 @@ const getHandler: Handler = async (request, env, ctx, cache) => {
     }
   }
 
-  // This returns a Promise that returns either a directory listing
-  // or a file response based on the requested URL
-  const responsePromise: Promise<Response> = isPathADirectory
-    ? listDirectory(requestUrl, request, bucketPath, env)
-    : getFile(requestUrl, request, bucketPath, env);
-
-  // waits for the response to be resolved (async R2 request)
-  const response = await responsePromise;
+  let response: Response;
+  if (bucketPath in VIRTUAL_DIRS) {
+    response = renderDirectoryListing(
+      requestUrl,
+      request,
+      VIRTUAL_DIRS[bucketPath],
+      [],
+      env
+    );
+  } else if (isPathADirectory) {
+    response = await listDirectory(requestUrl, request, bucketPath, env);
+  } else {
+    response = await getFile(requestUrl, request, bucketPath, env);
+  }
 
   // Cache response if cache is enabled
   if (shouldServeCache && response.status !== 304 && response.status !== 206) {
