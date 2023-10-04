@@ -21,6 +21,10 @@ export interface Env {
    */
   S3_ACCESS_KEY_SECRET: string;
   /**
+   * Bucket name
+   */
+  BUCKET_NAME: string;
+  /**
    * Directory listing toggle
    *  on - Enabled for all paths
    *  restricted - Directory listing enabled only for paths we want to be listed

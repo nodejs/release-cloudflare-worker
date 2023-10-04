@@ -131,12 +131,15 @@ export async function listDirectory(
   while (truncated) {
     const start = performance.now();
     const result = await client.send(new ListObjectsV2Command({
-      Bucket: 'dist-prod',
+      Bucket: env.BUCKET_NAME,
       Prefix: bucketPath,
       Delimiter: '/',
       MaxKeys: 1000,
       ContinuationToken: cursor
-    }));
+    })).catch(err => {
+      console.log(err);
+      throw err;
+    });
     r2Hits++;
     console.log(` hit ${r2Hits}: ${performance.now()-start}ms, ${result.Contents?.length ?? 0} objects, ${result.CommonPrefixes?.length ?? 0} directories`);
 

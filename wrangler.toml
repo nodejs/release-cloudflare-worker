@@ -12,6 +12,7 @@ CF_ACCOUNT_ID = '07be8d2fbc940503ca1be344714cb0d1'
 DIRECTORY_LISTING = 'on'
 FILE_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
 DIRECTORY_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
+BUCKET_NAME="dist-prod"
 
 [[r2_buckets]]
 binding = "R2_BUCKET"
@@ -27,6 +28,7 @@ CF_ACCOUNT_ID = '07be8d2fbc940503ca1be344714cb0d1'
 DIRECTORY_LISTING = 'restricted'
 FILE_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
 DIRECTORY_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
+BUCKET_NAME="dist-prod"
 
 [[env.staging.r2_buckets]]
 binding = "R2_BUCKET"
@@ -42,6 +44,7 @@ CF_ACCOUNT_ID = '07be8d2fbc940503ca1be344714cb0d1'
 DIRECTORY_LISTING = 'restricted'
 FILE_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
 DIRECTORY_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
+BUCKET_NAME="dist-prod"
 
 [[env.prod.r2_buckets]]
 binding = "R2_BUCKET"
