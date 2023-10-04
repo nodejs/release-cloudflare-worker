@@ -8,6 +8,19 @@ export interface Env {
    */
   R2_BUCKET: R2Bucket;
   /**
+   * Account tag/public id of the account that the worker is deployed on
+   */
+  CF_ACCOUNT_ID: string;
+  /**
+   * Id of the api token used for the S3 api.
+   * The token needs >=Object Read only permissions
+   */
+  S3_ACCESS_KEY_ID: string;
+  /**
+   * Secret of the api token used for the S3 api
+   */
+  S3_ACCESS_KEY_SECRET: string;
+  /**
    * Directory listing toggle
    *  on - Enabled for all paths
    *  restricted - Directory listing enabled only for paths we want to be listed

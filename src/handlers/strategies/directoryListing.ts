@@ -1,3 +1,4 @@
+import { ListObjectsV2Command, S3Client, _Object } from '@aws-sdk/client-s3';
 import Handlebars from 'handlebars';
 import { Env } from '../../env';
 import responses from '../../commonResponses';
@@ -17,14 +18,14 @@ const handleBarsTemplate = Handlebars.template(htmlTemplate);
  * @param url Parsed url of the request
  * @param request Request object itself
  * @param delimitedPrefixes Directories in the bucket
- * @param listingResponse Listing response to render
- * @returns {@link DirectoryListingResponse} instance
+ * @param objects Objects in the bucket
+ * @returns {@link Response} instance
  */
 export function renderDirectoryListing(
   url: URL,
   request: Request,
   delimitedPrefixes: Set<string>,
-  objects: R2Object[],
+  objects: _Object[],
   env: Env
 ): Response {
   // Holds all the html for each directory and file we're listing
@@ -57,25 +58,25 @@ export function renderDirectoryListing(
 
   // Renders all the Files within the Directory
   objects.forEach(object => {
-    const name = object.key;
+    const name = object.Key;
 
     // Find the most recent date a file in this
     //  directory was modified, we'll use it
     //  in the `Last-Modified` header
-    if (lastModified === undefined || object.uploaded > lastModified) {
-      lastModified = object.uploaded;
+    if (lastModified === undefined || object.LastModified! > lastModified) {
+      lastModified = object.LastModified!;
     }
 
-    let dateStr = object.uploaded.toISOString();
+    let dateStr = object.LastModified!.toISOString();
 
     dateStr = dateStr.split('.')[0].replace('T', ' ');
     dateStr = dateStr.slice(0, dateStr.lastIndexOf(':')) + 'Z';
 
     tableElements.push({
-      href: `${urlPathname}${encodeURIComponent(name)}`,
+      href: `${urlPathname}${encodeURIComponent(name ?? "")}`,
       name,
       lastModified: dateStr,
-      size: niceBytes(object.size),
+      size: niceBytes(object.Size!),
     });
   });
 
@@ -111,41 +112,57 @@ export async function listDirectory(
   env: Env
 ): Promise<Response> {
   const delimitedPrefixes = new Set<string>();
-  const objects: R2Object[] = [];
+  const objects: _Object[] = []; // s3 sdk types are weird
+
+  const client = new S3Client({
+    region: 'auto',
+    endpoint: `https://${env.CF_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+    credentials: {
+      accessKeyId: env.S3_ACCESS_KEY_ID,
+      secretAccessKey: env.S3_ACCESS_KEY_SECRET,
+    }
+  });
 
   let truncated = true;
   let cursor: string | undefined;
 
+  let r2Hits = 0;
+  console.log(`r2:`)
   while (truncated) {
-    const result = await env.R2_BUCKET.list({
-      prefix: bucketPath,
-      delimiter: '/',
-      cursor,
-    });
+    const start = performance.now();
+    const result = await client.send(new ListObjectsV2Command({
+      Bucket: 'dist-prod',
+      Prefix: bucketPath,
+      Delimiter: '/',
+      MaxKeys: 1000,
+      ContinuationToken: cursor
+    }));
+    r2Hits++;
+    console.log(` hit ${r2Hits}: ${performance.now()-start}ms, ${result.Contents?.length ?? 0} objects, ${result.CommonPrefixes?.length ?? 0} directories`);
 
     // R2 sends us back the absolute path of the object, cut it
-    result.delimitedPrefixes.forEach(prefix =>
-      delimitedPrefixes.add(prefix.substring(bucketPath.length))
-    );
+    result.CommonPrefixes?.forEach(path => {
+      if (path.Prefix !== undefined) delimitedPrefixes.add(path.Prefix.substring(bucketPath.length))
+    });
 
-    const hasIndexFile = result.objects.find(object =>
-      object.key.endsWith('index.html')
-    );
+    const hasIndexFile = result.Contents?.find(object => object.Key?.endsWith('index.html'));
 
     if (hasIndexFile !== undefined && hasIndexFile !== null) {
       return getFile(url, request, `${bucketPath}index.html`, env);
     }
 
     // R2 sends us back the absolute path of the object, cut it
-    result.objects.forEach(object =>
+    result.Contents?.forEach(object =>
       objects.push({
         ...object,
-        key: object.key.substring(bucketPath.length),
-      } as R2Object)
+        Key: object.Key?.substring(bucketPath.length),
+      })
     );
 
-    truncated = result.truncated;
-    cursor = result.truncated ? result.cursor : undefined;
+    // Default this to false just so we don't end up in a never ending
+    //  loop if they don't send this back for whatever reason
+    truncated = result.IsTruncated ?? false;
+    cursor = truncated ? result.NextContinuationToken : undefined;
   }
 
   // Directory needs either subdirectories or files in it cannot be empty

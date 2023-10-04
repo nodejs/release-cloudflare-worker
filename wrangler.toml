@@ -8,6 +8,7 @@ account_id = "07be8d2fbc940503ca1be344714cb0d1"
 [vars]
 workers_dev = true
 ENVIRONMENT = 'dev'
+CF_ACCOUNT_ID = '07be8d2fbc940503ca1be344714cb0d1'
 DIRECTORY_LISTING = 'on'
 FILE_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
 DIRECTORY_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
@@ -22,6 +23,7 @@ bucket_name = "dist-prod"
 [env.staging.vars]
 workers_dev = true
 ENVIRONMENT = 'staging'
+CF_ACCOUNT_ID = '07be8d2fbc940503ca1be344714cb0d1'
 DIRECTORY_LISTING = 'restricted'
 FILE_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
 DIRECTORY_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
@@ -36,6 +38,7 @@ bucket_name = "dist-prod"
 [env.prod.vars]
 workers_dev = false
 ENVIRONMENT = 'prod'
+CF_ACCOUNT_ID = '07be8d2fbc940503ca1be344714cb0d1'
 DIRECTORY_LISTING = 'restricted'
 FILE_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
 DIRECTORY_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
