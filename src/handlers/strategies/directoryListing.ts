@@ -1,4 +1,9 @@
-import { ListObjectsV2Command, S3Client, _Object } from '@aws-sdk/client-s3';
+import {
+  ListObjectsV2Command,
+  ListObjectsV2CommandOutput,
+  S3Client,
+  _Object,
+} from '@aws-sdk/client-s3';
 import Handlebars from 'handlebars';
 import { Env } from '../../env';
 import responses from '../../commonResponses';
@@ -73,7 +78,7 @@ export function renderDirectoryListing(
     dateStr = dateStr.slice(0, dateStr.lastIndexOf(':')) + 'Z';
 
     tableElements.push({
-      href: `${urlPathname}${encodeURIComponent(name ?? "")}`,
+      href: `${urlPathname}${encodeURIComponent(name ?? '')}`,
       name,
       lastModified: dateStr,
       size: niceBytes(object.Size!),
@@ -99,6 +104,55 @@ export function renderDirectoryListing(
 }
 
 /**
+ * Send a request to R2 to get the objects & paths in a directory
+ * @param client {@link S3Client} to use for the request
+ * @param bucketPath Path in R2 bucket
+ * @param cursor Where to begin the request from, for pagination
+ * @param env Worker env
+ * @returns A {@link ListObjectsV2CommandOutput}
+ * @throws When all retries are exhausted and no response was returned
+ */
+async function fetchR2Result(
+  client: S3Client,
+  bucketPath: string,
+  cursor: string | undefined,
+  env: Env
+): Promise<ListObjectsV2CommandOutput> {
+  let result: ListObjectsV2CommandOutput | undefined = undefined;
+
+  let retriesRemaining = 3;
+  while (retriesRemaining > 0) {
+    try {
+      // Send request to R2
+      result = await client.send(
+        new ListObjectsV2Command({
+          Bucket: env.BUCKET_NAME,
+          Prefix: bucketPath,
+          Delimiter: '/',
+          MaxKeys: 1000,
+          ContinuationToken: cursor,
+        })
+      );
+
+      // Request succeeded, no need for any retries
+      break;
+    } catch (err) {
+      // Got an error, let's log it and retry
+      console.log(`R2 ListObjectsV2 error: ${err}`);
+
+      retriesRemaining--;
+    }
+  }
+
+  if (result === undefined) {
+    // R2 isn't having a good day, return a 500
+    throw new Error(`R2 failed listing path ${bucketPath}`);
+  }
+
+  return result;
+}
+
+/**
  * Directory listing
  * @param url Parsed url of the request
  * @param request Request object itself
@@ -114,41 +168,42 @@ export async function listDirectory(
   const delimitedPrefixes = new Set<string>();
   const objects: _Object[] = []; // s3 sdk types are weird
 
+  // Create an S3 client instance to interact with the bucket.
+  // There is a limit in the size of the response that
+  //  a binding can return. We kept hitting it due to the
+  //  size of our paths, causing us to send a lot of requests
+  //  to R2 which in turn added a lot of latency. The S3 api
+  //  doesn't have that response body size constraint so we're
+  //  using it for now.
   const client = new S3Client({
     region: 'auto',
     endpoint: `https://${env.CF_ACCOUNT_ID}.r2.cloudflarestorage.com`,
     credentials: {
       accessKeyId: env.S3_ACCESS_KEY_ID,
       secretAccessKey: env.S3_ACCESS_KEY_SECRET,
-    }
+    },
   });
 
   let truncated = true;
   let cursor: string | undefined;
 
-  let r2Hits = 0;
-  console.log(`r2:`)
   while (truncated) {
-    const start = performance.now();
-    const result = await client.send(new ListObjectsV2Command({
-      Bucket: env.BUCKET_NAME,
-      Prefix: bucketPath,
-      Delimiter: '/',
-      MaxKeys: 1000,
-      ContinuationToken: cursor
-    })).catch(err => {
-      console.log(err);
-      throw err;
-    });
-    r2Hits++;
-    console.log(` hit ${r2Hits}: ${performance.now()-start}ms, ${result.Contents?.length ?? 0} objects, ${result.CommonPrefixes?.length ?? 0} directories`);
+    const result: ListObjectsV2CommandOutput = await fetchR2Result(
+      client,
+      bucketPath,
+      cursor,
+      env
+    );
 
     // R2 sends us back the absolute path of the object, cut it
     result.CommonPrefixes?.forEach(path => {
-      if (path.Prefix !== undefined) delimitedPrefixes.add(path.Prefix.substring(bucketPath.length))
+      if (path.Prefix !== undefined)
+        delimitedPrefixes.add(path.Prefix.substring(bucketPath.length));
     });
 
-    const hasIndexFile = result.Contents?.find(object => object.Key?.endsWith('index.html'));
+    const hasIndexFile = result.Contents?.find(
+      object => object.Key?.endsWith('index.html')
+    );
 
     if (hasIndexFile !== undefined && hasIndexFile !== null) {
       return getFile(url, request, `${bucketPath}index.html`, env);

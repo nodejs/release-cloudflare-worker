@@ -2,22 +2,43 @@ import { after, before, describe, it } from 'node:test';
 import assert from 'node:assert';
 import { readFile } from 'node:fs/promises';
 import { Miniflare } from 'miniflare';
+import { MockAgent, setGlobalDispatcher } from 'undici';
+
+async function getFetchMockAgent(cfAccountId: string): Promise<MockAgent> {
+  const agent = new MockAgent();
+  setGlobalDispatcher(agent);
+
+  const pool = agent.get(`https://dist-prod.${cfAccountId}.r2.cloudflarestorage.com`);
+  
+  const listObjectsResponse = await readFile('./tests/e2e/test-data/expected-s3/ListObjectsV2.xml', { encoding: 'utf-8' });
+  pool.intercept({ path: '/' }).reply(200, listObjectsResponse);
+
+  return agent;
+}
 
 describe('Directory Tests (Restricted Directory Listing)', () => {
   let mf: Miniflare;
   let url: URL;
   before(async () => {
+    const CF_ACCOUNT_ID = 'testing';
+    const fetchMock = await getFetchMockAgent(CF_ACCOUNT_ID);
+
     // Setup miniflare
     mf = new Miniflare({
       scriptPath: './dist/worker.js',
       modules: true,
       bindings: {
+        BUCKET_NAME: 'dist-prod',
+        CF_ACCOUNT_ID,
+        S3_ACCESS_KEY_ID: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+        S3_ACCESS_KEY_SECRET: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
         DIRECTORY_LISTING: 'restricted',
         FILE_CACHE_CONTROL: 'no-store',
         DIRECTORY_CACHE_CONTROL: 'no-store',
       },
       r2Persist: './tests/e2e/test-data',
       r2Buckets: ['R2_BUCKET'],
+      fetchMock,
     });
 
     // Wait for it Miniflare to start
