@@ -12,6 +12,7 @@ import { getFile } from './serveFile';
 
 // Imports the Precompiled Handlebars Template
 import htmlTemplate from '../../templates/directoryListing.out.js';
+import { S3_RETRY_LIMIT } from '../../constants/limits';
 
 // Applies the Template into a Handlebars Template Function
 const handleBarsTemplate = Handlebars.template(htmlTemplate);
@@ -120,7 +121,7 @@ async function fetchR2Result(
 ): Promise<ListObjectsV2CommandOutput> {
   let result: ListObjectsV2CommandOutput | undefined = undefined;
 
-  let retriesRemaining = 3;
+  let retriesRemaining = S3_RETRY_LIMIT;
   while (retriesRemaining > 0) {
     try {
       // Send request to R2

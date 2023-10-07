@@ -10,6 +10,11 @@ async function startS3Mock(): Promise<http.Server> {
     const url = new URL(req.url!, `http://${req.headers.host}`);
 
     let xmlFilePath = './tests/e2e/test-data/expected-s3/';
+
+    // Check if it's a path that's supposed to exist in
+    //  later tests. If so, return a S3 response indicating that
+    //  the path exists. Otherwise return a S3 response indicating
+    //  that the path doesn't exist
     if (
       ['nodejs/release/', 'nodejs/', 'metrics/'].includes(
         url.searchParams.get('prefix')!
