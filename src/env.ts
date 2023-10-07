@@ -8,9 +8,9 @@ export interface Env {
    */
   R2_BUCKET: R2Bucket;
   /**
-   * Account tag/public id of the account that the worker is deployed on
+   * Endpoint to hit when using the S3 api.
    */
-  CF_ACCOUNT_ID: string;
+  S3_ENDPOINT: string;
   /**
    * Id of the api token used for the S3 api.
    * The token needs >=Object Read only permissions

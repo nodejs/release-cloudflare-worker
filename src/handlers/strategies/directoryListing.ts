@@ -138,7 +138,7 @@ async function fetchR2Result(
       break;
     } catch (err) {
       // Got an error, let's log it and retry
-      console.log(`R2 ListObjectsV2 error: ${err}`);
+      console.error(`R2 ListObjectsV2 error: ${err}`);
 
       retriesRemaining--;
     }
@@ -177,7 +177,7 @@ export async function listDirectory(
   //  using it for now.
   const client = new S3Client({
     region: 'auto',
-    endpoint: `https://${env.CF_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+    endpoint: env.S3_ENDPOINT,
     credentials: {
       accessKeyId: env.S3_ACCESS_KEY_ID,
       secretAccessKey: env.S3_ACCESS_KEY_SECRET,

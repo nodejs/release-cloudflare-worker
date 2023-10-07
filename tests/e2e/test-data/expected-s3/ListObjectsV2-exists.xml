@@ -1,0 +1,16 @@
+<ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01">
+  <Name>dist-prod</Name>
+  <Prefix />
+  <Marker />
+  <MaxKeys>1000</MaxKeys>
+  <IsTruncated>false</IsTruncated>
+  <CommonPrefixes>
+    <Prefix>nodejs/release/latest/</Prefix>
+  </CommonPrefixes>
+  <Contents>
+    <ETag>"asd123"</ETag>
+    <Key>nodejs/release/index.json</Key>
+    <LastModified>2023-09-12T05:43:00.000Z</LastModified>
+    <Size>18</Size>
+  </Contents>
+</ListBucketResult>
