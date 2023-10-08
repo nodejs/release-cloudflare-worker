@@ -10,6 +10,13 @@ import htmlTemplate from '../../templates/directoryListing.out.js';
 // Applies the Template into a Handlebars Template Function
 const handleBarsTemplate = Handlebars.template(htmlTemplate);
 
+type ListingElement = {
+  href: string;
+  name: string;
+  lastModified: string;
+  size: string;
+};
+
 /**
  * @TODO: Simplify the iteration logic or make it more readable
  *
@@ -27,8 +34,8 @@ export function renderDirectoryListing(
   objects: R2Object[],
   env: Env
 ): Response {
-  // Holds all the html for each directory and file we're listing
-  const tableElements = [];
+  // Holds all of the elements for each directory and file we're listing
+  const tableElements = new Array<ListingElement>();
 
   // Add the default parent directory listing
   tableElements.push({
