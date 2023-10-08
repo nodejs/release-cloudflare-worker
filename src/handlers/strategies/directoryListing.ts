@@ -12,7 +12,7 @@ import { getFile } from './serveFile';
 
 // Imports the Precompiled Handlebars Template
 import htmlTemplate from '../../templates/directoryListing.out.js';
-import { S3_RETRY_LIMIT } from '../../constants/limits';
+import { S3_MAX_KEYS, S3_RETRY_LIMIT } from '../../constants/limits';
 
 // Applies the Template into a Handlebars Template Function
 const handleBarsTemplate = Handlebars.template(htmlTemplate);
@@ -119,24 +119,22 @@ async function fetchR2Result(
   cursor: string | undefined,
   env: Env
 ): Promise<ListObjectsV2CommandOutput> {
-  let result: ListObjectsV2CommandOutput | undefined = undefined;
-
   let retriesRemaining = S3_RETRY_LIMIT;
   while (retriesRemaining > 0) {
     try {
       // Send request to R2
-      result = await client.send(
+      const result = await client.send(
         new ListObjectsV2Command({
           Bucket: env.BUCKET_NAME,
           Prefix: bucketPath,
           Delimiter: '/',
-          MaxKeys: 1000,
+          MaxKeys: S3_MAX_KEYS,
           ContinuationToken: cursor,
         })
       );
 
       // Request succeeded, no need for any retries
-      break;
+      return result;
     } catch (err) {
       // Got an error, let's log it and retry
       console.error(`R2 ListObjectsV2 error: ${err}`);
@@ -145,12 +143,8 @@ async function fetchR2Result(
     }
   }
 
-  if (result === undefined) {
-    // R2 isn't having a good day, return a 500
-    throw new Error(`R2 failed listing path ${bucketPath}`);
-  }
-
-  return result;
+  // R2 isn't having a good day, return a 500
+  throw new Error(`R2 failed listing path ${bucketPath}`);
 }
 
 /**
@@ -202,11 +196,11 @@ export async function listDirectory(
         delimitedPrefixes.add(path.Prefix.substring(bucketPath.length));
     });
 
-    const hasIndexFile = result.Contents?.find(
-      object => object.Key?.endsWith('index.html')
-    );
+    const hasIndexFile = result.Contents
+      ? result.Contents.some(object => object.Key?.endsWith('index.html'))
+      : false;
 
-    if (hasIndexFile !== undefined && hasIndexFile !== null) {
+    if (hasIndexFile) {
       return getFile(url, request, `${bucketPath}index.html`, env);
     }
 
