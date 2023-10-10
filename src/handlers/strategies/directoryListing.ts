@@ -1,3 +1,9 @@
+import {
+  ListObjectsV2Command,
+  ListObjectsV2CommandOutput,
+  S3Client,
+  _Object,
+} from '@aws-sdk/client-s3';
 import Handlebars from 'handlebars';
 import { Env } from '../../env';
 import responses from '../../commonResponses';
@@ -6,6 +12,7 @@ import { getFile } from './serveFile';
 
 // Imports the Precompiled Handlebars Template
 import htmlTemplate from '../../templates/directoryListing.out.js';
+import { S3_MAX_KEYS, S3_RETRY_LIMIT } from '../../constants/limits';
 
 // Applies the Template into a Handlebars Template Function
 const handleBarsTemplate = Handlebars.template(htmlTemplate);
@@ -17,14 +24,14 @@ const handleBarsTemplate = Handlebars.template(htmlTemplate);
  * @param url Parsed url of the request
  * @param request Request object itself
  * @param delimitedPrefixes Directories in the bucket
- * @param listingResponse Listing response to render
- * @returns {@link DirectoryListingResponse} instance
+ * @param objects Objects in the bucket
+ * @returns {@link Response} instance
  */
 export function renderDirectoryListing(
   url: URL,
   request: Request,
   delimitedPrefixes: Set<string>,
-  objects: R2Object[],
+  objects: _Object[],
   env: Env
 ): Response {
   // Holds all the html for each directory and file we're listing
@@ -57,25 +64,25 @@ export function renderDirectoryListing(
 
   // Renders all the Files within the Directory
   objects.forEach(object => {
-    const name = object.key;
+    const name = object.Key;
 
     // Find the most recent date a file in this
     //  directory was modified, we'll use it
     //  in the `Last-Modified` header
-    if (lastModified === undefined || object.uploaded > lastModified) {
-      lastModified = object.uploaded;
+    if (lastModified === undefined || object.LastModified! > lastModified) {
+      lastModified = object.LastModified!;
     }
 
-    let dateStr = object.uploaded.toISOString();
+    let dateStr = object.LastModified!.toISOString();
 
     dateStr = dateStr.split('.')[0].replace('T', ' ');
     dateStr = dateStr.slice(0, dateStr.lastIndexOf(':')) + 'Z';
 
     tableElements.push({
-      href: `${urlPathname}${encodeURIComponent(name)}`,
+      href: `${urlPathname}${encodeURIComponent(name ?? '')}`,
       name,
       lastModified: dateStr,
-      size: niceBytes(object.size),
+      size: niceBytes(object.Size!),
     });
   });
 
@@ -98,6 +105,49 @@ export function renderDirectoryListing(
 }
 
 /**
+ * Send a request to R2 to get the objects & paths in a directory
+ * @param client {@link S3Client} to use for the request
+ * @param bucketPath Path in R2 bucket
+ * @param cursor Where to begin the request from, for pagination
+ * @param env Worker env
+ * @returns A {@link ListObjectsV2CommandOutput}
+ * @throws When all retries are exhausted and no response was returned
+ */
+async function fetchR2Result(
+  client: S3Client,
+  bucketPath: string,
+  cursor: string | undefined,
+  env: Env
+): Promise<ListObjectsV2CommandOutput> {
+  let retriesRemaining = S3_RETRY_LIMIT;
+  while (retriesRemaining > 0) {
+    try {
+      // Send request to R2
+      const result = await client.send(
+        new ListObjectsV2Command({
+          Bucket: env.BUCKET_NAME,
+          Prefix: bucketPath,
+          Delimiter: '/',
+          MaxKeys: S3_MAX_KEYS,
+          ContinuationToken: cursor,
+        })
+      );
+
+      // Request succeeded, no need for any retries
+      return result;
+    } catch (err) {
+      // Got an error, let's log it and retry
+      console.error(`R2 ListObjectsV2 error: ${err}`);
+
+      retriesRemaining--;
+    }
+  }
+
+  // R2 isn't having a good day, return a 500
+  throw new Error(`R2 failed listing path ${bucketPath}`);
+}
+
+/**
  * Directory listing
  * @param url Parsed url of the request
  * @param request Request object itself
@@ -111,41 +161,61 @@ export async function listDirectory(
   env: Env
 ): Promise<Response> {
   const delimitedPrefixes = new Set<string>();
-  const objects: R2Object[] = [];
+  const objects: _Object[] = []; // s3 sdk types are weird
+
+  // Create an S3 client instance to interact with the bucket.
+  // There is a limit in the size of the response that
+  //  a binding can return. We kept hitting it due to the
+  //  size of our paths, causing us to send a lot of requests
+  //  to R2 which in turn added a lot of latency. The S3 api
+  //  doesn't have that response body size constraint so we're
+  //  using it for now.
+  const client = new S3Client({
+    region: 'auto',
+    endpoint: env.S3_ENDPOINT,
+    credentials: {
+      accessKeyId: env.S3_ACCESS_KEY_ID,
+      secretAccessKey: env.S3_ACCESS_KEY_SECRET,
+    },
+  });
 
   let truncated = true;
   let cursor: string | undefined;
 
   while (truncated) {
-    const result = await env.R2_BUCKET.list({
-      prefix: bucketPath,
-      delimiter: '/',
+    const result: ListObjectsV2CommandOutput = await fetchR2Result(
+      client,
+      bucketPath,
       cursor,
-    });
+      env
+    );
 
     // R2 sends us back the absolute path of the object, cut it
-    result.delimitedPrefixes.forEach(prefix =>
-      delimitedPrefixes.add(prefix.substring(bucketPath.length))
-    );
+    result.CommonPrefixes?.forEach(path => {
+      if (path.Prefix !== undefined)
+        delimitedPrefixes.add(path.Prefix.substring(bucketPath.length));
+    });
 
-    const hasIndexFile = result.objects.find(object =>
-      object.key.endsWith('index.html')
-    );
+    const hasIndexFile = result.Contents
+      ? result.Contents.some(object => object.Key?.endsWith('index.html'))
+      : false;
 
-    if (hasIndexFile !== undefined && hasIndexFile !== null) {
+    if (hasIndexFile) {
       return getFile(url, request, `${bucketPath}index.html`, env);
     }
 
     // R2 sends us back the absolute path of the object, cut it
-    result.objects.forEach(object =>
+    result.Contents?.forEach(object =>
       objects.push({
         ...object,
-        key: object.key.substring(bucketPath.length),
-      } as R2Object)
+        Key: object.Key?.substring(bucketPath.length),
+      })
     );
 
-    truncated = result.truncated;
-    cursor = result.truncated ? result.cursor : undefined;
+    // Default this to false just so we don't end up in a never ending
+    //  loop if they don't send this back for whatever reason
+    truncated = result.IsTruncated ?? false;
+    cursor = truncated ? result.NextContinuationToken : undefined;
   }
 
   // Directory needs either subdirectories or files in it cannot be empty

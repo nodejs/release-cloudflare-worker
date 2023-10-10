@@ -1,17 +1,61 @@
 import { after, before, describe, it } from 'node:test';
 import assert from 'node:assert';
+import { readFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
+import http from 'http';
 import { Miniflare } from 'miniflare';
 
+async function startS3Mock(): Promise<http.Server> {
+  const server = http.createServer((req, res) => {
+    const url = new URL(req.url!, `http://${req.headers.host}`);
+
+    let xmlFilePath = './tests/e2e/test-data/expected-s3/';
+
+    // Check if it's a path that's supposed to exist in
+    //  later tests. If so, return a S3 response indicating that
+    //  the path exists. Otherwise return a S3 response indicating
+    //  that the path doesn't exist
+    if (
+      ['nodejs/release/', 'nodejs/', 'metrics/'].includes(
+        url.searchParams.get('prefix')!
+      )
+    ) {
+      xmlFilePath += 'ListObjectsV2-exists.xml';
+    } else {
+      xmlFilePath += 'ListObjectsV2-does-not-exist.xml';
+    }
+
+    const listObjectsResponse = readFileSync(xmlFilePath, {
+      encoding: 'utf-8',
+    });
+
+    res.write(listObjectsResponse);
+    res.end();
+  });
+  server.listen(8080);
+
+  return server;
+}
+
 describe('Directory Tests (Restricted Directory Listing)', () => {
+  let s3Mock: http.Server;
   let mf: Miniflare;
   let url: URL;
   before(async () => {
+    s3Mock = await startS3Mock();
+
     // Setup miniflare
     mf = new Miniflare({
       scriptPath: './dist/worker.js',
       modules: true,
       bindings: {
+        BUCKET_NAME: 'dist-prod',
+        // S3_ENDPOINT needs to be an ip here otherwise s3 sdk will try to hit
+        //  the bucket's subdomain (e.g. http://dist-prod.localhost)
+        S3_ENDPOINT: 'http://127.0.0.1:8080',
+        S3_ACCESS_KEY_ID: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+        S3_ACCESS_KEY_SECRET:
+          'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
         DIRECTORY_LISTING: 'restricted',
         FILE_CACHE_CONTROL: 'no-store',
         DIRECTORY_CACHE_CONTROL: 'no-store',
@@ -97,5 +141,8 @@ describe('Directory Tests (Restricted Directory Listing)', () => {
   });
 
   // Cleanup Miniflare
-  after(async () => mf.dispose());
+  after(async () => {
+    await mf.dispose();
+    s3Mock.close();
+  });
 });

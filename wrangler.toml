@@ -1,46 +1,52 @@
-name = "dist-worker"
-main = "src/worker.ts"
-compatibility_date = "2023-08-07"
-account_id = "07be8d2fbc940503ca1be344714cb0d1"
+name = 'dist-worker'
+main = 'src/worker.ts'
+compatibility_date = '2023-08-07'
+account_id = '07be8d2fbc940503ca1be344714cb0d1'
 
 
 # Dev (default)
 [vars]
 workers_dev = true
 ENVIRONMENT = 'dev'
+S3_ENDPOINT = 'https://07be8d2fbc940503ca1be344714cb0d1.r2.cloudflarestorage.com'
 DIRECTORY_LISTING = 'on'
 FILE_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
 DIRECTORY_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
+BUCKET_NAME='dist-prod'
 
 [[r2_buckets]]
-binding = "R2_BUCKET"
-preview_bucket_name = "dist-prod"
-bucket_name = "dist-prod"
+binding = 'R2_BUCKET'
+preview_bucket_name = 'dist-prod'
+bucket_name = 'dist-prod'
 
 # Staging
 [env.staging]
 [env.staging.vars]
 workers_dev = true
 ENVIRONMENT = 'staging'
+S3_ENDPOINT = 'https://07be8d2fbc940503ca1be344714cb0d1.r2.cloudflarestorage.com'
 DIRECTORY_LISTING = 'restricted'
 FILE_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
 DIRECTORY_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
+BUCKET_NAME='dist-prod'
 
 [[env.staging.r2_buckets]]
-binding = "R2_BUCKET"
-preview_bucket_name = "dist-prod"
-bucket_name = "dist-prod"
+binding = 'R2_BUCKET'
+preview_bucket_name = 'dist-prod'
+bucket_name = 'dist-prod'
 
 # Prod
 [env.prod]
 [env.prod.vars]
 workers_dev = false
 ENVIRONMENT = 'prod'
+S3_ENDPOINT = 'https://07be8d2fbc940503ca1be344714cb0d1.r2.cloudflarestorage.com'
 DIRECTORY_LISTING = 'restricted'
 FILE_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
 DIRECTORY_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
+BUCKET_NAME='dist-prod'
 
 [[env.prod.r2_buckets]]
-binding = "R2_BUCKET"
-preview_bucket_name = "dist-prod"
-bucket_name = "dist-prod"
+binding = 'R2_BUCKET'
+preview_bucket_name = 'dist-prod'
+bucket_name = 'dist-prod'
