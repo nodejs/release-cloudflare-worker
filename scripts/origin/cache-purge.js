@@ -48,7 +48,6 @@ rl.on('line', line => {
     !['', '.', './'].includes(directoryName) &&
     !pathsToPurge.includes(directoryName)
   ) {
-    pathsToPurge.push(directoryName);
     pathsToPurge.push(directoryName + '/');
   }
 });
