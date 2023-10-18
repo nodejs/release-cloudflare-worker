@@ -15,11 +15,14 @@ async function startS3Mock(): Promise<http.Server> {
     //  later tests. If so, return a S3 response indicating that
     //  the path exists. Otherwise return a S3 response indicating
     //  that the path doesn't exist
-    if (
-      ['nodejs/release/', 'nodejs/', 'metrics/'].includes(
-        url.searchParams.get('prefix')!
-      )
-    ) {
+    const r2Prefix = url.searchParams.get('prefix')!;
+
+    let doesFolderExist =
+      ['nodejs/release/', 'nodejs/', 'nodejs/docs/', 'metrics/'].includes(
+        r2Prefix
+      ) || r2Prefix.endsWith('/docs/api/');
+
+    if (doesFolderExist) {
       xmlFilePath += 'ListObjectsV2-exists.xml';
     } else {
       xmlFilePath += 'ListObjectsV2-does-not-exist.xml';
@@ -104,6 +107,16 @@ describe('Directory Tests (Restricted Directory Listing)', () => {
 
   it('allows `/download/`', async () => {
     const res = await mf.dispatchFetch(`${url}download/`);
+    assert.strictEqual(res.status, 200);
+  });
+
+  it('allows `/docs/`', async () => {
+    const res = await mf.dispatchFetch(`${url}docs/`);
+    assert.strictEqual(res.status, 200);
+  });
+
+  it('allows `/api/`', async () => {
+    const res = await mf.dispatchFetch(`${url}api/`);
     assert.strictEqual(res.status, 200);
   });
 

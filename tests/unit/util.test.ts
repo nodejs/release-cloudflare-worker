@@ -44,7 +44,7 @@ describe('mapUrlPathToBucketPath', () => {
     const result = mapUrlPathToBucketPath(new URL('http://localhost/dist'), {
       DIRECTORY_LISTING: 'restricted',
     });
-    assert.strictEqual(result, 'nodejs/release');
+    assert.strictEqual(result, 'nodejs/release/');
   });
 
   it('converts `/dist/latest` to `nodejs/release/latest`', () => {
@@ -64,7 +64,7 @@ describe('mapUrlPathToBucketPath', () => {
         DIRECTORY_LISTING: 'restricted',
       }
     );
-    assert.strictEqual(result, 'nodejs');
+    assert.strictEqual(result, 'nodejs/');
   });
 
   it('converts `/download/releases` to `nodejs/releases`', () => {
