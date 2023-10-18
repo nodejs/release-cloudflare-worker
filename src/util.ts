@@ -64,20 +64,55 @@ export function mapUrlPathToBucketPath(
   let bucketPath: string | undefined;
 
   const splitPath = url.pathname.split('/'); // ['', 'docs', 'asd', '123']
+  console.log(' splitPath: ' + splitPath)
   const basePath = splitPath[1]; // 'docs'
 
-  if (
-    REDIRECT_MAP.has(`${DOWNLOAD_PATH_PREFIX}/${splitPath[1]}/${splitPath[2]}`)
-  ) {
-    // All items in REDIRECT_MAP are three levels deep, that is asserted in tests
-    bucketPath = `${REDIRECT_MAP.get(
-      `${DOWNLOAD_PATH_PREFIX}/${splitPath[1]}/${splitPath[2]}`
-    )}/${splitPath.slice(3).join('/')}`;
-  } else if (basePath in urlToBucketPathMap) {
+  if (basePath in urlToBucketPathMap) {
     bucketPath = urlToBucketPathMap[basePath];
+    console.log(' initial bucket path: ' + bucketPath)
+
+    // This works and handles child paths, but we're splitting it again.
+    // nodejs/release/latest-v20.x
+    const bucketPathSplit = bucketPath.split('/'); // ['nodejs', 'release', 'latest-v20.x', '']
+
+    // Path we check for if it's redirected
+    // 'nodejs/release/latest-v20.x'
+    const redirectablePath = `${bucketPathSplit[0]}/${bucketPathSplit[1]}${bucketPathSplit.length >= 3 ? `/${bucketPathSplit[2]}` : ''}`;
+    console.log(' redirectablePath: ' + redirectablePath)
+    
+    if (REDIRECT_MAP.has(redirectablePath)) {
+      bucketPath = REDIRECT_MAP.get(redirectablePath) + '/' + bucketPath.substring(redirectablePath.length + 1);
+      console.log(' redirected: ' + bucketPath);
+    }
+
+    console.log(' final bucket path: ' + bucketPath)
   } else if (env.DIRECTORY_LISTING !== 'restricted') {
     bucketPath = url.pathname.substring(1);
   }
+
+  // original
+  // if (basePath in urlToBucketPathMap) {
+  //   const bucketPathParts = urlToBucketPathMap[basePath];
+  //   console.log(' initial bucket path: ' + bucketPath)
+
+  //   // TODO: have urlToBucketPathMap return an array of this so we don't need to split it
+  //   // nodejs/release/latest-v20.x
+  //   const bucketPathSplit = bucketPath.split('/'); // ['nodejs', 'release', 'latest-v20.x', ...]
+
+  //   // Path we check for if it's redirected
+  //   // 'nodejs/release/latest-v20.x'
+  //   const redirectablePath = `${bucketPathSplit[0]}/${bucketPathSplit[1]}${bucketPathSplit.length >= 3 ? `/${bucketPathSplit[2]}` : ''}`;
+  //   console.log(' redirectablePath: ' + redirectablePath)
+    
+  //   if (REDIRECT_MAP.has(redirectablePath)) {
+  //     bucketPath = REDIRECT_MAP.get(redirectablePath) + '/' + bucketPath.substring(redirectablePath.length + 1);
+  //     console.log(' redirected: ' + bucketPath);
+  //   }
+
+  //   console.log(' final bucket path: ' + bucketPath)
+  // } else if (env.DIRECTORY_LISTING !== 'restricted') {
+  //   bucketPath = url.pathname.substring(1);
+  // }
 
   return bucketPath !== undefined ? decodeURIComponent(bucketPath) : undefined;
 }
