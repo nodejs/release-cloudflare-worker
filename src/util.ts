@@ -51,9 +51,12 @@ export function mapUrlPathToBucketPath(
   env: Pick<Env, 'DIRECTORY_LISTING'>
 ): string | undefined {
   const urlToBucketPathMap: Record<string, string> = {
-    dist: DIST_PATH_PREFIX + url.pathname.substring(5),
-    download: DOWNLOAD_PATH_PREFIX + url.pathname.substring(9),
-    api: API_PATH_PREFIX + (url.pathname.substring(4) || '/'),
+    dist: DIST_PATH_PREFIX + (url.pathname.substring('/dist'.length) || '/'),
+    download:
+      DOWNLOAD_PATH_PREFIX +
+      (url.pathname.substring('/download'.length) || '/'),
+    docs: DOCS_PATH_PREFIX + (url.pathname.substring('/docs'.length) || '/'),
+    api: API_PATH_PREFIX + (url.pathname.substring('/api'.length) || '/'),
     metrics: url.pathname.substring(1), // substring to cut off the /
   };
 
