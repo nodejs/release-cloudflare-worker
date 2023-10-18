@@ -106,8 +106,8 @@ export function mapBucketPathToUrlPath(
   env: Pick<Env, 'DIRECTORY_LISTING'>
 ): string[] | undefined {
   // @TODO: Use a switch statement or a Design Pattern here
-  // I strongly dislike the workers cache api
   if (bucketPath.startsWith(DIST_PATH_PREFIX)) {
+    // Main release folder, accessible at `/dist/` or `/download/release/`
     const path = bucketPath.substring(DIST_PATH_PREFIX.length);
 
     const possibleUrlPaths = new Set<string>();
@@ -136,6 +136,7 @@ export function mapBucketPathToUrlPath(
 
     return [...possibleUrlPaths];
   } else if (bucketPath.startsWith(DOCS_PATH_PREFIX)) {
+    // Docs for main releases, accessible at `/docs/` or `/api/` for latest docs
     const path = bucketPath.substring(DOCS_PATH_PREFIX.length);
 
     const possibleUrlPaths = new Set<string>();
@@ -147,9 +148,14 @@ export function mapBucketPathToUrlPath(
     possibleUrlPaths.add(`/docs${path}`);
     possibleUrlPaths.add(`/download/docs${path}`);
 
-    if (bucketPath.includes('/api/')) {
+    if (bucketPath.includes('/api')) {
       // Html file, purge it
-      possibleUrlPaths.add(`/api${path.substring('api'.length)}`);
+
+      // /latest/api/assert.html
+      let apiPath = path.substring(1); // latest/api/assert.html
+      apiPath = apiPath.substring(apiPath.indexOf('/')); // /api/assert.html
+
+      possibleUrlPaths.add(apiPath);
     }
 
     // Purge all of the directory listings of folders starting with 'latest'
@@ -164,8 +170,10 @@ export function mapBucketPathToUrlPath(
 
     return [...possibleUrlPaths];
   } else if (bucketPath.startsWith(DOWNLOAD_PATH_PREFIX)) {
+    // Rest of the `/download/...` paths (e.g. `/download/nightly/`)
     return [`/download${bucketPath.substring(DOWNLOAD_PATH_PREFIX.length)}`];
   } else if (bucketPath.startsWith('metrics')) {
+    // Metrics doesn't need any redirects
     return ['/' + bucketPath];
   }
 
