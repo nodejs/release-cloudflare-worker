@@ -83,6 +83,21 @@ export function mapUrlPathToBucketPath(
 }
 
 /**
+ * Get all of the directories beginning with 'latest' in a
+ *  directory
+ * @param prefix Directory to look through
+ */
+function getAllLatestDirectories(prefix: string): Set<string> {
+  const paths = new Set<string>();
+  for (const [k] of REDIRECT_MAP) {
+    if (k.startsWith(`${prefix}/latest`)) {
+      paths.add(k.substring(prefix.length) + '/');
+    }
+  }
+  return paths;
+}
+
+/**
  * Maps a path in the R2 bucket to the urls used to access it
  * @param bucketPath Path to map
  * @param env Worker env
@@ -95,19 +110,73 @@ export function mapBucketPathToUrlPath(
 ): string[] | undefined {
   // @TODO: Use a switch statement or a Design Pattern here
   if (bucketPath.startsWith(DIST_PATH_PREFIX)) {
-    const path = bucketPath.substring(15);
-    return [`/dist${path}`, `/download/releases${path}`];
-  } else if (
-    bucketPath.startsWith(API_PATH_PREFIX) ||
-    bucketPath.startsWith('nodejs/docs/latest/api')
-  ) {
-    const path = bucketPath.substring(22);
-    return [`/api${path}`, `/docs/latest/api${path}`];
+    // Main release folder, accessible at `/dist/` or `/download/release/`
+    const path = bucketPath.substring(DIST_PATH_PREFIX.length);
+
+    const possibleUrlPaths = new Set<string>();
+
+    // Purge directory listing of /dist/ and /download/release/
+    possibleUrlPaths.add('/dist/');
+    possibleUrlPaths.add('/download/release/');
+
+    // Purge whatever the paths we're updating
+    possibleUrlPaths.add(`/dist${path}`);
+    possibleUrlPaths.add(`/download/release${path}`);
+
+    // Purge all of the directory listings of folders starting with 'latest'
+    //  (e.g. `/dist/latest-hydrogen`)
+    // Bit of a hack, but I think this is the best we can do. The redirects
+    //  we have in `src/constants/redirectLinks.json` will be out of date since
+    //  a new version was uploaded and thus the latest has changed. We can't
+    //  really determine the new latest here unless we run something
+    //  similar to the `scripts/update-redirect-links.js` script here.
+    const latestDirectories = getAllLatestDirectories('nodejs/release');
+
+    for (const directory of latestDirectories) {
+      possibleUrlPaths.add(`/dist${directory}`);
+      possibleUrlPaths.add(`/download/release${directory}`);
+    }
+
+    return [...possibleUrlPaths];
   } else if (bucketPath.startsWith(DOCS_PATH_PREFIX)) {
-    return [`/docs${bucketPath.substring(11)}`];
+    // Docs for main releases, accessible at `/docs/` or `/api/` for latest docs
+    const path = bucketPath.substring(DOCS_PATH_PREFIX.length);
+
+    const possibleUrlPaths = new Set<string>();
+
+    // Purge directory listings for /docs/ and /download/docs/
+    possibleUrlPaths.add('/docs/');
+    possibleUrlPaths.add('/download/docs/');
+
+    possibleUrlPaths.add(`/docs${path}`);
+    possibleUrlPaths.add(`/download/docs${path}`);
+
+    if (bucketPath.includes('/api')) {
+      // Html file, purge it
+
+      // /latest/api/assert.html
+      let apiPath = path.substring(1); // latest/api/assert.html
+      apiPath = apiPath.substring(apiPath.indexOf('/')); // /api/assert.html
+
+      possibleUrlPaths.add(apiPath);
+    }
+
+    // Purge all of the directory listings of folders starting with 'latest'
+    //  (e.g. `/docs/latest`)
+    // Refer to previous call for explanation
+    const latestDirectories = getAllLatestDirectories('nodejs/docs');
+
+    for (const directory of latestDirectories) {
+      possibleUrlPaths.add(`/docs${directory}`);
+      possibleUrlPaths.add(`/download/docs${directory}`);
+    }
+
+    return [...possibleUrlPaths];
   } else if (bucketPath.startsWith(DOWNLOAD_PATH_PREFIX)) {
-    return [`/download${bucketPath.substring(6)}`];
+    // Rest of the `/download/...` paths (e.g. `/download/nightly/`)
+    return [`/download${bucketPath.substring(DOWNLOAD_PATH_PREFIX.length)}`];
   } else if (bucketPath.startsWith('metrics')) {
+    // Metrics doesn't need any redirects
     return ['/' + bucketPath];
   }
 

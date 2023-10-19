@@ -1,5 +1,6 @@
 import assert from 'node:assert';
-import { describe, it } from 'node:test';
+import { before, describe, it, skip } from 'node:test';
+import { readFile } from 'node:fs/promises';
 import {
   isDirectoryPath,
   mapBucketPathToUrlPath,
@@ -67,14 +68,14 @@ describe('mapUrlPathToBucketPath', () => {
     assert.strictEqual(result, 'nodejs/');
   });
 
-  it('converts `/download/releases` to `nodejs/releases`', () => {
+  it('converts `/download/release` to `nodejs/release`', () => {
     const result = mapUrlPathToBucketPath(
-      new URL('http://localhost/download/releases'),
+      new URL('http://localhost/download/release'),
       {
         DIRECTORY_LISTING: 'restricted',
       }
     );
-    assert.strictEqual(result, 'nodejs/releases');
+    assert.strictEqual(result, 'nodejs/release');
   });
 
   it('converts `/docs/latest` to `nodejs/release/v.X.X.X/docs/`', () => {
@@ -118,30 +119,27 @@ describe('mapBucketPathToUrlPath', () => {
     });
     assert.notStrictEqual(result, undefined);
 
-    assert.strictEqual(result!.length, 1);
     assert(result!.includes('/unknown-base-path'));
   });
 
-  it('converts `nodejs/releases` to `/dist` and `/download/releases`', () => {
-    const result = mapBucketPathToUrlPath('nodejs/releases', {
+  it('converts `nodejs/release` to `/dist` and `/download/release`', () => {
+    const result = mapBucketPathToUrlPath('nodejs/release', {
       DIRECTORY_LISTING: 'restricted',
     });
     assert.notStrictEqual(result, undefined);
 
-    assert.strictEqual(result!.length, 2);
-    assert(result!.includes('/dist'));
-    assert(result!.includes('/download/releases'));
+    assert(result!.includes('/dist/'));
+    assert(result!.includes('/download/release/'));
   });
 
-  it('converts `nodejs/releases/latest` to `/dist/latest` and `/download/releases/latest`', () => {
-    const result = mapBucketPathToUrlPath('nodejs/releases/latest', {
+  it('converts `nodejs/release/latest` to `/dist/latest` and `/download/release/latest`', () => {
+    const result = mapBucketPathToUrlPath('nodejs/release/latest', {
       DIRECTORY_LISTING: 'restricted',
     });
     assert.notStrictEqual(result, undefined);
 
-    assert.strictEqual(result!.length, 2);
-    assert(result!.includes('/dist/latest'));
-    assert(result!.includes('/download/releases/latest'));
+    assert(result!.includes('/dist/latest/'));
+    assert(result!.includes('/download/release/latest/'));
   });
 
   it('converts `nodejs` to `/download`', () => {
@@ -150,7 +148,6 @@ describe('mapBucketPathToUrlPath', () => {
     });
     assert.notStrictEqual(result, undefined);
 
-    assert.strictEqual(result!.length, 1);
     assert(result!.includes('/download'));
   });
 
@@ -160,8 +157,7 @@ describe('mapBucketPathToUrlPath', () => {
     });
     assert.notStrictEqual(result, undefined);
 
-    assert.strictEqual(result!.length, 1);
-    assert(result!.includes('/docs'));
+    assert(result!.includes('/docs/'));
   });
 
   it('converts `nodejs/docs/latest` to `/docs/latest`', () => {
@@ -170,19 +166,17 @@ describe('mapBucketPathToUrlPath', () => {
     });
     assert.notStrictEqual(result, undefined);
 
-    assert.strictEqual(result!.length, 1);
-    assert(result!.includes('/docs/latest'));
+    assert(result!.includes('/docs/latest/'));
   });
 
   it('converts `nodejs/docs/latest/api` to `/api` and `/docs/latest/api`', () => {
-    const result = mapBucketPathToUrlPath('nodejs/docs/latest/api', {
+    const result = mapBucketPathToUrlPath('nodejs/docs/latest/api/', {
       DIRECTORY_LISTING: 'restricted',
     });
     assert.notStrictEqual(result, undefined);
 
-    assert.strictEqual(result!.length, 2);
-    assert(result!.includes('/api'));
-    assert(result!.includes('/docs/latest/api'));
+    assert(result!.includes('/api/'));
+    assert(result!.includes('/docs/latest/api/'));
   });
 
   it('converts `nodejs/docs/latest/api/assert.html` to `/api/assert.html` and `/docs/latest/api/assert.html`', () => {
@@ -192,7 +186,6 @@ describe('mapBucketPathToUrlPath', () => {
     );
     assert.notStrictEqual(result, undefined);
 
-    assert.strictEqual(result!.length, 2);
     assert(result!.includes('/api/assert.html'));
     assert(result!.includes('/docs/latest/api/assert.html'));
   });
