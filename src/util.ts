@@ -66,13 +66,18 @@ export function mapUrlPathToBucketPath(
   const splitPath = url.pathname.split('/'); // ['', 'docs', 'asd', '123']
   const basePath = splitPath[1]; // 'docs'
 
-  if (
-    REDIRECT_MAP.has(`${DOWNLOAD_PATH_PREFIX}/${splitPath[1]}/${splitPath[2]}`)
-  ) {
+  const mappedDocs = `${DOCS_PATH_PREFIX}/${splitPath[2]}`;
+  const mappedRelease = `${DIST_PATH_PREFIX}/${splitPath[3]}`;
+  const mappedDist = `${DIST_PATH_PREFIX}/${splitPath[2]}`;
+
+  if (splitPath[1] === "dist" && REDIRECT_MAP.has(mappedDist)) {
     // All items in REDIRECT_MAP are three levels deep, that is asserted in tests
-    bucketPath = `${REDIRECT_MAP.get(
-      `${DOWNLOAD_PATH_PREFIX}/${splitPath[1]}/${splitPath[2]}`
-    )}/${splitPath.slice(3).join('/')}`;
+    bucketPath = `${REDIRECT_MAP.get(mappedDist)}/${splitPath.slice(3).join('/')}`;
+  } else if (splitPath[1] === "docs" && REDIRECT_MAP.has(mappedDocs)) {
+    // All items in REDIRECT_MAP are three levels deep, that is asserted in tests
+    bucketPath = `${REDIRECT_MAP.get(mappedDocs)}/${splitPath.slice(3).join('/')}`;
+  } else if (splitPath[2] === "release" && REDIRECT_MAP.has(mappedRelease)) {
+    bucketPath = `${REDIRECT_MAP.get(mappedRelease)}/${splitPath.slice(4).join('/')}`;
   } else if (basePath in urlToBucketPathMap) {
     bucketPath = urlToBucketPathMap[basePath];
   } else if (env.DIRECTORY_LISTING !== 'restricted') {
@@ -194,7 +199,8 @@ export function isExtensionless(path: string): boolean {
   //  heuristic here. There aren't any files that don't
   //  have file extensions, so, if there are no file extensions
   //  specified in the url, treat it like a directory.
-  return path.lastIndexOf('.') === -1;
+  //  One exception is `latest-vXX.x`, which is a directory 
+  return path.lastIndexOf('.') === -1 || path.toLowerCase().endsWith('.x');
 }
 
 /**

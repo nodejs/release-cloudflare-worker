@@ -1,6 +1,5 @@
 import assert from 'node:assert';
-import { before, describe, it, skip } from 'node:test';
-import { readFile } from 'node:fs/promises';
+import { describe, it } from 'node:test';
 import {
   isDirectoryPath,
   mapBucketPathToUrlPath,
@@ -48,14 +47,14 @@ describe('mapUrlPathToBucketPath', () => {
     assert.strictEqual(result, 'nodejs/release/');
   });
 
-  it('converts `/dist/latest` to `nodejs/release/latest`', () => {
+  it('converts `/dist/latest` to `nodejs/release/v.X.X.X`', () => {
     const result = mapUrlPathToBucketPath(
       new URL('http://localhost/dist/latest'),
       {
         DIRECTORY_LISTING: 'restricted',
       }
     );
-    assert.strictEqual(result, 'nodejs/release/latest');
+    assert.match(result ?? '', /^nodejs\/release\/v.\d+\.\d+\.\d+\/$/);
   });
 
   it('converts `/download` to `nodejs`', () => {
@@ -76,6 +75,16 @@ describe('mapUrlPathToBucketPath', () => {
       }
     );
     assert.strictEqual(result, 'nodejs/release');
+  });
+
+  it('converts `/download/release/latest` to `nodejs/release/v.X.X.X`', () => {
+    const result = mapUrlPathToBucketPath(
+      new URL('http://localhost/download/release/latest'),
+      {
+        DIRECTORY_LISTING: 'restricted',
+      }
+    );
+    assert.match(result ?? '', /^nodejs\/release\/v.\d+\.\d+\.\d+\/$/);
   });
 
   it('converts `/docs/latest` to `nodejs/release/v.X.X.X/docs/`', () => {
