@@ -3,6 +3,7 @@ name: Tests
 on:
   pull_request:
     types:
+      - opened
       - ready_for_review
       - synchronize
       - labeled
@@ -13,7 +14,7 @@ jobs:
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
-    if: ${{ github.event.action == 'ready_for_review' || github.event.action == 'synchronize' || (github.event.action == 'labeled' && github.event.label.name == 'force ci') }}
+    if: ${{ github.event.action == 'opened' || github.event.action == 'ready_for_review' || github.event.action == 'synchronize' || (github.event.action == 'labeled' && github.event.label.name == 'force ci') }}
 
     steps:
       - name: Git Checkout
@@ -36,7 +37,7 @@ jobs:
   e2e-test:
     name: E2E Tests
     runs-on: ubuntu-latest
-    if: ${{ github.event.action == 'ready_for_review' || github.event.action == 'synchronize' || (github.event.action == 'labeled' && github.event.label.name == 'force ci') }}
+    if: ${{ github.event.action == 'opened' || github.event.action == 'ready_for_review' || github.event.action == 'synchronize' || (github.event.action == 'labeled' && github.event.label.name == 'force ci') }}
 
     steps:
       - name: Git Checkout
