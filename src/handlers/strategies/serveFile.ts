@@ -14,6 +14,11 @@ import responses from '../../commonResponses';
  * @returns Http status code
  */
 function getStatusCode(request: Request, objectHasBody: boolean): number {
+  // Don't return 304 for HEAD requests
+  if (request.method === 'HEAD') {
+    return 200;
+  }
+
   if (objectHasBody) {
     if (request.headers.has('range')) {
       // Range header was sent, this is
@@ -33,7 +38,7 @@ function getStatusCode(request: Request, objectHasBody: boolean): number {
     return 412;
   }
 
-  // We weren't given a body
+  // We weren't given a body and preconditions succeeded
   return 304;
 }
 

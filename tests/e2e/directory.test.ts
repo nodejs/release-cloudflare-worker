@@ -96,6 +96,16 @@ describe('Directory Tests (Restricted Directory Listing)', () => {
     assert.strictEqual(res.status, 200);
   });
 
+  it('allows HEAD `/dist` and returns no body', async () => {
+    const res = await mf.dispatchFetch(`${url}dist/`, {
+      method: 'HEAD',
+    });
+    assert.strictEqual(res.status, 200);
+
+    const body = await res.text();
+    assert.strictEqual(body.length, 0);
+  });
+
   it('redirects `/download` to `/download/`', async () => {
     const originalRes = await mf.dispatchFetch(`${url}download`, {
       redirect: 'manual',

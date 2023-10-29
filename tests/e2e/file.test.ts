@@ -37,6 +37,21 @@ describe('File Tests', () => {
     assert.strictEqual(body, `{ hello: 'world' }`);
   });
 
+  it('HEAD `/dist/index.json` returns no body and status code 200', async () => {
+    const res = await mf.dispatchFetch(`${url}dist/index.json`, {
+      method: 'HEAD',
+    });
+    assert.strictEqual(res.status, 200);
+    assert.strictEqual(res.headers.get('content-type'), 'application/json');
+    assert.strictEqual(res.headers.get('cache-control'), cacheControl);
+    assert.strictEqual(res.headers.has('etag'), true);
+    assert.strictEqual(res.headers.has('last-modified'), true);
+    assert.strictEqual(res.headers.has('content-type'), true);
+
+    const body = await res.text();
+    assert.strictEqual(body.length, 0);
+  });
+
   it('returns 404 for unknown file', async () => {
     const res = await mf.dispatchFetch(`${url}dist/asd123.json`);
     assert.strictEqual(res.status, 404);
