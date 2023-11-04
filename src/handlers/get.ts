@@ -59,6 +59,8 @@ const getHandler: Handler = async (request, env, ctx, cache) => {
 
   let response: Response;
   if (bucketPath in VIRTUAL_DIRS) {
+    // Path requested is to be treated as a symlink to a directory,
+    //  list the directory it points to
     response = renderDirectoryListing(
       requestUrl,
       request,
@@ -67,8 +69,10 @@ const getHandler: Handler = async (request, env, ctx, cache) => {
       env
     );
   } else if (isPathADirectory) {
+    // List the directory
     response = await listDirectory(requestUrl, request, bucketPath, env);
   } else {
+    // Fetch the file
     response = await getFile(requestUrl, request, bucketPath, env);
   }
 

@@ -4,7 +4,7 @@ This worker is auto-deployed by Github Actions. The workflow is defined [here](.
 
 ## Staging
 
-This worker is deployed to staging every time a pr is merged into the main branch.
+This worker is deployed to staging every time a pull request is merged into the main branch.
 
 ## Prod
 

@@ -5,6 +5,12 @@ import { readFile } from 'node:fs/promises';
 import http from 'http';
 import { Miniflare } from 'miniflare';
 
+/**
+ * We make use of the S3 api for directory listing due to
+ *  a size limit in the responses that bindings can return.
+ *  So, we need to mock the ListObjectsV2 call that we send
+ *  to the S3 api.
+ */
 async function startS3Mock(): Promise<http.Server> {
   const server = http.createServer((req, res) => {
     const url = new URL(req.url!, `http://${req.headers.host}`);

@@ -24,11 +24,9 @@ Spin up a Workerd instance on your machine that serves this worker
 
 Run `wrangler login`
 
-### R2 Buckets
+### R2 Bucket
 
-Depending on the environment you're running in, you will need a different R2 bucket on your account.
-For dev (the default), it's `dist-dev`. For staging, `dist-staging`. For prod, `dist-prod`.
-These buckets will either need to have a copy of Node's dist folder in them or something mimicing the folder there.
+Create a R2 bucket named `dist-prod`. This is the bucket that the worker read from. It will either need to have a copy of Node's dist folder in it or something mimicing the folder there.
 
 ### Starting the Local Server
 

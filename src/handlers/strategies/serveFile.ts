@@ -93,7 +93,7 @@ export async function getFile(
       headers: {
         etag: file.httpEtag,
         'accept-range': 'bytes',
-        // @TODO: Explain why JSON files can be accessed anywhere
+        // https://github.com/nodejs/build/blob/e3df25d6a23f033db317a53ab1e904c953ba1f00/ansible/www-standalone/resources/config/nodejs.org?plain=1#L194-L196
         'access-control-allow-origin': url.pathname.endsWith('.json')
           ? '*'
           : '',
