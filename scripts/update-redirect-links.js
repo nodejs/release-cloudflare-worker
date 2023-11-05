@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { S3Client, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import { Linker } from 'nodejs-latest-linker/common.js';
 import { writeFile } from 'node:fs/promises';

@@ -34,10 +34,12 @@ export function renderDirectoryListing(
   objects: _Object[],
   env: Env
 ): Response {
-  // Holds all the html for each directory and file we're listing
+  // Holds the contents of the listing (directories and files)
   const tableElements = [];
 
-  // Add the default parent directory listing
+  // There shouldn't really be a case where we're listing the root
+  //  directory (/) when this is deployed, so always add the option
+  //  to go up a directory
   tableElements.push({
     href: '../',
     name: '../',
