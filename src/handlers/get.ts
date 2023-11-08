@@ -76,8 +76,12 @@ const getHandler: Handler = async (request, env, ctx, cache) => {
     response = await getFile(requestUrl, request, bucketPath, env);
   }
 
+  if (request.method === 'HEAD') {
+    return response;
+  }
+
   // Cache response if cache is enabled
-  if (shouldServeCache && response.status !== 304 && response.status !== 206) {
+  if (shouldServeCache && ![304, 206].includes(response.status)) {
     const cachedResponse = response.clone();
 
     cachedResponse.headers.append('x-cache-status', 'hit');
