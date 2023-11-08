@@ -225,5 +225,9 @@ export async function listDirectory(
     return responses.DIRECTORY_NOT_FOUND(request);
   }
 
+  if (request.method === 'HEAD') {
+    return new Response(undefined, { status: 200 });
+  }
+
   return renderDirectoryListing(url, request, delimitedPrefixes, objects, env);
 }
