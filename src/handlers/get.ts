@@ -32,10 +32,6 @@ const getHandler: Handler = async (request, env, ctx, cache) => {
     return responses.BAD_REQUEST;
   }
 
-  if (requestUrl.pathname === '/traffic-manager') {
-    return new Response(undefined, { status: 200 });
-  }
-
   const bucketPath = mapUrlPathToBucketPath(requestUrl, env);
 
   if (typeof bucketPath === 'undefined') {
