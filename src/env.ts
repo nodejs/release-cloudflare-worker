@@ -44,4 +44,9 @@ export interface Env {
    * Cache control header for directory listing
    */
   DIRECTORY_CACHE_CONTROL: string;
+  /**
+   * Sentry DSN, used for error monitoring
+   * If missing, Sentry isn't used
+   */
+  SENTRY_DSN?: string;
 }
