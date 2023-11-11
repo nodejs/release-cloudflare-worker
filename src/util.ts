@@ -201,12 +201,35 @@ export function hasTrailingSlash(path: string): boolean {
 }
 
 export function isExtensionless(path: string): boolean {
-  // `path.lastIndexOf('.') == -1` is a Node-specific
-  //  heuristic here. There aren't any files that don't
-  //  have file extensions, so, if there are no file extensions
-  //  specified in the url, treat it like a directory.
-  //  One exception is `latest-vXX.x`, which is a directory
-  return path.lastIndexOf('.') === -1 || path.toLowerCase().endsWith('.x');
+  // `path.lastIndexOf('.') == -1` is a Node-specific heuristic here.
+  //  There aren't any files in the bucket that don't have file extensions,
+  //  so, if there is no file extension specified in the url, treat it
+  //  like a directory.
+  //
+  // Two exceptions:
+  //  - `latest-vXX.x` directories
+  //  - `vX.X.X` directories
+
+  const extensionDelimiter = path.lastIndexOf('.');
+  if (extensionDelimiter === -1) {
+    return true;
+  }
+
+  const fileExtension = path.substring(extensionDelimiter + 1); // +1 to remove the `.`
+
+  // `latest-vXX.x` directory
+  if (fileExtension.toLowerCase() === 'x') {
+    return true;
+  }
+
+  // `vX.X.X` directory
+  //  File extensions generally aren't numbers, so if we can parse this to
+  //  one we can be pretty certain that it's a directory
+  if (!isNaN(Number.parseInt(fileExtension))) {
+    return true;
+  }
+
+  return false;
 }
 
 /**

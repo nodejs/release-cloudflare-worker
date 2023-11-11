@@ -209,6 +209,14 @@ describe('isDirectoryPath', () => {
     assert.strictEqual(isDirectoryPath('/dist'), true);
   });
 
+  it('returns true for `/dist/latest-v20.x`', () => {
+    assert.strictEqual(isDirectoryPath('/dist/latest-v20.x'), true);
+  });
+
+  it('returns true for `/dist/v20.20.2`', () => {
+    assert.strictEqual(isDirectoryPath('/dist/v20.20.2'), true);
+  });
+
   it('returns false for `/dist/index.json`', () => {
     assert.strictEqual(isDirectoryPath('/dist/index.json'), false);
   });
