@@ -90,7 +90,7 @@ export function mapUrlPathToBucketPath(
     bucketPath = url.pathname.substring(1);
   }
 
-  return bucketPath !== undefined ? decodeURIComponent(bucketPath) : undefined;
+  return bucketPath;
 }
 
 /**
