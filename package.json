@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "wrangler dev --remote",
-    "format": "prettier --check --write \"**/*.{ts,js,json,md,hbs}\"",
-    "prettier": "prettier --check \"**/*.{ts,js,json,md,hbs}\"",
+    "format": "prettier --check --write \"**/*.{ts,js,json,md}\"",
+    "prettier": "prettier --check \"**/*.{ts,js,json,md}\"",
     "lint": "eslint ./src",
     "test:unit": "node --test --test-reporter=@reporters/github --test-reporter-destination=stdout --test-reporter=spec --test-reporter-destination=stdout --loader=tsx ./tests/unit/index.test.ts",
     "test:e2e": "wrangler deploy --dry-run --outdir=dist && node --test --test-reporter=@reporters/github --test-reporter-destination=stdout --test-reporter=spec --test-reporter-destination=stdout --loader=tsx ./tests/e2e/index.test.ts",

@@ -1,6 +1,6 @@
 import { after, before, describe, it } from 'node:test';
 import assert from 'node:assert';
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import http from 'http';
 import { Miniflare } from 'miniflare';
@@ -93,7 +93,10 @@ describe('Directory Tests (Restricted Directory Listing)', () => {
     //  it'll pass for the other listings and therefore
     //  don't need to test it over and over again
     const body = await res.text();
-    assert.strictEqual(body, expectedHtml.replaceAll('\n', ''));
+    assert.strictEqual(
+      body.replaceAll('\r', ''),
+      expectedHtml.replaceAll('\r', '')
+    );
   });
 
   it('allows `/dist/`', async () => {
