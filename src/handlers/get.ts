@@ -81,7 +81,7 @@ const getHandler: Handler = async (request, env, ctx, cache) => {
   }
 
   // Cache response if cache is enabled
-  if (shouldServeCache && ![304, 206].includes(response.status)) {
+  if (shouldServeCache && response.status === 200) {
     const cachedResponse = response.clone();
 
     cachedResponse.headers.append('x-cache-status', 'hit');
