@@ -539,6 +539,7 @@
   ["nodejs/docs/v20.9.0", "nodejs/release/v20.9.0/docs"],
   ["nodejs/docs/v21.0.0", "nodejs/release/v21.0.0/docs"],
   ["nodejs/docs/v21.1.0", "nodejs/release/v21.1.0/docs"],
+  ["nodejs/docs/v21.2.0", "nodejs/release/v21.2.0/docs"],
   ["nodejs/docs/v4.0.0", "nodejs/release/v4.0.0/docs"],
   ["nodejs/docs/v4.1.0", "nodejs/release/v4.1.0/docs"],
   ["nodejs/docs/v4.1.1", "nodejs/release/v4.1.1/docs"],
@@ -768,12 +769,12 @@
   ["nodejs/docs/latest-v19.x", "nodejs/release/v19.9.0/docs"],
   ["nodejs/release/latest-v20.x", "nodejs/release/v20.9.0"],
   ["nodejs/docs/latest-v20.x", "nodejs/release/v20.9.0/docs"],
-  ["nodejs/release/latest-v21.x", "nodejs/release/v21.1.0"],
-  ["nodejs/docs/latest-v21.x", "nodejs/release/v21.1.0/docs"],
-  ["nodejs/release/latest", "nodejs/release/v21.1.0"],
-  ["nodejs/docs/latest", "nodejs/release/v21.1.0/docs"],
+  ["nodejs/release/latest-v21.x", "nodejs/release/v21.2.0"],
+  ["nodejs/docs/latest-v21.x", "nodejs/release/v21.2.0/docs"],
+  ["nodejs/release/latest", "nodejs/release/v21.2.0"],
+  ["nodejs/docs/latest", "nodejs/release/v21.2.0/docs"],
   [
     "nodejs/release/node-latest.tar.gz",
-    "nodejs/release/latest/nodejs/release/v21.1.0/node-v21.1.0.tar.gz"
+    "nodejs/release/latest/nodejs/release/v21.2.0/node-v21.2.0.tar.gz"
   ]
 ]
