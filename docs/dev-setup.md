@@ -6,7 +6,7 @@ Guide to setting up this worker for development.
 
 Node needs to be installed for the thing that serves Node downloads (latest LTS/even numbered major recommended)
 
-## Install Dependencies
+## Install Dependenciesp
 
 Run `npm install`
 
