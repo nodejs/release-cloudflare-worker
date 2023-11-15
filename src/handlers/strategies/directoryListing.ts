@@ -17,6 +17,20 @@ import { S3_MAX_KEYS, S3_RETRY_LIMIT } from '../../constants/limits';
 // Applies the Template into a Handlebars Template Function
 const handleBarsTemplate = Handlebars.template(htmlTemplate);
 
+const months = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
+
 /**
  * @TODO: Simplify the iteration logic or make it more readable
  *
@@ -35,17 +49,7 @@ export function renderDirectoryListing(
   env: Env
 ): Response {
   // Holds the contents of the listing (directories and files)
-  const tableElements = [];
-
-  // There shouldn't really be a case where we're listing the root
-  //  directory (/) when this is deployed, so always add the option
-  //  to go up a directory
-  tableElements.push({
-    href: '../',
-    name: '../',
-    lastModified: '-',
-    size: '-',
-  });
+  const tableElements: object[] = [];
 
   const urlPathname = `${url.pathname}${url.pathname.endsWith('/') ? '' : '/'}`;
 
@@ -53,16 +57,26 @@ export function renderDirectoryListing(
   delimitedPrefixes.forEach(name => {
     const extra = encodeURIComponent(name.substring(0, name.length - 1));
 
+    let displayName: string;
+    let displayNamePaddingRight: string = ''; // hate this
+    if (name.length > 50) {
+      displayName = name.substring(0, 49) + '>';
+    } else {
+      displayName = name;
+      displayNamePaddingRight = ' '.repeat(50 - name.length);
+    }
+
     tableElements.push({
-      href: `${urlPathname}${extra}/`,
-      name,
-      lastModified: '-',
-      size: '-',
+      href: `${extra}/`,
+      displayNamePaddingRight,
+      name: displayName,
+      lastModified: '               -',
+      size: '                  -',
     });
   });
 
   // Last time any of the files within the directory got modified
-  let lastModified: Date | undefined = undefined;
+  let directoryLastModified: Date | undefined = undefined;
 
   // Renders all the Files within the Directory
   objects.forEach(object => {
@@ -71,20 +85,35 @@ export function renderDirectoryListing(
     // Find the most recent date a file in this
     //  directory was modified, we'll use it
     //  in the `Last-Modified` header
-    if (lastModified === undefined || object.LastModified! > lastModified) {
-      lastModified = object.LastModified!;
+    if (
+      directoryLastModified === undefined ||
+      object.LastModified! > directoryLastModified
+    ) {
+      directoryLastModified = object.LastModified!;
     }
 
-    let dateStr = object.LastModified!.toISOString();
+    const lastModified = object.LastModified!;
+    const dateStr = `${lastModified.getUTCDay()}-${months.at(
+      lastModified.getUTCMonth()
+    )}-${lastModified.getUTCFullYear()} ${lastModified.getUTCHours()}:${lastModified.getUTCMinutes()}`;
 
-    dateStr = dateStr.split('.')[0].replace('T', ' ');
-    dateStr = dateStr.slice(0, dateStr.lastIndexOf(':')) + 'Z';
+    let displayName: string = '';
+    let displayNamePaddingRight: string = ''; // hate this
+    if (name!.length > 50) {
+      displayName = name!.substring(0, 47) + '..>';
+    } else {
+      displayName = name!;
+      displayNamePaddingRight = ' '.repeat(50 - name!.length);
+    }
+
+    const bytes = niceBytes(object.Size!);
 
     tableElements.push({
       href: `${urlPathname}${encodeURIComponent(name ?? '')}`,
-      name,
+      name: displayName,
+      displayNamePaddingRight,
       lastModified: dateStr,
-      size: niceBytes(object.Size!),
+      size: ' '.repeat(20 - bytes.length) + bytes,
     });
   });
 
@@ -95,11 +124,13 @@ export function renderDirectoryListing(
   });
 
   // Gets an UTC-string on the ISO-8901 format of last modified date
-  const lastModifiedUTC = (lastModified ?? new Date()).toUTCString();
+  const directoryLastModifiedUtc = (
+    directoryLastModified ?? new Date()
+  ).toUTCString();
 
   return new Response(request.method === 'GET' ? renderedListing : null, {
     headers: {
-      'last-modified': lastModifiedUTC,
+      'last-modified': directoryLastModifiedUtc,
       'content-type': 'text/html',
       'cache-control': env.DIRECTORY_CACHE_CONTROL || 'no-store',
     },

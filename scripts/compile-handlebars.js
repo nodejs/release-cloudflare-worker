@@ -36,9 +36,7 @@ templatesToParse.then(files => {
 
     // The Handlebars.precompile returns a JavaScript object
     // and then we make a default export of the object
-    const javascriptTemplate = `export default ${removeStringIndents(
-      compiledTemplate
-    )}`;
+    const javascriptTemplate = `export default ${compiledTemplate}`;
 
     const outputFilename = filePath.replace('.hbs', '.out.js');
 
