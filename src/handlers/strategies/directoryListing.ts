@@ -100,7 +100,7 @@ export function renderDirectoryListing(
     let displayName: string = '';
     let displayNamePaddingRight: string = ''; // hate this
     if (name!.length > 50) {
-      displayName = name!.substring(0, 49) + '>';
+      displayName = name!.substring(0, 47) + '..>';
     } else {
       displayName = name!;
       displayNamePaddingRight = ' '.repeat(50 - name!.length);
