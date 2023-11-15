@@ -1,11 +1,9 @@
 <html>
 <head><title>Index of {{pathname}}</title></head>
 <body>
-<h1>Index of {{pathname}}</h1><hr /><pre><a href='../'>../</a>
+<h1>Index of {{pathname}}</h1><hr><pre><a href="../">../</a>
 {{#each entries}}
-<a href='{{href}}'>{{name}}</a>{{displayNamePaddingRight}}
-{{lastModified}}
-{{size}}
+<a href="{{href}}">{{name}}</a>{{displayNamePaddingRight}} {{lastModified}} {{size}}
 {{/each}}
 </pre><hr /></body>
 </html>
