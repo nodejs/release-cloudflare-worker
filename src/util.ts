@@ -1,9 +1,9 @@
 import {
-  API_PATH_PREFIX,
   DIST_PATH_PREFIX,
   DOCS_PATH_PREFIX,
   DOWNLOAD_PATH_PREFIX,
   REDIRECT_MAP,
+  URL_TO_BUCKET_PATH_MAP,
 } from './constants/r2Prefixes';
 import { Env } from './env';
 
@@ -15,10 +15,7 @@ const units = ['B', 'KB', 'MB', 'GB', 'TB'];
  *  directory listings
  */
 export function isCacheEnabled(env: Env): boolean {
-  return (
-    env.FILE_CACHE_CONTROL !== 'no-store' ||
-    env.DIRECTORY_CACHE_CONTROL !== 'no-store'
-  );
+  return env.ENVIRONMENT !== 'e2e-tests';
 }
 
 /**
@@ -50,47 +47,39 @@ export function mapUrlPathToBucketPath(
   url: URL,
   env: Pick<Env, 'DIRECTORY_LISTING'>
 ): string | undefined {
-  const urlToBucketPathMap: Record<string, string> = {
-    dist: DIST_PATH_PREFIX + (url.pathname.substring('/dist'.length) || '/'),
-    download:
-      DOWNLOAD_PATH_PREFIX +
-      (url.pathname.substring('/download'.length) || '/'),
-    docs: DOCS_PATH_PREFIX + (url.pathname.substring('/docs'.length) || '/'),
-    api: API_PATH_PREFIX + (url.pathname.substring('/api'.length) || '/'),
-    metrics: url.pathname.substring(1), // substring to cut off the /
-  };
+  const [, basePath, ...pathPieces] = url.pathname.split('/'); // 'docs', ['asd', '123']
 
-  // Example: /docs/asd/123
-  let bucketPath: string | undefined;
+  const mappedDist = `${DIST_PATH_PREFIX}/${pathPieces[0]}`;
 
-  const splitPath = url.pathname.split('/'); // ['', 'docs', 'asd', '123']
-  const basePath = splitPath[1]; // 'docs'
-
-  const mappedDocs = `${DOCS_PATH_PREFIX}/${splitPath[2]}`;
-  const mappedRelease = `${DIST_PATH_PREFIX}/${splitPath[3]}`;
-  const mappedDist = `${DIST_PATH_PREFIX}/${splitPath[2]}`;
-
-  if (splitPath[1] === 'dist' && REDIRECT_MAP.has(mappedDist)) {
+  if (basePath === 'dist' && REDIRECT_MAP.has(mappedDist)) {
     // All items in REDIRECT_MAP are three levels deep, that is asserted in tests
-    bucketPath = `${REDIRECT_MAP.get(mappedDist)}/${splitPath
-      .slice(3)
-      .join('/')}`;
-  } else if (splitPath[1] === 'docs' && REDIRECT_MAP.has(mappedDocs)) {
-    // All items in REDIRECT_MAP are three levels deep, that is asserted in tests
-    bucketPath = `${REDIRECT_MAP.get(mappedDocs)}/${splitPath
-      .slice(3)
-      .join('/')}`;
-  } else if (splitPath[2] === 'release' && REDIRECT_MAP.has(mappedRelease)) {
-    bucketPath = `${REDIRECT_MAP.get(mappedRelease)}/${splitPath
-      .slice(4)
-      .join('/')}`;
-  } else if (basePath in urlToBucketPathMap) {
-    bucketPath = urlToBucketPathMap[basePath];
-  } else if (env.DIRECTORY_LISTING !== 'restricted') {
-    bucketPath = url.pathname.substring(1);
+    return `${REDIRECT_MAP.get(mappedDist)}/${pathPieces.slice(1).join('/')}`;
   }
 
-  return bucketPath;
+  const mappedDocs = `${DOCS_PATH_PREFIX}/${pathPieces[0]}`;
+
+  if (basePath === 'docs' && REDIRECT_MAP.has(mappedDocs)) {
+    // All items in REDIRECT_MAP are three levels deep, that is asserted in tests
+    return `${REDIRECT_MAP.get(mappedDocs)}/${pathPieces.slice(1).join('/')}`;
+  }
+
+  const mappedRelease = `${DIST_PATH_PREFIX}/${pathPieces[1]}`;
+
+  if (pathPieces[0] === 'release' && REDIRECT_MAP.has(mappedRelease)) {
+    return `${REDIRECT_MAP.get(mappedRelease)}/${pathPieces
+      .slice(2)
+      .join('/')}`;
+  }
+
+  if (basePath in URL_TO_BUCKET_PATH_MAP) {
+    return URL_TO_BUCKET_PATH_MAP[basePath](url);
+  }
+
+  if (env.DIRECTORY_LISTING !== 'restricted') {
+    return url.pathname.substring(1);
+  }
+
+  return undefined;
 }
 
 /**

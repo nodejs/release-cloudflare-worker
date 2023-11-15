@@ -9,6 +9,5 @@ import { Env } from '../env';
 export type Handler = (
   request: Request,
   env: Env,
-  ctx: ExecutionContext,
-  cache: Cache
+  ctx: ExecutionContext
 ) => Promise<Response>;

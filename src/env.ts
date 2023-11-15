@@ -2,7 +2,7 @@ export interface Env {
   /**
    * Environment the worker is running in
    */
-  ENVIRONMENT: 'dev' | 'staging' | 'prod';
+  ENVIRONMENT: 'dev' | 'staging' | 'prod' | 'e2e-tests';
   /**
    * R2 bucket we read from
    */
@@ -36,14 +36,6 @@ export interface Env {
    * Api key for /_cf/cache-purge. If undefined, the endpoint is disabled.
    */
   CACHE_PURGE_API_KEY?: string;
-  /**
-   * Cache control header for files
-   */
-  FILE_CACHE_CONTROL: string;
-  /**
-   * Cache control header for directory listing
-   */
-  DIRECTORY_CACHE_CONTROL: string;
   /**
    * Sentry DSN, used for error monitoring
    * If missing, Sentry isn't used

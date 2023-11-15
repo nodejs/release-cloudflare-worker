@@ -1,4 +1,5 @@
-import responses from '../commonResponses';
+import { CACHE } from '../constants/cache';
+import { BAD_REQUEST, FILE_NOT_FOUND } from '../constants/commonResponses';
 import { VIRTUAL_DIRS } from '../constants/r2Prefixes';
 import {
   isCacheEnabled,
@@ -14,12 +15,12 @@ import {
 } from './strategies/directoryListing';
 import { getFile } from './strategies/serveFile';
 
-const getHandler: Handler = async (request, env, ctx, cache) => {
+const getHandler: Handler = async (request, env, ctx) => {
   const shouldServeCache = isCacheEnabled(env);
 
   if (shouldServeCache) {
     // Caching is enabled, let's see if the request is cached
-    const response = await cache.match(request);
+    const response = await CACHE.match(request);
 
     if (typeof response !== 'undefined') {
       return response;
@@ -29,7 +30,7 @@ const getHandler: Handler = async (request, env, ctx, cache) => {
   const requestUrl = parseUrl(request);
 
   if (requestUrl === undefined) {
-    return responses.BAD_REQUEST;
+    return BAD_REQUEST;
   }
 
   const bucketPath = mapUrlPathToBucketPath(requestUrl, env);
@@ -46,7 +47,7 @@ const getHandler: Handler = async (request, env, ctx, cache) => {
     if (env.DIRECTORY_LISTING === 'off') {
       // File not found since we should only be allowing
       //  file paths if directory listing is off
-      return responses.FILE_NOT_FOUND(request);
+      return FILE_NOT_FOUND(request);
     }
 
     if (bucketPath && !hasTrailingSlash(requestUrl.pathname)) {
@@ -65,8 +66,7 @@ const getHandler: Handler = async (request, env, ctx, cache) => {
       requestUrl,
       request,
       VIRTUAL_DIRS[bucketPath],
-      [],
-      env
+      []
     );
   } else if (isPathADirectory) {
     // List the directory
@@ -86,7 +86,7 @@ const getHandler: Handler = async (request, env, ctx, cache) => {
 
     cachedResponse.headers.append('x-cache-status', 'hit');
 
-    ctx.waitUntil(cache.put(request, cachedResponse));
+    ctx.waitUntil(CACHE.put(request, cachedResponse));
   }
 
   response.headers.append('x-cache-status', 'miss');

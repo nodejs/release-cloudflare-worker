@@ -1,7 +1,8 @@
 import { z } from 'zod';
 import { Env } from '../../env';
-import responses from '../../commonResponses';
 import { mapBucketPathToUrlPath } from '../../util';
+import { CACHE } from '../../constants/cache';
+import { BAD_REQUEST } from '../../constants/commonResponses';
 
 const CachePurgeBodySchema = z.object({
   paths: z.array(z.string()),
@@ -28,14 +29,14 @@ async function parseBody(request: Request): Promise<CachePurgeBody | Response> {
     bodyObject = await request.json<object>();
   } catch (e) {
     // content-type header lied to us
-    return responses.BAD_REQUEST;
+    return BAD_REQUEST;
   }
 
   // Validate the body's contents
   const parseResult = CachePurgeBodySchema.safeParse(bodyObject);
 
   if (!parseResult.success) {
-    return responses.BAD_REQUEST;
+    return BAD_REQUEST;
   }
 
   return parseResult.data;
@@ -52,7 +53,6 @@ async function parseBody(request: Request): Promise<CachePurgeBody | Response> {
 export async function cachePurge(
   url: URL,
   request: Request,
-  cache: Cache,
   env: Env
 ): Promise<Response> {
   const providedApiKey = request.headers.get('x-api-key');
@@ -82,7 +82,7 @@ export async function cachePurge(
     }
 
     for (const urlPath of urlPaths) {
-      promises.push(cache.delete(new Request(`${baseUrl}/${urlPath}`)));
+      promises.push(CACHE.delete(new Request(`${baseUrl}/${urlPath}`)));
     }
   }
 

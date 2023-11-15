@@ -1,6 +1,11 @@
 import { Env } from '../../env';
 import { objectHasBody } from '../../util';
-import responses from '../../commonResponses';
+import { CACHE_HEADERS } from '../../constants/cache';
+import {
+  BAD_REQUEST,
+  FILE_NOT_FOUND,
+  METHOD_NOT_ALLOWED,
+} from '../../constants/commonResponses';
 import { R2_RETRY_LIMIT } from '../../constants/limits';
 
 /**
@@ -127,28 +132,27 @@ export async function getFile(
         break;
       } catch (e) {
         // Unquoted etags make R2 api throw an error
-        return responses.BAD_REQUEST;
+        return BAD_REQUEST;
       }
     case 'HEAD':
       file = await r2HeadWithRetries(env.R2_BUCKET, bucketPath);
       break;
     default:
-      return responses.METHOD_NOT_ALLOWED;
+      return METHOD_NOT_ALLOWED;
   }
 
   if (file === null) {
-    return responses.FILE_NOT_FOUND(request);
+    return FILE_NOT_FOUND(request);
   }
 
   const hasBody = objectHasBody(file);
 
-  const cacheControl =
-    file.httpMetadata?.cacheControl ?? (env.FILE_CACHE_CONTROL || 'no-store');
+  const statusCode = getStatusCode(request, hasBody);
 
   return new Response(
     hasBody && file.size != 0 ? (file as R2ObjectBody).body : null,
     {
-      status: getStatusCode(request, hasBody),
+      status: statusCode,
       headers: {
         etag: file.httpEtag,
         'accept-range': 'bytes',
@@ -156,7 +160,10 @@ export async function getFile(
         'access-control-allow-origin': url.pathname.endsWith('.json')
           ? '*'
           : '',
-        'cache-control': cacheControl,
+        'cache-control':
+          statusCode === 200
+            ? file.httpMetadata?.cacheControl ?? CACHE_HEADERS.success
+            : CACHE_HEADERS.failure,
         expires: file.httpMetadata?.cacheExpiry?.toUTCString() ?? '',
         'last-modified': file.uploaded.toUTCString(),
         'content-encoding': file.httpMetadata?.contentEncoding ?? '',

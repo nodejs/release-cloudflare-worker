@@ -6,13 +6,14 @@ import {
 } from '@aws-sdk/client-s3';
 import Handlebars from 'handlebars';
 import { Env } from '../../env';
-import responses from '../../commonResponses';
 import { niceBytes } from '../../util';
 import { getFile } from './serveFile';
 
 // Imports the Precompiled Handlebars Template
 import htmlTemplate from '../../templates/directoryListing.out.js';
 import { S3_MAX_KEYS, R2_RETRY_LIMIT } from '../../constants/limits';
+import { CACHE_HEADERS } from '../../constants/cache';
+import { DIRECTORY_NOT_FOUND } from '../../constants/commonResponses';
 
 // Applies the Template into a Handlebars Template Function
 const handleBarsTemplate = Handlebars.template(htmlTemplate);
@@ -45,8 +46,7 @@ export function renderDirectoryListing(
   url: URL,
   request: Request,
   delimitedPrefixes: Set<string>,
-  objects: _Object[],
-  env: Env
+  objects: _Object[]
 ): Response {
   // Holds the contents of the listing (directories and files)
   const tableElements: object[] = [];
@@ -132,7 +132,7 @@ export function renderDirectoryListing(
     headers: {
       'last-modified': directoryLastModifiedUtc,
       'content-type': 'text/html',
-      'cache-control': env.DIRECTORY_CACHE_CONTROL || 'no-store',
+      'cache-control': CACHE_HEADERS.success,
     },
   });
 }
@@ -253,12 +253,12 @@ export async function listDirectory(
 
   // Directory needs either subdirectories or files in it cannot be empty
   if (delimitedPrefixes.size === 0 && objects.length === 0) {
-    return responses.DIRECTORY_NOT_FOUND(request);
+    return DIRECTORY_NOT_FOUND(request);
   }
 
   if (request.method === 'HEAD') {
     return new Response(undefined, { status: 200 });
   }
 
-  return renderDirectoryListing(url, request, delimitedPrefixes, objects, env);
+  return renderDirectoryListing(url, request, delimitedPrefixes, objects);
 }

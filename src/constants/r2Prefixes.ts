@@ -20,6 +20,18 @@ export const VIRTUAL_DIRS: Record<string, Set<string>> = {
     [...REDIRECT_MAP]
       .filter(([key]) => key.startsWith('nodejs/docs/'))
       .reverse()
-      .map(([key]) => key.substring(12) + '/')
+      .map(([key]) => key.substring('nodejs/docs/'.length) + '/')
   ),
+};
+
+export const URL_TO_BUCKET_PATH_MAP: Record<string, (url: URL) => string> = {
+  dist: (url): string =>
+    DIST_PATH_PREFIX + (url.pathname.substring('/dist'.length) || '/'),
+  download: (url): string =>
+    DOWNLOAD_PATH_PREFIX + (url.pathname.substring('/download'.length) || '/'),
+  docs: (url): string =>
+    DOCS_PATH_PREFIX + (url.pathname.substring('/docs'.length) || '/'),
+  api: (url): string =>
+    API_PATH_PREFIX + (url.pathname.substring('/api'.length) || '/'),
+  metrics: (url): string => url.pathname.substring(1), // substring to cut off the /
 };

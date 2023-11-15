@@ -1,7 +1,8 @@
 import { Env } from './env';
-import responses from './commonResponses';
 import handlers from './handlers';
 import { Toucan } from 'toucan-js';
+import { CACHE_HEADERS } from './constants/cache';
+import { METHOD_NOT_ALLOWED } from './constants/commonResponses';
 
 interface Worker {
   /**
@@ -13,8 +14,6 @@ interface Worker {
 
 const cloudflareWorker: Worker = {
   fetch: async (request, env, ctx) => {
-    const cache = caches.default;
-
     const sentry = new Toucan({
       dsn: env.SENTRY_DSN,
       request,
@@ -29,13 +28,13 @@ const cloudflareWorker: Worker = {
       switch (request.method) {
         case 'HEAD':
         case 'GET':
-          return await handlers.get(request, env, ctx, cache);
+          return await handlers.get(request, env, ctx);
         case 'POST':
-          return await handlers.post(request, env, ctx, cache);
+          return await handlers.post(request, env, ctx);
         case 'OPTIONS':
-          return await handlers.options(request, env, ctx, cache);
+          return await handlers.options(request, env, ctx);
         default:
-          return responses.METHOD_NOT_ALLOWED;
+          return METHOD_NOT_ALLOWED;
       }
     } catch (e) {
       // Send to sentry, if it's disabled this will just noop
@@ -49,7 +48,7 @@ const cloudflareWorker: Worker = {
 
       return new Response(responseBody, {
         status: 500,
-        headers: { 'cache-control': 'no-store' },
+        headers: { 'cache-control': CACHE_HEADERS.failure },
       });
     }
   },
