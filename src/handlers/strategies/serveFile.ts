@@ -56,17 +56,21 @@ async function r2GetWithRetries(
   key: string,
   options?: R2GetOptions
 ): Promise<R2Object | null> {
+  let r2Error: unknown = undefined;
   for (let i = 0; i < R2_RETRY_LIMIT; i++) {
     try {
       return await bucket.get(key, options);
     } catch (err) {
       // Log error & retry
       console.error(`R2 GetObject error: ${err}`);
+      r2Error = err;
     }
   }
 
   // R2 isn't having a good day, return a 500 & log to sentry
-  throw new Error(`R2 GetObject failed after ${R2_RETRY_LIMIT} retries: `);
+  throw new Error(
+    `R2 GetObject failed after ${R2_RETRY_LIMIT} retries: ${r2Error}`
+  );
 }
 
 /**
@@ -80,18 +84,21 @@ async function r2HeadWithRetries(
   bucket: R2Bucket,
   key: string
 ): Promise<R2Object | null> {
+  let r2Error: unknown = undefined;
   for (let i = 0; i < R2_RETRY_LIMIT; i++) {
     try {
-      const file = await bucket.head(key);
-      return file;
+      return await bucket.head(key);
     } catch (err) {
       // Log error & retry
       console.error(`R2 HeadObject error: ${err}`);
+      r2Error = err;
     }
   }
 
   // R2 isn't having a good day, return a 500 & log to sentry
-  throw new Error(`R2 HeadObject failed after ${R2_RETRY_LIMIT} retries: `);
+  throw new Error(
+    `R2 HeadObject failed after ${R2_RETRY_LIMIT} retries: ${r2Error}`
+  );
 }
 
 /**

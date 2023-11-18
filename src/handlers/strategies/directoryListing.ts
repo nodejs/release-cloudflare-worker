@@ -152,8 +152,8 @@ async function fetchR2Result(
   cursor: string | undefined,
   env: Env
 ): Promise<ListObjectsV2CommandOutput> {
-  let retriesRemaining = R2_RETRY_LIMIT;
-  while (retriesRemaining > 0) {
+  let r2Error: unknown = undefined;
+  for (let i = 0; i < R2_RETRY_LIMIT; i++) {
     try {
       // Send request to R2
       const result = await client.send(
@@ -172,12 +172,12 @@ async function fetchR2Result(
       // Got an error, let's log it and retry
       console.error(`R2 ListObjectsV2 error: ${err}`);
 
-      retriesRemaining--;
+      r2Error = err;
     }
   }
 
   // R2 isn't having a good day, return a 500
-  throw new Error(`R2 failed listing path ${bucketPath}`);
+  throw new Error(`R2 failed listing path ${bucketPath}: ${r2Error}`);
 }
 
 /**
