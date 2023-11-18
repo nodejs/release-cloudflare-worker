@@ -1,6 +1,7 @@
 import { Env } from '../../env';
 import { objectHasBody } from '../../util';
 import responses from '../../commonResponses';
+import { R2_RETRY_LIMIT } from '../../constants/limits';
 
 /**
  * Decides on what status code to return to
@@ -43,6 +44,57 @@ function getStatusCode(request: Request, objectHasBody: boolean): number {
 }
 
 /**
+ * Fetch an object from a R2 bucket with retries
+ *  The bindings _might_ have retries, if so this just adds
+ *  a little bit more resiliency
+ * @param bucket The {@link R2Bucket} to read from
+ * @param key Object key
+ * @param options Conditional headers, etc.
+ */
+async function r2GetWithRetries(
+  bucket: R2Bucket,
+  key: string,
+  options?: R2GetOptions
+): Promise<R2Object | null> {
+  for (let i = 0; i < R2_RETRY_LIMIT; i++) {
+    try {
+      return await bucket.get(key, options);
+    } catch (err) {
+      // Log error & retry
+      console.error(`R2 GetObject error: ${err}`);
+    }
+  }
+
+  // R2 isn't having a good day, return a 500 & log to sentry
+  throw new Error(`R2 GetObject failed after ${R2_RETRY_LIMIT} retries: `);
+}
+
+/**
+ * Fetch an object from a R2 bucket with retries
+ *  The bindings _might_ have retries, if so this just adds
+ *  a little bit more resiliency
+ * @param bucket The {@link R2Bucket} to read from
+ * @param key Object key
+ */
+async function r2HeadWithRetries(
+  bucket: R2Bucket,
+  key: string
+): Promise<R2Object | null> {
+  for (let i = 0; i < R2_RETRY_LIMIT; i++) {
+    try {
+      const file = await bucket.head(key);
+      return file;
+    } catch (err) {
+      // Log error & retry
+      console.error(`R2 HeadObject error: ${err}`);
+    }
+  }
+
+  // R2 isn't having a good day, return a 500 & log to sentry
+  throw new Error(`R2 HeadObject failed after ${R2_RETRY_LIMIT} retries: `);
+}
+
+/**
  * File handler
  * @param url Parsed url of the request
  * @param request Request object itself
@@ -60,7 +112,7 @@ export async function getFile(
   switch (request.method) {
     case 'GET':
       try {
-        file = await env.R2_BUCKET.get(bucketPath, {
+        file = await r2GetWithRetries(env.R2_BUCKET, bucketPath, {
           onlyIf: request.headers,
           range: request.headers,
         });
@@ -71,7 +123,7 @@ export async function getFile(
         return responses.BAD_REQUEST;
       }
     case 'HEAD':
-      file = await env.R2_BUCKET.head(bucketPath);
+      file = await r2HeadWithRetries(env.R2_BUCKET, bucketPath);
       break;
     default:
       return responses.METHOD_NOT_ALLOWED;
