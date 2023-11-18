@@ -220,6 +220,14 @@ describe('isDirectoryPath', () => {
   it('returns false for `/dist/index.json`', () => {
     assert.strictEqual(isDirectoryPath('/dist/index.json'), false);
   });
+
+  // https://github.com/nodejs/release-cloudflare-worker/issues/71
+  it('returns false for `/download/release/latest/win-x64/node_pdb.7z`', () => {
+    assert.strictEqual(
+      isDirectoryPath('/download/release/latest/win-x64/node_pdb.7z'),
+      false
+    );
+  });
 });
 
 describe('niceBytes', () => {

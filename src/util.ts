@@ -217,19 +217,10 @@ export function isExtensionless(path: string): boolean {
 
   const fileExtension = path.substring(extensionDelimiter + 1); // +1 to remove the `.`
 
-  // `latest-vXX.x` directory
-  if (fileExtension.toLowerCase() === 'x') {
-    return true;
-  }
-
-  // `vX.X.X` directory
-  //  File extensions generally aren't numbers, so if we can parse this to
-  //  one we can be pretty certain that it's a directory
-  if (!isNaN(Number.parseInt(fileExtension))) {
-    return true;
-  }
-
-  return false;
+  // This handles the two exceptions
+  //  Either fileExtension === 'x' or we can parse it to a number successfully,
+  //  since generally file extensions aren't numbers
+  return /^([a-z]|\d+)$/i.test(fileExtension);
 }
 
 /**
