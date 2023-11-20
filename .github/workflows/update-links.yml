@@ -1,6 +1,7 @@
 name: Update Redirect Links
 
 on:
+  # Triggered by https://github.com/nodejs/node/blob/main/.github/workflows/update-release-links.yml
   workflow_dispatch:
   schedule:
     - cron: "0 0 * * *"
@@ -31,15 +32,16 @@ jobs:
         env:
           CF_ACCESS_KEY_ID: ${{ secrets.CF_ACCESS_KEY_ID }}
           CF_SECRET_ACCESS_KEY: ${{ secrets.CF_SECRET_ACCESS_KEY }}
-
-      - name: Open PR with updates
-        uses: peter-evans/create-pull-request@v5
+      
+      - name: Commit Changes
+        uses: stefanzweifel/git-auto-commit-action@8756aa072ef5b4a080af5dc8fef36c5d586e521d # v5.0.0
         with:
-          commit-message: Update Redirect links
-          title: "chore: update redirect links"
-          body: |
-            This PR updates the links for url redirects.
-          branch: update-redirect-links
-          delete-branch: true
-          base: main
+          commit_options: '--no-verify --no-signoff'
+          commit_message: 'chore: update redirect links'
+      
+      - name: Deploy Worker to Production
+        run: |
+          gh workflow run deploy.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_USER_TOKEN }}
         
