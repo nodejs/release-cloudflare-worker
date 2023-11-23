@@ -43,8 +43,8 @@ jobs:
       
       - name: Open and Merge Pull Request
         run: |
-          pr_url="$(gh pr create --head update-redirect-links --fill)"
-          gh pr merge --auto -r "$pr_url"
+          gh pr create --fill
+          gh pr merge --auto
         env:
           GITHUB_TOKEN: ${{ secrets.GH_BOT_TOKEN }}
         
