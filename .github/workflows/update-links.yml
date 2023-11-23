@@ -44,7 +44,7 @@ jobs:
       - name: Open and Merge Pull Request
         run: |
           gh pr create --fill
-          gh pr merge --auto --squash --delete-branch
+          gh pr merge --squash --delete-branch --admin
         env:
           GITHUB_TOKEN: ${{ secrets.GH_BOT_TOKEN }}
         
