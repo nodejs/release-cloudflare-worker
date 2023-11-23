@@ -58,6 +58,7 @@ describe('Directory Tests (Restricted Directory Listing)', () => {
       scriptPath: './dist/worker.js',
       modules: true,
       bindings: {
+        ENVIRONMENT: 'e2e-tests',
         BUCKET_NAME: 'dist-prod',
         // S3_ENDPOINT needs to be an ip here otherwise s3 sdk will try to hit
         //  the bucket's subdomain (e.g. http://dist-prod.localhost)
@@ -66,8 +67,6 @@ describe('Directory Tests (Restricted Directory Listing)', () => {
         S3_ACCESS_KEY_SECRET:
           'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
         DIRECTORY_LISTING: 'restricted',
-        FILE_CACHE_CONTROL: 'no-store',
-        DIRECTORY_CACHE_CONTROL: 'no-store',
       },
       r2Persist: './tests/e2e/test-data',
       r2Buckets: ['R2_BUCKET'],
@@ -87,6 +86,11 @@ describe('Directory Tests (Restricted Directory Listing)', () => {
 
     assert.strictEqual(originalRes.status, 301);
     const res = await mf.dispatchFetch(originalRes.headers.get('location')!);
+    assert.strictEqual(res.status, 200);
+    assert.strictEqual(
+      res.headers.get('cache-control'),
+      'public, max-age=3600, s-maxage=14400'
+    );
 
     // Assert that the html matches what we're expecting
     //  to be returned. If this passes, we can assume
@@ -169,7 +173,11 @@ describe('Directory Tests (Restricted Directory Listing)', () => {
     assert.strictEqual(res.status, 404);
 
     const body = await res.text();
-    assert.strict(body, 'Directory not found');
+    assert.strictEqual(body, 'Directory not found');
+    assert.strictEqual(
+      res.headers.get('cache-control'),
+      'private, no-cache, no-store, max-age=0, must-revalidate'
+    );
   });
 
   // Cleanup Miniflare

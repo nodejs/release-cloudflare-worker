@@ -5,16 +5,14 @@ import { Miniflare } from 'miniflare';
 describe('File Tests', () => {
   let mf: Miniflare;
   let url: URL;
-  const cacheControl = 'no-store';
   before(async () => {
     // Setup miniflare
     mf = new Miniflare({
       scriptPath: './dist/worker.js',
       modules: true,
       bindings: {
+        ENVIRONMENT: 'e2e-tests',
         DIRECTORY_LISTING: 'restricted',
-        FILE_CACHE_CONTROL: cacheControl,
-        DIRECTORY_CACHE_CONTROL: 'no-store',
       },
       r2Persist: './tests/e2e/test-data',
       r2Buckets: ['R2_BUCKET'],
@@ -28,7 +26,10 @@ describe('File Tests', () => {
     const res = await mf.dispatchFetch(`${url}dist/index.json`);
     assert.strictEqual(res.status, 200);
     assert.strictEqual(res.headers.get('content-type'), 'application/json');
-    assert.strictEqual(res.headers.get('cache-control'), cacheControl);
+    assert.strictEqual(
+      res.headers.get('cache-control'),
+      'public, max-age=3600, s-maxage=14400'
+    );
     assert.strictEqual(res.headers.has('etag'), true);
     assert.strictEqual(res.headers.has('last-modified'), true);
     assert.strictEqual(res.headers.has('content-type'), true);
@@ -43,10 +44,14 @@ describe('File Tests', () => {
     });
     assert.strictEqual(res.status, 200);
     assert.strictEqual(res.headers.get('content-type'), 'application/json');
-    assert.strictEqual(res.headers.get('cache-control'), cacheControl);
+    assert.strictEqual(
+      res.headers.get('cache-control'),
+      'public, max-age=3600, s-maxage=14400'
+    );
     assert.strictEqual(res.headers.has('etag'), true);
     assert.strictEqual(res.headers.has('last-modified'), true);
     assert.strictEqual(res.headers.has('content-type'), true);
+    assert.strictEqual(res.headers.has('x-cache-status'), false);
 
     const body = await res.text();
     assert.strictEqual(body.length, 0);
@@ -58,6 +63,10 @@ describe('File Tests', () => {
 
     const body = await res.text();
     assert.strictEqual(body, 'File not found');
+    assert.strictEqual(
+      res.headers.get('cache-control'),
+      'private, no-cache, no-store, max-age=0, must-revalidate'
+    );
   });
 
   /**
@@ -96,6 +105,10 @@ describe('File Tests', () => {
       },
     });
     assert.strictEqual(res.status, 412);
+    assert.strictEqual(
+      res.headers.get('cache-control'),
+      'private, no-cache, no-store, max-age=0, must-revalidate'
+    );
   });
 
   it('handles if-match correctly', async () => {
@@ -111,6 +124,10 @@ describe('File Tests', () => {
       },
     });
     assert.strictEqual(res.status, 412);
+    assert.strictEqual(
+      res.headers.get('cache-control'),
+      'private, no-cache, no-store, max-age=0, must-revalidate'
+    );
 
     // If-Match w/ valid etag returns 200
     res = await mf.dispatchFetch(`${url}dist/index.json`, {
