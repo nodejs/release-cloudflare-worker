@@ -38,10 +38,13 @@ jobs:
         with:
           commit_options: '--no-verify --no-signoff'
           commit_message: 'chore: update redirect links'
+          branch: update-redirect-links
+          create_branch: true
       
-      - name: Deploy Worker to Production
+      - name: Open and Merge Pull Request
         run: |
-          gh workflow run deploy.yml
+          pr_url="$(gh pr create --head update-redirect-links --fill)"
+          gh pr merge --auto -r "$pr_url"
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_USER_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
