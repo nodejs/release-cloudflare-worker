@@ -34,6 +34,7 @@ jobs:
           CF_SECRET_ACCESS_KEY: ${{ secrets.CF_SECRET_ACCESS_KEY }}
       
       - name: Commit Changes
+        id: git_auto_commit
         uses: stefanzweifel/git-auto-commit-action@8756aa072ef5b4a080af5dc8fef36c5d586e521d # v5.0.0
         with:
           commit_options: '--no-verify --no-signoff'
@@ -42,6 +43,7 @@ jobs:
           create_branch: true
       
       - name: Open and Merge Pull Request
+        if: steps.git_auto_commit.outputs.changes_detected == 'true'
         run: |
           gh pr create --fill
           gh pr merge --squash --delete-branch --admin
