@@ -49,4 +49,11 @@ jobs:
           gh pr merge --squash --delete-branch --admin
         env:
           GITHUB_TOKEN: ${{ secrets.GH_BOT_TOKEN }}
+
+      - name: Deploy to Production
+        if: steps.git_auto_commit.outputs.changes_detected == 'true'
+        run: |
+          gh workflow run deploy.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_BOT_TOKEN }}
         
