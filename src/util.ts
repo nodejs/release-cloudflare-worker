@@ -199,8 +199,15 @@ export function isExtensionless(path: string): boolean {
   //  - `latest-vXX.x` directories
   //  - `vX.X.X` directories
 
+  const finalSlashIndex = path.lastIndexOf('/');
   const extensionDelimiter = path.lastIndexOf('.');
-  if (extensionDelimiter === -1) {
+
+  // extensionDelimiter is the index of the last `.`, we use it to tell
+  //  whether or not there is a file extension. However, bucket paths such
+  //  as `nodejs/release/v21.2.0/docs/api/` trip it up. So check if there's
+  //  no extension OR if the extension comes before the final `/` and thus
+  //  can't be a file extension
+  if (extensionDelimiter === -1 || extensionDelimiter < finalSlashIndex) {
     return true;
   }
 

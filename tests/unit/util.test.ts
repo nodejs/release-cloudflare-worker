@@ -228,6 +228,11 @@ describe('isDirectoryPath', () => {
       false
     );
   });
+
+  // https://github.com/nodejs/release-cloudflare-worker/issues/99
+  it('returns true for `/docs/latest/api`', () => {
+    assert.strictEqual(isDirectoryPath('/docs/latest/api'), true);
+  });
 });
 
 describe('niceBytes', () => {
