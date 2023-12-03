@@ -1,5 +1,21 @@
 <html>
-<head><title>Index of {{pathname}}</title></head>
+<head>
+  <title>Index of {{pathname}}</title>
+  <style>   
+    @media (prefers-color-scheme: dark) {
+      body {
+        color: white;
+        background-color: #1c1b22;
+      }
+      a {
+        color: #3391ff;
+      }
+      a:visited {
+        color: #C63B65;
+      }
+    }
+  </style>
+</head>
 <body>
 <h1>Index of {{pathname}}</h1><hr><pre><a href="../">../</a>
 {{#each entries}}
