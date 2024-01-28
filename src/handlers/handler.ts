@@ -1,13 +1,8 @@
-import { Env } from '../env';
+import { Context } from '../context';
 
 /**
  * @param request Request object itself
- * @param env Worker env
- * @param ctx Execution context
+ * @param ctx Worker context
  * @param cache Cache to use if applicable
  */
-export type Handler = (
-  request: Request,
-  env: Env,
-  ctx: ExecutionContext
-) => Promise<Response>;
+export type Handler = (request: Request, ctx: Context) => Promise<Response>;

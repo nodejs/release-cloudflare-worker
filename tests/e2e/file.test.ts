@@ -18,7 +18,7 @@ describe('File Tests', () => {
       r2Buckets: ['R2_BUCKET'],
     });
 
-    // Wait for it Miniflare to start
+    // Wait for Miniflare to start
     url = await mf.ready;
   });
 

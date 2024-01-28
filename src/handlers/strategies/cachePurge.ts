@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import { Env } from '../../env';
 import { mapBucketPathToUrlPath } from '../../util';
 import { CACHE } from '../../constants/cache';
 import { BAD_REQUEST } from '../../constants/commonResponses';
+import { Context } from '../../context';
 
 const CachePurgeBodySchema = z.object({
   paths: z.array(z.string()),
@@ -53,11 +53,11 @@ async function parseBody(request: Request): Promise<CachePurgeBody | Response> {
 export async function cachePurge(
   url: URL,
   request: Request,
-  env: Env
+  ctx: Context
 ): Promise<Response> {
   const providedApiKey = request.headers.get('x-api-key');
 
-  if (providedApiKey !== env.CACHE_PURGE_API_KEY) {
+  if (providedApiKey !== ctx.env.CACHE_PURGE_API_KEY) {
     return new Response(undefined, { status: 403 });
   }
 
@@ -75,7 +75,7 @@ export async function cachePurge(
   const promises = new Array<Promise<boolean>>();
 
   for (const path of body.paths) {
-    const urlPaths = mapBucketPathToUrlPath(path, env);
+    const urlPaths = mapBucketPathToUrlPath(path, ctx.env);
 
     if (typeof urlPaths === 'undefined') {
       continue;

@@ -3,6 +3,7 @@ import handlers from './handlers';
 import { Toucan } from 'toucan-js';
 import { CACHE_HEADERS } from './constants/cache';
 import { METHOD_NOT_ALLOWED } from './constants/commonResponses';
+import { Context } from './context';
 
 interface Worker {
   /**
@@ -25,14 +26,19 @@ const cloudflareWorker: Worker = {
     });
 
     try {
+      const context: Context = {
+        sentry,
+        env,
+        execution: ctx,
+      };
       switch (request.method) {
         case 'HEAD':
         case 'GET':
-          return await handlers.get(request, env, ctx);
+          return await handlers.get(request, context);
         case 'POST':
-          return await handlers.post(request, env, ctx);
+          return await handlers.post(request, context);
         case 'OPTIONS':
-          return await handlers.options(request, env, ctx);
+          return await handlers.options(request, context);
         default:
           return METHOD_NOT_ALLOWED;
       }
@@ -42,7 +48,10 @@ const cloudflareWorker: Worker = {
 
       let responseBody = 'Internal Server Error';
 
-      if (env.ENVIRONMENT === 'dev' && e instanceof Error) {
+      if (
+        (env.ENVIRONMENT === 'dev' || env.ENVIRONMENT === 'e2e-tests') &&
+        e instanceof Error
+      ) {
         responseBody += `\nMessage: ${e.message}\nStack trace: ${e.stack}`;
       }
 

@@ -3,7 +3,7 @@ import { parseUrl } from '../util';
 import { Handler } from './handler';
 import { cachePurge } from './strategies/cachePurge';
 
-const postHandler: Handler = async (request, env) => {
+const postHandler: Handler = async (request, ctx) => {
   const url = parseUrl(request);
 
   if (url === undefined) {
@@ -14,7 +14,7 @@ const postHandler: Handler = async (request, env) => {
   //  directories that are commonly updated so we don't need to
   //  wait for the cache to expire
   if (url.pathname === '/_cf/cache-purge') {
-    return cachePurge(url, request, env);
+    return cachePurge(url, request, ctx);
   }
 
   return new Response(url.pathname, { status: 404 });
