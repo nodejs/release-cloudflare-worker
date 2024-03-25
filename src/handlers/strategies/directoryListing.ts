@@ -5,7 +5,6 @@ import {
   _Object,
 } from '@aws-sdk/client-s3';
 import Handlebars from 'handlebars';
-import { Env } from '../../env';
 import { niceBytes } from '../../util';
 import { getFile } from './serveFile';
 
@@ -14,6 +13,7 @@ import htmlTemplate from '../../templates/directoryListing.out.js';
 import { S3_MAX_KEYS, R2_RETRY_LIMIT } from '../../constants/limits';
 import { CACHE_HEADERS } from '../../constants/cache';
 import { DIRECTORY_NOT_FOUND } from '../../constants/commonResponses';
+import { Context } from '../../context';
 
 // Applies the Template into a Handlebars Template Function
 const handleBarsTemplate = Handlebars.template(htmlTemplate);
@@ -147,18 +147,19 @@ export function renderDirectoryListing(
  * @throws When all retries are exhausted and no response was returned
  */
 async function fetchR2Result(
+  url: URL,
   client: S3Client,
   bucketPath: string,
   cursor: string | undefined,
-  env: Env
-): Promise<ListObjectsV2CommandOutput> {
+  ctx: Context
+): Promise<ListObjectsV2CommandOutput | Response> {
   let r2Error: unknown = undefined;
   for (let i = 0; i < R2_RETRY_LIMIT; i++) {
     try {
       // Send request to R2
       const result = await client.send(
         new ListObjectsV2Command({
-          Bucket: env.BUCKET_NAME,
+          Bucket: ctx.env.BUCKET_NAME,
           Prefix: bucketPath,
           Delimiter: '/',
           MaxKeys: S3_MAX_KEYS,
@@ -176,8 +177,18 @@ async function fetchR2Result(
     }
   }
 
-  // R2 isn't having a good day, return a 500
-  throw new Error(`R2 failed listing path ${bucketPath}: ${r2Error}`);
+  // R2 isn't having a good day, log to sentry & rewrite to direct.nodejs.org
+  const error = new Error(`R2 failed listing path ${bucketPath}: ${r2Error}`);
+  if (ctx.env.USE_FALLBACK_WHEN_R2_FAILS) {
+    ctx.sentry.captureException(error);
+    const res = await fetch(ctx.env.FALLBACK_HOST + url.pathname, {
+      method: 'GET',
+    });
+    return res;
+  } else {
+    // Return 500
+    throw error;
+  }
 }
 
 /**
@@ -191,7 +202,7 @@ export async function listDirectory(
   url: URL,
   request: Request,
   bucketPath: string,
-  env: Env
+  ctx: Context
 ): Promise<Response> {
   const delimitedPrefixes = new Set<string>();
   const objects: _Object[] = []; // s3 sdk types are weird
@@ -205,10 +216,10 @@ export async function listDirectory(
   //  using it for now.
   const client = new S3Client({
     region: 'auto',
-    endpoint: env.S3_ENDPOINT,
+    endpoint: ctx.env.S3_ENDPOINT,
     credentials: {
-      accessKeyId: env.S3_ACCESS_KEY_ID,
-      secretAccessKey: env.S3_ACCESS_KEY_SECRET,
+      accessKeyId: ctx.env.S3_ACCESS_KEY_ID,
+      secretAccessKey: ctx.env.S3_ACCESS_KEY_SECRET,
     },
   });
 
@@ -216,12 +227,18 @@ export async function listDirectory(
   let cursor: string | undefined;
 
   while (truncated) {
-    const result: ListObjectsV2CommandOutput = await fetchR2Result(
+    const result: ListObjectsV2CommandOutput | Response = await fetchR2Result(
+      url,
       client,
       bucketPath,
       cursor,
-      env
+      ctx
     );
+
+    // Fell back to direct.nodejs.org, return the response
+    if (result instanceof Response) {
+      return result;
+    }
 
     // R2 sends us back the absolute path of the object, cut it
     result.CommonPrefixes?.forEach(path => {
@@ -234,7 +251,7 @@ export async function listDirectory(
       : false;
 
     if (hasIndexFile) {
-      return getFile(url, request, `${bucketPath}index.html`, env);
+      return getFile(url, request, `${bucketPath}index.html`, ctx);
     }
 
     // R2 sends us back the absolute path of the object, cut it

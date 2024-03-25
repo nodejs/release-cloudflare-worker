@@ -41,4 +41,13 @@ export interface Env {
    * If missing, Sentry isn't used
    */
   SENTRY_DSN?: string;
+  /**
+   * If true and all retries to R2 fail, we will rewrite the request to
+   *  https://direct.nodejs.org
+   */
+  USE_FALLBACK_WHEN_R2_FAILS: boolean;
+  /**
+   * Host for the www/Digital Ocean/origin server
+   */
+  FALLBACK_HOST: string;
 }

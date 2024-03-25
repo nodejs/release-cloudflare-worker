@@ -15,8 +15,8 @@ import {
 } from './strategies/directoryListing';
 import { getFile } from './strategies/serveFile';
 
-const getHandler: Handler = async (request, env, ctx) => {
-  const shouldServeCache = isCacheEnabled(env);
+const getHandler: Handler = async (request, ctx) => {
+  const shouldServeCache = isCacheEnabled(ctx.env);
 
   if (shouldServeCache) {
     // Caching is enabled, let's see if the request is cached
@@ -33,7 +33,7 @@ const getHandler: Handler = async (request, env, ctx) => {
     return BAD_REQUEST;
   }
 
-  const bucketPath = mapUrlPathToBucketPath(requestUrl, env);
+  const bucketPath = mapUrlPathToBucketPath(requestUrl, ctx.env);
 
   if (typeof bucketPath === 'undefined') {
     // Directory listing is restricted and we're not on
@@ -44,7 +44,7 @@ const getHandler: Handler = async (request, env, ctx) => {
   const isPathADirectory = isDirectoryPath(bucketPath);
 
   if (isPathADirectory) {
-    if (env.DIRECTORY_LISTING === 'off') {
+    if (ctx.env.DIRECTORY_LISTING === 'off') {
       // File not found since we should only be allowing
       //  file paths if directory listing is off
       return FILE_NOT_FOUND(request);
@@ -70,26 +70,31 @@ const getHandler: Handler = async (request, env, ctx) => {
     );
   } else if (isPathADirectory) {
     // List the directory
-    response = await listDirectory(requestUrl, request, bucketPath, env);
+    response = await listDirectory(requestUrl, request, bucketPath, ctx);
   } else {
     // Fetch the file
-    response = await getFile(requestUrl, request, bucketPath, env);
+    response = await getFile(requestUrl, request, bucketPath, ctx);
   }
 
   if (request.method === 'HEAD') {
     return response;
   }
 
+  // Responses from fetch() are immutable + we don't want to cache these anyways
+  const didRequestFallback = response.url.startsWith(ctx.env.FALLBACK_HOST);
+
   // Cache response if cache is enabled
-  if (shouldServeCache && response.status === 200) {
+  if (shouldServeCache && response.status === 200 && !didRequestFallback) {
     const cachedResponse = response.clone();
 
     cachedResponse.headers.append('x-cache-status', 'hit');
 
-    ctx.waitUntil(CACHE.put(request, cachedResponse));
+    ctx.execution.waitUntil(CACHE.put(request, cachedResponse));
   }
 
-  response.headers.append('x-cache-status', 'miss');
+  if (!didRequestFallback) {
+    response.headers.append('x-cache-status', 'miss');
+  }
 
   return response;
 };

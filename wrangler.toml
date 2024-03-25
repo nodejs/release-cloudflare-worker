@@ -12,7 +12,9 @@ S3_ENDPOINT = 'https://07be8d2fbc940503ca1be344714cb0d1.r2.cloudflarestorage.com
 DIRECTORY_LISTING = 'on'
 FILE_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
 DIRECTORY_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
-BUCKET_NAME='dist-prod'
+BUCKET_NAME = 'dist-prod'
+USE_FALLBACK_WHEN_R2_FAILS = false
+FALLBACK_HOST = 'https://origin.nodejs.org'
 
 [[r2_buckets]]
 binding = 'R2_BUCKET'
@@ -28,7 +30,9 @@ S3_ENDPOINT = 'https://07be8d2fbc940503ca1be344714cb0d1.r2.cloudflarestorage.com
 DIRECTORY_LISTING = 'restricted'
 FILE_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
 DIRECTORY_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
-BUCKET_NAME='dist-prod'
+BUCKET_NAME = 'dist-prod'
+USE_FALLBACK_WHEN_R2_FAILS = true
+FALLBACK_HOST = 'https://origin.nodejs.org'
 
 [[env.staging.r2_buckets]]
 binding = 'R2_BUCKET'
@@ -45,6 +49,8 @@ DIRECTORY_LISTING = 'restricted'
 FILE_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
 DIRECTORY_CACHE_CONTROL = 'public, max-age=3600, s-maxage=14400'
 BUCKET_NAME='dist-prod'
+USE_FALLBACK_WHEN_R2_FAILS = true
+FALLBACK_HOST = 'https://origin.nodejs.org'
 
 [[env.prod.r2_buckets]]
 binding = 'R2_BUCKET'

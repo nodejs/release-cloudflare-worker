@@ -1,12 +1,11 @@
-import { Env } from '../../env';
 import { objectHasBody } from '../../util';
 import { CACHE_HEADERS } from '../../constants/cache';
 import {
-  BAD_REQUEST,
   FILE_NOT_FOUND,
   METHOD_NOT_ALLOWED,
 } from '../../constants/commonResponses';
 import { R2_RETRY_LIMIT } from '../../constants/limits';
+import { Context } from '../../context';
 
 /**
  * Decides on what status code to return to
@@ -57,10 +56,12 @@ function getStatusCode(request: Request, objectHasBody: boolean): number {
  * @param options Conditional headers, etc.
  */
 async function r2GetWithRetries(
+  url: URL,
   bucket: R2Bucket,
+  ctx: Context,
   key: string,
   options?: R2GetOptions
-): Promise<R2Object | null> {
+): Promise<R2Object | Response | null> {
   let r2Error: unknown = undefined;
   for (let i = 0; i < R2_RETRY_LIMIT; i++) {
     try {
@@ -72,10 +73,19 @@ async function r2GetWithRetries(
     }
   }
 
-  // R2 isn't having a good day, return a 500 & log to sentry
-  throw new Error(
+  // R2 isn't having a good day, log to sentry & rewrite to origin.nodejs.org
+  const error = new Error(
     `R2 GetObject failed after ${R2_RETRY_LIMIT} retries: ${r2Error}`
   );
+  if (ctx.env.USE_FALLBACK_WHEN_R2_FAILS) {
+    ctx.sentry.captureException(error);
+    const res = await fetch(ctx.env.FALLBACK_HOST + url.pathname, {
+      method: 'GET',
+    });
+    return res;
+  } else {
+    throw error;
+  }
 }
 
 /**
@@ -86,9 +96,11 @@ async function r2GetWithRetries(
  * @param key Object key
  */
 async function r2HeadWithRetries(
+  url: URL,
   bucket: R2Bucket,
+  ctx: Context,
   key: string
-): Promise<R2Object | null> {
+): Promise<R2Object | Response | null> {
   let r2Error: unknown = undefined;
   for (let i = 0; i < R2_RETRY_LIMIT; i++) {
     try {
@@ -100,10 +112,19 @@ async function r2HeadWithRetries(
     }
   }
 
-  // R2 isn't having a good day, return a 500 & log to sentry
-  throw new Error(
+  // R2 isn't having a good day, log to sentry & rewrite to direct.nodejs.org
+  const error = new Error(
     `R2 HeadObject failed after ${R2_RETRY_LIMIT} retries: ${r2Error}`
   );
+  if (ctx.env.USE_FALLBACK_WHEN_R2_FAILS) {
+    ctx.sentry.captureException(error);
+    const res = await fetch(ctx.env.FALLBACK_HOST + url.pathname, {
+      method: 'HEAD',
+    });
+    return res;
+  } else {
+    throw error;
+  }
 }
 
 /**
@@ -117,26 +138,49 @@ export async function getFile(
   url: URL,
   request: Request,
   bucketPath: string,
-  env: Env
+  ctx: Context
 ): Promise<Response> {
   let file: R2Object | null = null;
 
   switch (request.method) {
-    case 'GET':
-      try {
-        file = await r2GetWithRetries(env.R2_BUCKET, bucketPath, {
+    case 'GET': {
+      const getResponse = await r2GetWithRetries(
+        url,
+        ctx.env.R2_BUCKET,
+        ctx,
+        bucketPath,
+        {
           onlyIf: request.headers,
           range: request.headers,
-        });
+        }
+      );
 
-        break;
-      } catch (e) {
-        // Unquoted etags make R2 api throw an error
-        return BAD_REQUEST;
+      if (getResponse instanceof Response) {
+        // Fell back to direct.nodejs.org, return the response
+        return getResponse;
       }
-    case 'HEAD':
-      file = await r2HeadWithRetries(env.R2_BUCKET, bucketPath);
+
+      file = getResponse;
+
       break;
+    }
+    case 'HEAD': {
+      const headResponse = await r2HeadWithRetries(
+        url,
+        ctx.env.R2_BUCKET,
+        ctx,
+        bucketPath
+      );
+
+      if (headResponse instanceof Response) {
+        // Fell back to direct.nodejs.org, return the response
+        return headResponse;
+      }
+
+      file = headResponse;
+
+      break;
+    }
     default:
       return METHOD_NOT_ALLOWED;
   }
