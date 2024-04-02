@@ -1,8 +1,7 @@
 import { Env } from './env';
 import handlers from './handlers';
 import { Toucan } from 'toucan-js';
-import { CACHE_HEADERS } from './constants/cache';
-import { METHOD_NOT_ALLOWED } from './constants/commonResponses';
+import responses from './responses';
 import { Context } from './context';
 
 interface Worker {
@@ -40,25 +39,13 @@ const cloudflareWorker: Worker = {
         case 'OPTIONS':
           return await handlers.options(request, context);
         default:
-          return METHOD_NOT_ALLOWED;
+          return responses.methodNotAllowed();
       }
     } catch (e) {
       // Send to sentry, if it's disabled this will just noop
       sentry.captureException(e);
 
-      let responseBody = 'Internal Server Error';
-
-      if (
-        (env.ENVIRONMENT === 'dev' || env.ENVIRONMENT === 'e2e-tests') &&
-        e instanceof Error
-      ) {
-        responseBody += `\nMessage: ${e.message}\nStack trace: ${e.stack}`;
-      }
-
-      return new Response(responseBody, {
-        status: 500,
-        headers: { 'cache-control': CACHE_HEADERS.failure },
-      });
+      return responses.internalServerError(e, env);
     }
   },
 };

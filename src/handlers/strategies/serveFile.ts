@@ -1,9 +1,6 @@
 import { objectHasBody } from '../../util';
 import { CACHE_HEADERS } from '../../constants/cache';
-import {
-  FILE_NOT_FOUND,
-  METHOD_NOT_ALLOWED,
-} from '../../constants/commonResponses';
+import responses from '../../responses';
 import { R2_RETRY_LIMIT } from '../../constants/limits';
 import { Context } from '../../context';
 
@@ -182,11 +179,11 @@ export async function getFile(
       break;
     }
     default:
-      return METHOD_NOT_ALLOWED;
+      return responses.methodNotAllowed();
   }
 
   if (file === null) {
-    return FILE_NOT_FOUND(request);
+    return responses.fileNotFound(request);
   }
 
   const hasBody = objectHasBody(file);
