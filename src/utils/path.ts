@@ -4,36 +4,8 @@ import {
   DOWNLOAD_PATH_PREFIX,
   REDIRECT_MAP,
   URL_TO_BUCKET_PATH_MAP,
-} from './constants/r2Prefixes';
-import { Env } from './env';
-
-const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-
-/**
- * @param env Worker env
- * @returns True if we want to either cache files or
- *  directory listings
- */
-export function isCacheEnabled(env: Env): boolean {
-  return env.ENVIRONMENT !== 'e2e-tests';
-}
-
-/**
- * @param request Request object
- * @returns {@link URL} instance if url is valid, a 400
- *  response otherwise
- */
-export function parseUrl(request: Request): URL | undefined {
-  let url: URL | undefined;
-
-  try {
-    url = new URL(request.url);
-  } catch (e) {
-    console.error(e);
-  }
-
-  return url;
-}
+} from '../constants/r2Prefixes';
+import { Env } from '../env';
 
 /**
  * Maps a path in a url to the path to the resource
@@ -228,32 +200,4 @@ export function isExtensionless(path: string): boolean {
  */
 export function isDirectoryPath(path: string): boolean {
   return hasTrailingSlash(path) || isExtensionless(path);
-}
-
-/**
- * Converts raw size into human readable bytes
- * @param bytes Bytes
- * @returns Something like `4.5 KB` or `8.7 MB`
- */
-export function niceBytes(bytes: number): string {
-  let l = 0;
-  let n = parseInt(bytes.toString(), 10) || 0;
-
-  while (n >= 1000 && ++l) {
-    n = n / 1000;
-  }
-
-  return n.toFixed(n < 10 && l > 0 ? 1 : 0) + ' ' + units[l];
-}
-
-/**
- * Checks whether or not an R2 object
- *  or R2ObjectBody has a body
- * @param object R2 object
- * @returns True if it has a body
- */
-export function objectHasBody(
-  object: R2Object | R2ObjectBody
-): object is R2ObjectBody {
-  return (<R2ObjectBody>object).body !== undefined;
 }

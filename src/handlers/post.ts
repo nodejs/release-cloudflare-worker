@@ -1,5 +1,5 @@
 import responses from '../responses';
-import { parseUrl } from '../util';
+import { parseUrl } from '../utils/request';
 import { Handler } from './handler';
 import { cachePurge } from './strategies/cachePurge';
 

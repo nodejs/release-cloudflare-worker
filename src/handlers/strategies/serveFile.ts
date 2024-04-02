@@ -1,4 +1,4 @@
-import { objectHasBody } from '../../util';
+import { objectHasBody } from '../../utils/object';
 import { CACHE_HEADERS } from '../../constants/cache';
 import responses from '../../responses';
 import { R2_RETRY_LIMIT } from '../../constants/limits';

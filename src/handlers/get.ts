@@ -1,13 +1,13 @@
 import { CACHE } from '../constants/cache';
 import responses from '../responses';
 import { VIRTUAL_DIRS } from '../constants/r2Prefixes';
+import { isCacheEnabled } from '../utils/cache';
 import {
-  isCacheEnabled,
   isDirectoryPath,
   hasTrailingSlash,
   mapUrlPathToBucketPath,
-  parseUrl,
-} from '../util';
+} from '../utils/path';
+import { parseUrl } from '../utils/request';
 import { Handler } from './handler';
 import {
   listDirectory,
