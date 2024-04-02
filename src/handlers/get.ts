@@ -83,8 +83,17 @@ const getHandler: Handler = async (request, ctx) => {
   // Responses from fetch() are immutable + we don't want to cache these anyways
   const didRequestFallback = response.url.startsWith(ctx.env.FALLBACK_HOST);
 
+  if (didRequestFallback) {
+    return response;
+  }
+
+  if (requestUrl.host !== 'nodejs.org') {
+    // *.workers.dev, r2.nodejs.org, etc.
+    response.headers.append('x-robots-tag', 'noindex, nofollow');
+  }
+
   // Cache response if cache is enabled
-  if (shouldServeCache && response.status === 200 && !didRequestFallback) {
+  if (shouldServeCache && response.status === 200) {
     const cachedResponse = response.clone();
 
     cachedResponse.headers.append('x-cache-status', 'hit');
@@ -92,9 +101,7 @@ const getHandler: Handler = async (request, ctx) => {
     ctx.execution.waitUntil(CACHE.put(request, cachedResponse));
   }
 
-  if (!didRequestFallback) {
-    response.headers.append('x-cache-status', 'miss');
-  }
+  response.headers.append('x-cache-status', 'miss');
 
   return response;
 };
