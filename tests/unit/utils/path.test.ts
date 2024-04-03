@@ -1,12 +1,11 @@
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 import {
-  isDirectoryPath,
-  mapBucketPathToUrlPath,
   mapUrlPathToBucketPath,
-  niceBytes,
-} from '../../src/util';
-import { REDIRECT_MAP } from '../../src/constants/r2Prefixes';
+  mapBucketPathToUrlPath,
+  isDirectoryPath,
+} from '../../../src/utils/path';
+import { REDIRECT_MAP } from '../../../src/constants/r2Prefixes';
 
 describe('mapUrlPathToBucketPath', () => {
   it('expects all items in REDIRECT_MAP to be pathes in the length of 3', () => {
@@ -232,17 +231,5 @@ describe('isDirectoryPath', () => {
   // https://github.com/nodejs/release-cloudflare-worker/issues/99
   it('returns true for `/docs/latest/api`', () => {
     assert.strictEqual(isDirectoryPath('/docs/latest/api'), true);
-  });
-});
-
-describe('niceBytes', () => {
-  it('converts 10 to `10 B`', () => {
-    const result = niceBytes(10);
-    assert.strictEqual(result, '10 B');
-  });
-
-  it('converts 1024 to `1.0 KB`', () => {
-    const result = niceBytes(1024);
-    assert.strictEqual(result, '1.0 KB');
   });
 });

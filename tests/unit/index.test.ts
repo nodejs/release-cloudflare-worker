@@ -1,1 +1,2 @@
-import './util.test';
+import './utils/object.test';
+import './utils/path.test';

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { mapBucketPathToUrlPath } from '../../util';
+import { mapBucketPathToUrlPath } from '../../utils/path';
 import { CACHE } from '../../constants/cache';
 import responses from '../../responses';
 import { Context } from '../../context';

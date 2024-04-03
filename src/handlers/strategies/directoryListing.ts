@@ -5,7 +5,7 @@ import {
   _Object,
 } from '@aws-sdk/client-s3';
 import Handlebars from 'handlebars';
-import { niceBytes } from '../../util';
+import { toReadableBytes } from '../../utils/object';
 import { getFile } from './serveFile';
 
 // Imports the Precompiled Handlebars Template
@@ -106,7 +106,7 @@ export function renderDirectoryListing(
       displayNamePaddingRight = ' '.repeat(50 - name!.length);
     }
 
-    const bytes = niceBytes(object.Size!);
+    const bytes = toReadableBytes(object.Size!);
 
     tableElements.push({
       href: `${urlPathname}${encodeURIComponent(name ?? '')}`,
