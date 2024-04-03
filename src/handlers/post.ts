@@ -1,4 +1,4 @@
-import { BAD_REQUEST } from '../constants/commonResponses';
+import responses from '../responses';
 import { parseUrl } from '../util';
 import { Handler } from './handler';
 import { cachePurge } from './strategies/cachePurge';
@@ -7,7 +7,7 @@ const postHandler: Handler = async (request, ctx) => {
   const url = parseUrl(request);
 
   if (url === undefined) {
-    return BAD_REQUEST;
+    return responses.badRequest();
   }
 
   // This endpoint is called from the sync script to purge

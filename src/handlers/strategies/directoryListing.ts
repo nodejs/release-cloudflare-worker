@@ -12,7 +12,7 @@ import { getFile } from './serveFile';
 import htmlTemplate from '../../templates/directoryListing.out.js';
 import { S3_MAX_KEYS, R2_RETRY_LIMIT } from '../../constants/limits';
 import { CACHE_HEADERS } from '../../constants/cache';
-import { DIRECTORY_NOT_FOUND } from '../../constants/commonResponses';
+import responses from '../../responses';
 import { Context } from '../../context';
 
 // Applies the Template into a Handlebars Template Function
@@ -270,7 +270,7 @@ export async function listDirectory(
 
   // Directory needs either subdirectories or files in it cannot be empty
   if (delimitedPrefixes.size === 0 && objects.length === 0) {
-    return DIRECTORY_NOT_FOUND(request);
+    return responses.directoryNotFound(request);
   }
 
   if (request.method === 'HEAD') {

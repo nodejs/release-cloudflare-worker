@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { mapBucketPathToUrlPath } from '../../util';
 import { CACHE } from '../../constants/cache';
-import { BAD_REQUEST } from '../../constants/commonResponses';
+import responses from '../../responses';
 import { Context } from '../../context';
 
 const CachePurgeBodySchema = z.object({
@@ -29,14 +29,14 @@ async function parseBody(request: Request): Promise<CachePurgeBody | Response> {
     bodyObject = await request.json<object>();
   } catch (e) {
     // content-type header lied to us
-    return BAD_REQUEST;
+    return responses.badRequest();
   }
 
   // Validate the body's contents
   const parseResult = CachePurgeBodySchema.safeParse(bodyObject);
 
   if (!parseResult.success) {
-    return BAD_REQUEST;
+    return responses.badRequest();
   }
 
   return parseResult.data;

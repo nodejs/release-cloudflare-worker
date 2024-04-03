@@ -1,5 +1,5 @@
 import { CACHE } from '../constants/cache';
-import { BAD_REQUEST, FILE_NOT_FOUND } from '../constants/commonResponses';
+import responses from '../responses';
 import { VIRTUAL_DIRS } from '../constants/r2Prefixes';
 import {
   isCacheEnabled,
@@ -30,7 +30,7 @@ const getHandler: Handler = async (request, ctx) => {
   const requestUrl = parseUrl(request);
 
   if (requestUrl === undefined) {
-    return BAD_REQUEST;
+    return responses.badRequest();
   }
 
   const bucketPath = mapUrlPathToBucketPath(requestUrl, ctx.env);
@@ -47,7 +47,7 @@ const getHandler: Handler = async (request, ctx) => {
     if (ctx.env.DIRECTORY_LISTING === 'off') {
       // File not found since we should only be allowing
       //  file paths if directory listing is off
-      return FILE_NOT_FOUND(request);
+      return responses.fileNotFound(request);
     }
 
     if (bucketPath && !hasTrailingSlash(requestUrl.pathname)) {
