@@ -20,14 +20,11 @@ jobs:
       - name: Git Checkout
         uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744
 
-      - name: Cache Dependencies
-        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          path: |
-            ~/.npm
-            node_modules/.cache
-          key: ${{ runner.os }}-npm-${{ hashFiles('**/workflows/format.yml') }}
-          restore-keys: ${{ runner.os }}-npm-
+          node-version: 20
+          cache: 'npm'
       
       - name: Install dependencies
         run: npm install
@@ -43,14 +40,11 @@ jobs:
       - name: Git Checkout
         uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744
 
-      - name: Cache Dependencies
-        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          path: |
-            ~/.npm
-            node_modules/.cache
-          key: ${{ runner.os }}-npm-${{ hashFiles('**/workflows/format.yml') }}
-          restore-keys: ${{ runner.os }}-npm-
+          node-version: 20
+          cache: 'npm'
       
       - name: Install dependencies
         run: npm install
