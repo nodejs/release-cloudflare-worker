@@ -12,6 +12,7 @@ import {
   Provider,
   ReadDirectoryResult,
 } from './provider';
+import { S3Provider } from './s3Provider';
 
 type R2ProviderCtorOptions = {
   ctx: Context;
@@ -105,9 +106,12 @@ export class R2Provider implements Provider {
     };
   }
 
-  readDirectory(_: string): Promise<ReadDirectoryResult | undefined> {
-    // We will use the S3Provider here
-    throw new Error('Method not implemented.');
+  readDirectory(path: string): Promise<ReadDirectoryResult | undefined> {
+    const s3Provider = new S3Provider({
+      ctx: this.ctx,
+      fallbackProvider: this.fallbackProvider,
+    });
+    return s3Provider.readDirectory(path);
   }
 }
 

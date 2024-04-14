@@ -76,6 +76,7 @@ export type File = {
 
 export type R2ReadDirectoryResult = {
   subdirectories: string[];
+  hasIndexHtmlFile: boolean;
   files: File[];
 };
 
