@@ -15,13 +15,16 @@ import {
 
 type R2ProviderCtorOptions = {
   ctx: Context;
+  fallbackProvider?: Provider;
 };
 
 export class R2Provider implements Provider {
   private ctx: Context;
+  private fallbackProvider?: Provider;
 
-  constructor({ ctx }: R2ProviderCtorOptions) {
+  constructor({ ctx, fallbackProvider }: R2ProviderCtorOptions) {
     this.ctx = ctx;
+    this.fallbackProvider = fallbackProvider;
   }
 
   async headFile(path: string): Promise<HeadFileResult | undefined> {
@@ -30,17 +33,27 @@ export class R2Provider implements Provider {
       return undefined;
     }
 
-    const object = await retryWrapper(
-      async () => await this.ctx.env.R2_BUCKET.head(r2Path),
-      R2_RETRY_LIMIT,
-      this.ctx.sentry
-    );
+    let object: R2Object | null;
+    try {
+      object = await retryWrapper(
+        async () => await this.ctx.env.R2_BUCKET.head(r2Path),
+        R2_RETRY_LIMIT,
+        this.ctx.sentry
+      );
+    } catch (err) {
+      if (this.fallbackProvider !== undefined) {
+        return this.fallbackProvider.headFile(path);
+      }
+
+      throw err;
+    }
 
     if (object === null) {
       return undefined;
     }
 
     return {
+      httpStatusCode: 200,
       httpHeaders: r2MetadataToHeaders(object, 200),
     };
   }
@@ -54,20 +67,29 @@ export class R2Provider implements Provider {
       return undefined;
     }
 
-    const object = await retryWrapper(
-      async () => {
-        return await this.ctx.env.R2_BUCKET.get(r2Path, {
-          onlyIf: {
-            etagMatches: options?.conditionalHeaders?.ifMatch,
-            etagDoesNotMatch: options?.conditionalHeaders?.ifNoneMatch,
-            uploadedBefore: options?.conditionalHeaders?.ifUnmodifiedSince,
-            uploadedAfter: options?.conditionalHeaders?.ifModifiedSince,
-          },
-        });
-      },
-      R2_RETRY_LIMIT,
-      this.ctx.sentry
-    );
+    let object: R2Object | null;
+    try {
+      object = await retryWrapper(
+        async () => {
+          return await this.ctx.env.R2_BUCKET.get(r2Path, {
+            onlyIf: {
+              etagMatches: options?.conditionalHeaders?.ifMatch,
+              etagDoesNotMatch: options?.conditionalHeaders?.ifNoneMatch,
+              uploadedBefore: options?.conditionalHeaders?.ifUnmodifiedSince,
+              uploadedAfter: options?.conditionalHeaders?.ifModifiedSince,
+            },
+          });
+        },
+        R2_RETRY_LIMIT,
+        this.ctx.sentry
+      );
+    } catch (err) {
+      if (this.fallbackProvider !== undefined) {
+        return this.fallbackProvider.headFile(path);
+      }
+
+      throw err;
+    }
 
     if (object === null) {
       return undefined;
