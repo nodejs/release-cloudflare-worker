@@ -32,6 +32,7 @@ const cloudflareWorker: Worker = {
       };
       switch (request.method) {
         case 'HEAD':
+          return await handlers.head(request, context);
         case 'GET':
           return await handlers.get(request, context);
         case 'POST':

@@ -6,6 +6,7 @@ import {
   URL_TO_BUCKET_PATH_MAP,
 } from '../constants/r2Prefixes';
 import { Env } from '../env';
+import responses from '../responses';
 
 /**
  * Maps a path in a url to the path to the resource
@@ -200,4 +201,23 @@ export function isExtensionless(path: string): boolean {
  */
 export function isDirectoryPath(path: string): boolean {
   return hasTrailingSlash(path) || isExtensionless(path);
+}
+
+export function enforceDirectoryPathRestrictions(
+  path: string,
+  method: 'GET' | 'HEAD',
+  env: Pick<Env, 'DIRECTORY_LISTING'>
+): Response | undefined {
+  if (env.DIRECTORY_LISTING === 'off') {
+    return responses.fileNotFound(method === 'GET');
+  }
+
+  if (!hasTrailingSlash(path)) {
+    // We always want to have trailing slashes for directory listings
+    path += '/';
+
+    return Response.redirect(path, 301);
+  }
+
+  return undefined;
 }

@@ -1,8 +1,8 @@
 import { CACHE_HEADERS } from '../constants/cache';
 
-export default (request: Request): Response => {
+export default (hasBody: boolean): Response => {
   return new Response(
-    request.method !== 'HEAD' ? 'Directory not found' : undefined,
+    hasBody ? 'Directory not found' : undefined,
     {
       status: 404,
       headers: {
