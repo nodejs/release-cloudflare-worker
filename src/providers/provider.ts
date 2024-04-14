@@ -33,6 +33,10 @@ export type HttpResponseHeaders = {
 
 export type HeadFileResult = {
   /**
+   * Status code to send the client
+   */
+  httpStatusCode: number;
+  /**
    * Headers to send the client
    */
   httpHeaders: HttpResponseHeaders;
@@ -72,6 +76,7 @@ export type File = {
 
 export type R2ReadDirectoryResult = {
   subdirectories: string[];
+  hasIndexHtmlFile: boolean;
   files: File[];
 };
 
