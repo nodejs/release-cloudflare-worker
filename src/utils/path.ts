@@ -16,10 +16,10 @@ import { Env } from '../env';
  *  if the eyeball should not be trying to access the resource
  */
 export function mapUrlPathToBucketPath(
-  url: URL,
+  path: string,
   env: Pick<Env, 'DIRECTORY_LISTING'>
 ): string | undefined {
-  const [, basePath, ...pathPieces] = url.pathname.split('/'); // 'docs', ['asd', '123']
+  const [, basePath, ...pathPieces] = path.split('/'); // 'docs', ['asd', '123']
 
   const mappedDist = `${DIST_PATH_PREFIX}/${pathPieces[0]}`;
 
@@ -44,11 +44,11 @@ export function mapUrlPathToBucketPath(
   }
 
   if (basePath in URL_TO_BUCKET_PATH_MAP) {
-    return URL_TO_BUCKET_PATH_MAP[basePath](url);
+    return URL_TO_BUCKET_PATH_MAP[basePath](path);
   }
 
   if (env.DIRECTORY_LISTING !== 'restricted') {
-    return url.pathname.substring(1);
+    return path.substring(1);
   }
 
   return undefined;

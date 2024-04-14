@@ -24,14 +24,15 @@ export const VIRTUAL_DIRS: Record<string, Set<string>> = {
   ),
 };
 
-export const URL_TO_BUCKET_PATH_MAP: Record<string, (url: URL) => string> = {
-  dist: (url): string =>
-    DIST_PATH_PREFIX + (url.pathname.substring('/dist'.length) || '/'),
-  download: (url): string =>
-    DOWNLOAD_PATH_PREFIX + (url.pathname.substring('/download'.length) || '/'),
-  docs: (url): string =>
-    DOCS_PATH_PREFIX + (url.pathname.substring('/docs'.length) || '/'),
-  api: (url): string =>
-    API_PATH_PREFIX + (url.pathname.substring('/api'.length) || '/'),
-  metrics: (url): string => url.pathname.substring(1), // substring to cut off the /
-};
+export const URL_TO_BUCKET_PATH_MAP: Record<string, (path: string) => string> =
+  {
+    dist: (path): string =>
+      DIST_PATH_PREFIX + (path.substring('/dist'.length) || '/'),
+    download: (path): string =>
+      DOWNLOAD_PATH_PREFIX + (path.substring('/download'.length) || '/'),
+    docs: (path): string =>
+      DOCS_PATH_PREFIX + (path.substring('/docs'.length) || '/'),
+    api: (path): string =>
+      API_PATH_PREFIX + (path.substring('/api'.length) || '/'),
+    metrics: (path): string => path.substring(1), // substring to cut off the /
+  };
