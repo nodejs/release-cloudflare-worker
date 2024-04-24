@@ -1,5 +1,5 @@
 /**
- * Max amount of retries for S3 requests
+ * Max amount of retries for R2 requests
  */
 export const R2_RETRY_LIMIT = 5;
 

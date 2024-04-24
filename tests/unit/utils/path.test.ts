@@ -20,84 +20,63 @@ describe('mapUrlPathToBucketPath', () => {
   });
 
   it('converts `/unknown-base-path` to undefined when DIRECTORY_LISTING=restricted', () => {
-    const result = mapUrlPathToBucketPath(
-      new URL('http://localhost/unknown-base-path'),
-      {
-        DIRECTORY_LISTING: 'restricted',
-      }
-    );
+    const result = mapUrlPathToBucketPath('/unknown-base-path', {
+      DIRECTORY_LISTING: 'restricted',
+    });
     assert.strictEqual(result, undefined);
   });
 
   it('converts `/unknown-base-path` to `unknown-base-path` when DIRECTORY_LISTING=on', () => {
-    const result = mapUrlPathToBucketPath(
-      new URL('http://localhost/unknown-base-path'),
-      {
-        DIRECTORY_LISTING: 'on',
-      }
-    );
+    const result = mapUrlPathToBucketPath('/unknown-base-path', {
+      DIRECTORY_LISTING: 'on',
+    });
     assert.strictEqual(result, 'unknown-base-path');
   });
 
   it('converts `/dist` to `nodejs/release`', () => {
-    const result = mapUrlPathToBucketPath(new URL('http://localhost/dist'), {
+    const result = mapUrlPathToBucketPath('/dist', {
       DIRECTORY_LISTING: 'restricted',
     });
     assert.strictEqual(result, 'nodejs/release/');
   });
 
   it('converts `/dist/latest` to `nodejs/release/v.X.X.X`', () => {
-    const result = mapUrlPathToBucketPath(
-      new URL('http://localhost/dist/latest'),
-      {
-        DIRECTORY_LISTING: 'restricted',
-      }
-    );
+    const result = mapUrlPathToBucketPath('/dist/latest', {
+      DIRECTORY_LISTING: 'restricted',
+    });
     assert.match(result ?? '', /^nodejs\/release\/v.\d+\.\d+\.\d+\/$/);
   });
 
   it('converts `/download` to `nodejs`', () => {
-    const result = mapUrlPathToBucketPath(
-      new URL('http://localhost/download'),
-      {
-        DIRECTORY_LISTING: 'restricted',
-      }
-    );
+    const result = mapUrlPathToBucketPath('/download', {
+      DIRECTORY_LISTING: 'restricted',
+    });
     assert.strictEqual(result, 'nodejs/');
   });
 
   it('converts `/download/release` to `nodejs/release`', () => {
-    const result = mapUrlPathToBucketPath(
-      new URL('http://localhost/download/release'),
-      {
-        DIRECTORY_LISTING: 'restricted',
-      }
-    );
+    const result = mapUrlPathToBucketPath('/download/release', {
+      DIRECTORY_LISTING: 'restricted',
+    });
     assert.strictEqual(result, 'nodejs/release');
   });
 
   it('converts `/download/release/latest` to `nodejs/release/v.X.X.X`', () => {
-    const result = mapUrlPathToBucketPath(
-      new URL('http://localhost/download/release/latest'),
-      {
-        DIRECTORY_LISTING: 'restricted',
-      }
-    );
+    const result = mapUrlPathToBucketPath('/download/release/latest', {
+      DIRECTORY_LISTING: 'restricted',
+    });
     assert.match(result ?? '', /^nodejs\/release\/v.\d+\.\d+\.\d+\/$/);
   });
 
   it('converts `/docs/latest` to `nodejs/release/v.X.X.X/docs/`', () => {
-    const result = mapUrlPathToBucketPath(
-      new URL('http://localhost/docs/latest'),
-      {
-        DIRECTORY_LISTING: 'restricted',
-      }
-    );
+    const result = mapUrlPathToBucketPath('/docs/latest', {
+      DIRECTORY_LISTING: 'restricted',
+    });
     assert.match(result ?? '', /^nodejs\/release\/v.\d+\.\d+\.\d+\/docs\/$/);
   });
 
   it('converts `/api` to `nodejs/release/v.X.X.X/docs/api/`', () => {
-    const result = mapUrlPathToBucketPath(new URL('http://localhost/api'), {
+    const result = mapUrlPathToBucketPath('/api', {
       DIRECTORY_LISTING: 'restricted',
     });
     assert.match(
@@ -107,12 +86,9 @@ describe('mapUrlPathToBucketPath', () => {
   });
 
   it('converts `/api/assert.html` to `nodejs/release/v.X.X.X/docs/api/assert.html`', () => {
-    const result = mapUrlPathToBucketPath(
-      new URL('http://localhost/api/assert.html'),
-      {
-        DIRECTORY_LISTING: 'restricted',
-      }
-    );
+    const result = mapUrlPathToBucketPath('/api/assert.html', {
+      DIRECTORY_LISTING: 'restricted',
+    });
     assert.match(
       result ?? '',
       /^nodejs\/release\/v.\d+\.\d+\.\d+\/docs\/api\/assert\.html$/

@@ -33,7 +33,7 @@ const getHandler: Handler = async (request, ctx) => {
     return responses.badRequest();
   }
 
-  const bucketPath = mapUrlPathToBucketPath(requestUrl, ctx.env);
+  const bucketPath = mapUrlPathToBucketPath(requestUrl.pathname, ctx.env);
 
   if (typeof bucketPath === 'undefined') {
     // Directory listing is restricted and we're not on
