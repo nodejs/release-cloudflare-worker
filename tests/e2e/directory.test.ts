@@ -24,7 +24,7 @@ async function startS3Mock(): Promise<http.Server> {
     const r2Prefix = url.searchParams.get('prefix')!;
 
     let doesFolderExist =
-      ['nodejs/release/', 'nodejs/', 'nodejs/docs/', 'metrics/'].includes(
+      ['nodejs/release/', 'nodejs/', 'nodejs/docs/'].includes(
         r2Prefix
       ) || r2Prefix.endsWith('/docs/api/');
 
@@ -140,20 +140,6 @@ describe('Directory Tests (Restricted Directory Listing)', () => {
 
   it('allows `/api/`', async () => {
     const res = await mf.dispatchFetch(`${url}api/`);
-    assert.strictEqual(res.status, 200);
-  });
-
-  it('redirects `/metrics` to `/metrics/`', async () => {
-    const originalRes = await mf.dispatchFetch(`${url}metrics`, {
-      redirect: 'manual',
-    });
-    assert.strictEqual(originalRes.status, 301);
-    const res = await mf.dispatchFetch(originalRes.headers.get('location')!);
-    assert.strictEqual(res.status, 200);
-  });
-
-  it('allows `/metrics/`', async () => {
-    const res = await mf.dispatchFetch(`${url}metrics/`);
     assert.strictEqual(res.status, 200);
   });
 

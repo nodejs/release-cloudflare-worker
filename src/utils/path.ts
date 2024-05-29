@@ -147,9 +147,6 @@ export function mapBucketPathToUrlPath(
   } else if (bucketPath.startsWith(DOWNLOAD_PATH_PREFIX)) {
     // Rest of the `/download/...` paths (e.g. `/download/nightly/`)
     return [`/download${bucketPath.substring(DOWNLOAD_PATH_PREFIX.length)}`];
-  } else if (bucketPath.startsWith('metrics')) {
-    // Metrics doesn't need any redirects
-    return ['/' + bucketPath];
   }
 
   return env.DIRECTORY_LISTING === 'restricted'
