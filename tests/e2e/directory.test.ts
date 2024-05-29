@@ -24,9 +24,8 @@ async function startS3Mock(): Promise<http.Server> {
     const r2Prefix = url.searchParams.get('prefix')!;
 
     let doesFolderExist =
-      ['nodejs/release/', 'nodejs/', 'nodejs/docs/'].includes(
-        r2Prefix
-      ) || r2Prefix.endsWith('/docs/api/');
+      ['nodejs/release/', 'nodejs/', 'nodejs/docs/'].includes(r2Prefix) ||
+      r2Prefix.endsWith('/docs/api/');
 
     if (doesFolderExist) {
       xmlFilePath += 'ListObjectsV2-exists.xml';
