@@ -50,4 +50,6 @@ export interface Env {
    * Host for the www/Digital Ocean/origin server
    */
   FALLBACK_HOST: string;
+
+  ORIGIN_HOST: string;
 }
