@@ -1,3 +1,5 @@
+import { ConditionalHeaders } from '../utils/request';
+
 /**
  * A Provider is essentially an abstracted API client. This is the interface
  *  we interact with to head files, get files, and listing directories.
@@ -43,18 +45,7 @@ export type HeadFileResult = {
 };
 
 export type GetFileOptions = {
-  /**
-   * R2 supports every conditional header except `If-Range`
-   * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Conditional_requests#conditional_headers
-   * @see https://developers.cloudflare.com/r2/api/workers/workers-api-reference/#conditional-operations
-   */
-  conditionalHeaders?: {
-    ifMatch?: string;
-    ifNoneMatch?: string;
-    ifModifiedSince?: Date;
-    ifUnmodifiedSince?: Date;
-  };
-  rangeHeader?: string;
+  conditionalHeaders?: ConditionalHeaders;
 };
 export type GetFileResult = {
   contents?: ReadableStream | null;
@@ -74,24 +65,8 @@ export type File = {
   size: number;
 };
 
-export type R2ReadDirectoryResult = {
+export type ReadDirectoryResult = {
   subdirectories: string[];
   hasIndexHtmlFile: boolean;
   files: File[];
 };
-
-export type OriginReadDirectoryResult = {
-  body: ReadableStream | null;
-  /**
-   * Status code to send the client
-   */
-  httpStatusCode: number;
-  /**
-   * Headers to send the client
-   */
-  httpHeaders: HttpResponseHeaders;
-};
-
-export type ReadDirectoryResult =
-  | R2ReadDirectoryResult
-  | OriginReadDirectoryResult;

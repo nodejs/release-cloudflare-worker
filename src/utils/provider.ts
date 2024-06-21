@@ -16,7 +16,6 @@ export async function retryWrapper<T>(
       const result = await request();
       return result;
     } catch (err) {
-      console.error(`R2Provider error: ${err}`);
       r2Error = err;
     }
   }

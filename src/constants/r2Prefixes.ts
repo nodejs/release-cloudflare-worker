@@ -7,14 +7,6 @@ import map from './redirectLinks.json' assert { type: 'json' };
 
 export const REDIRECT_MAP = new Map(map as [string, string][]);
 
-export const DIST_PATH_PREFIX = 'nodejs/release';
-
-export const DOWNLOAD_PATH_PREFIX = 'nodejs';
-
-export const DOCS_PATH_PREFIX = 'nodejs/docs';
-
-export const API_PATH_PREFIX = `${REDIRECT_MAP.get('nodejs/docs/latest')}/api`;
-
 export const VIRTUAL_DIRS: Record<string, Set<string>> = {
   'docs/': new Set(
     [...REDIRECT_MAP]
@@ -23,16 +15,3 @@ export const VIRTUAL_DIRS: Record<string, Set<string>> = {
       .map(([key]) => key.substring('nodejs/docs/'.length) + '/')
   ),
 };
-
-export const URL_TO_BUCKET_PATH_MAP: Record<string, (path: string) => string> =
-  {
-    dist: (path): string =>
-      DIST_PATH_PREFIX + (path.substring('/dist'.length) || '/'),
-    download: (path): string =>
-      DOWNLOAD_PATH_PREFIX + (path.substring('/download'.length) || '/'),
-    docs: (path): string =>
-      DOCS_PATH_PREFIX + (path.substring('/docs'.length) || '/'),
-    api: (path): string =>
-      API_PATH_PREFIX + (path.substring('/api'.length) || '/'),
-    metrics: (path): string => path.substring(1), // substring to cut off the /
-  };
