@@ -12,7 +12,6 @@ describe('File Tests', () => {
       modules: true,
       bindings: {
         ENVIRONMENT: 'e2e-tests',
-        DIRECTORY_LISTING: 'restricted',
       },
       r2Persist: './tests/e2e/test-data',
       r2Buckets: ['R2_BUCKET'],
@@ -123,7 +122,7 @@ describe('File Tests', () => {
         'if-match': '"asd"',
       },
     });
-    assert.strictEqual(res.status, 412);
+    assert.strictEqual(res.status, 304);
     assert.strictEqual(
       res.headers.get('cache-control'),
       'private, no-cache, no-store, max-age=0, must-revalidate'

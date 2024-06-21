@@ -42,9 +42,7 @@ describe('Fallback tests', () => {
       modules: true,
       bindings: {
         ENVIRONMENT: 'e2e-tests',
-        DIRECTORY_LISTING: 'restricted',
-        USE_FALLBACK_WHEN_R2_FAILS: true,
-        FALLBACK_HOST: `http://127.0.0.1:8081`,
+        ORIGIN_HOST: `http://127.0.0.1:8081`,
       },
     });
 

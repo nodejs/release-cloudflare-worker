@@ -22,10 +22,21 @@ const client = new S3Client({
 (async function main() {
   const allDirs = await listDirectory(RELEASE_DIR);
   const linker = new Linker({ baseDir: RELEASE_DIR, docsDir: DOCS_DIR });
-  const links = await linker.getLinks(allDirs, dir => listDirectory(`${dir}/`));
+  const allLinks = await linker.getLinks(allDirs, dir =>
+    listDirectory(`${dir}/`)
+  );
+
+  const latestLinks = Array.from(allLinks).filter(link =>
+    link[0].startsWith('nodejs/release')
+  );
+  latestLinks.forEach(link => {
+    link[0] = link[0].substring('nodejs/release/'.length);
+    link[1] = link[1].substring('nodejs/release/'.length);
+  });
+
   await writeFile(
-    './src/constants/redirectLinks.json',
-    JSON.stringify(Array.from(links), null, 2) + '\n'
+    './src/constants/latestVersions.json',
+    JSON.stringify(Object.fromEntries(latestLinks), null, 2) + '\n'
   );
 })();
 

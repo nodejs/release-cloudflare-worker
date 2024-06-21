@@ -1,7 +1,3 @@
 # Default rules
 
 * @nodejs/web-infra
-
-# Node.js build paths
-
-/src/constants/r2Prefixes.ts @nodejs/build

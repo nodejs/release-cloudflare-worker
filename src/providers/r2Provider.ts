@@ -1,22 +1,21 @@
 import { CACHE_HEADERS } from '../constants/cache';
 import { R2_RETRY_LIMIT } from '../constants/limits';
-import { Context } from '../context';
+import type { Context } from '../context';
 import { objectHasBody } from '../utils/object';
-import { mapUrlPathToBucketPath } from '../utils/path';
 import { retryWrapper } from '../utils/provider';
-import {
+import type {
   GetFileOptions,
   GetFileResult,
   HeadFileResult,
   HttpResponseHeaders,
   Provider,
+  ReadDirectoryOptions,
   ReadDirectoryResult,
 } from './provider';
 import { S3Provider } from './s3Provider';
 
 type R2ProviderCtorOptions = {
   ctx: Context;
-  fallbackProvider?: Provider;
 };
 
 export class R2Provider implements Provider {
@@ -27,13 +26,8 @@ export class R2Provider implements Provider {
   }
 
   async headFile(path: string): Promise<HeadFileResult | undefined> {
-    const r2Path = mapUrlPathToBucketPath(path, this.ctx.env);
-    if (r2Path === undefined) {
-      return undefined;
-    }
-
     const object = await retryWrapper(
-      async () => await this.ctx.env.R2_BUCKET.head(r2Path),
+      async () => await this.ctx.env.R2_BUCKET.head(path),
       R2_RETRY_LIMIT,
       this.ctx.sentry
     );
@@ -52,20 +46,16 @@ export class R2Provider implements Provider {
     path: string,
     options?: GetFileOptions
   ): Promise<GetFileResult | undefined> {
-    const r2Path = mapUrlPathToBucketPath(path, this.ctx.env);
-    if (r2Path === undefined) {
-      return undefined;
-    }
-
     const object = await retryWrapper(
       async () => {
-        return await this.ctx.env.R2_BUCKET.get(r2Path, {
+        return this.ctx.env.R2_BUCKET.get(path, {
           onlyIf: {
             etagMatches: options?.conditionalHeaders?.ifMatch,
             etagDoesNotMatch: options?.conditionalHeaders?.ifNoneMatch,
             uploadedBefore: options?.conditionalHeaders?.ifUnmodifiedSince,
             uploadedAfter: options?.conditionalHeaders?.ifModifiedSince,
           },
+          range: options?.conditionalHeaders?.range,
         });
       },
       R2_RETRY_LIMIT,
@@ -76,22 +66,24 @@ export class R2Provider implements Provider {
       return undefined;
     }
 
-    const doesHaveBody = objectHasBody(object);
-    const httpStatusCode = determineHttpStatusCode(doesHaveBody, options);
+    const hasBody = objectHasBody(object);
+    const httpStatusCode = determineHttpStatusCode(hasBody, options);
 
     return {
-      contents: doesHaveBody ? (object as R2ObjectBody).body : undefined,
+      contents: hasBody ? (object as R2ObjectBody).body : undefined,
       httpStatusCode,
       httpHeaders: r2MetadataToHeaders(object, httpStatusCode),
     };
   }
 
-  readDirectory(path: string): Promise<ReadDirectoryResult | undefined> {
+  readDirectory(
+    path: string,
+    options?: ReadDirectoryOptions
+  ): Promise<ReadDirectoryResult | undefined> {
     const s3Provider = new S3Provider({
       ctx: this.ctx,
-      fallbackProvider: this.fallbackProvider,
     });
-    return s3Provider.readDirectory(path);
+    return s3Provider.readDirectory(path, options);
   }
 }
 
@@ -103,18 +95,19 @@ function r2MetadataToHeaders(
 
   return {
     etag: object.httpEtag,
+    'content-type':
+      object.httpMetadata?.contentType ?? 'application/octet-stream',
     'accept-range': 'bytes',
     // https://github.com/nodejs/build/blob/e3df25d6a23f033db317a53ab1e904c953ba1f00/ansible/www-standalone/resources/config/nodejs.org?plain=1#L194-L196
-    'access-control-allow-origin': object.key.endsWith('.json')
-      ? '*'
-      : undefined,
+    'access-control-allow-origin': object.key.endsWith('.json') ? '*' : '',
     'cache-control':
       httpStatusCode === 200 ? CACHE_HEADERS.success : CACHE_HEADERS.failure,
-    expires: httpMetadata?.cacheExpiry?.toUTCString(),
+    expires: httpMetadata?.cacheExpiry?.toUTCString() ?? '',
     'last-modified': object.uploaded.toUTCString(),
-    'content-language': httpMetadata?.contentLanguage,
-    'content-disposition': httpMetadata?.contentDisposition,
+    'content-language': httpMetadata?.contentLanguage ?? '',
+    'content-disposition': httpMetadata?.contentDisposition ?? '',
     'content-length': object.size.toString(),
+    'content-encoding': object.httpMetadata?.contentEncoding ?? '',
   };
 }
 
@@ -127,10 +120,11 @@ function areConditionalHeadersPresent(
 
   const { conditionalHeaders } = options;
 
+  // Only check for if-none-match and if-unmodified-since because the docs said
+  //  so, also what nginx does from my experiments
+  //  https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/412
   return (
-    conditionalHeaders.ifMatch !== undefined ||
     conditionalHeaders.ifNoneMatch !== undefined ||
-    conditionalHeaders.ifModifiedSince !== undefined ||
     conditionalHeaders.ifUnmodifiedSince !== undefined
   );
 }
@@ -140,7 +134,7 @@ function determineHttpStatusCode(
   options?: GetFileOptions
 ): number {
   if (objectHasBody) {
-    if (options?.rangeHeader !== undefined) {
+    if (options?.conditionalHeaders?.range !== undefined) {
       // Range header is present and we have a body, most likely partial
       return 206;
     }

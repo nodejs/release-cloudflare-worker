@@ -66,7 +66,6 @@ describe('Directory Tests (Restricted Directory Listing)', () => {
         S3_ACCESS_KEY_ID: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
         S3_ACCESS_KEY_SECRET:
           'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        DIRECTORY_LISTING: 'restricted',
       },
       r2Persist: './tests/e2e/test-data',
       r2Buckets: ['R2_BUCKET'],
@@ -155,17 +154,6 @@ describe('Directory Tests (Restricted Directory Listing)', () => {
   it('allows `/metrics/`', async () => {
     const res = await mf.dispatchFetch(`${url}metrics/`);
     assert.strictEqual(res.status, 200);
-  });
-
-  it('returns 401 for unrecognized base paths', async () => {
-    let res = await mf.dispatchFetch(url);
-    assert.strictEqual(res.status, 401);
-
-    res = await mf.dispatchFetch(`${url}/asd/`);
-    assert.strictEqual(res.status, 401);
-
-    res = await mf.dispatchFetch(`${url}/asd/123/`);
-    assert.strictEqual(res.status, 401);
   });
 
   it('returns 404 for unknown directory', async () => {
