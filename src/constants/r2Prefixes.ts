@@ -34,5 +34,4 @@ export const URL_TO_BUCKET_PATH_MAP: Record<string, (path: string) => string> =
       DOCS_PATH_PREFIX + (path.substring('/docs'.length) || '/'),
     api: (path): string =>
       API_PATH_PREFIX + (path.substring('/api'.length) || '/'),
-    metrics: (path): string => path.substring(1), // substring to cut off the /
   };
