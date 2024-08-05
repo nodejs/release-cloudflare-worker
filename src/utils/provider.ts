@@ -1,4 +1,4 @@
-import { Toucan } from 'toucan-js';
+import type { Toucan } from 'toucan-js';
 
 /**
  * Utility for retrying request sent to a provider's data source
@@ -16,7 +16,6 @@ export async function retryWrapper<T>(
       const result = await request();
       return result;
     } catch (err) {
-      console.error(`R2Provider error: ${err}`);
       r2Error = err;
     }
   }

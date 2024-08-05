@@ -1,11 +1,12 @@
 import { ListObjectsV2Command, S3Client } from '@aws-sdk/client-s3';
-import { Context } from '../context';
-import {
+import type { Context } from '../context';
+import type {
   File,
   GetFileOptions,
   GetFileResult,
   HeadFileResult,
   Provider,
+  ReadDirectoryOptions,
   ReadDirectoryResult,
 } from './provider';
 import { retryWrapper } from '../utils/provider';
@@ -50,10 +51,18 @@ export class S3Provider implements Provider {
     throw new Error('Method not implemented.');
   }
 
-  async readDirectory(path: string): Promise<ReadDirectoryResult | undefined> {
+  async readDirectory(
+    path: string,
+    options?: ReadDirectoryOptions
+  ): Promise<ReadDirectoryResult | undefined> {
     const directories = new Set<string>();
-    let hasIndexHtmlFile = false;
     const files: File[] = [];
+
+    // If false, don't include any files we find in the result. Defaults to
+    //  true since there are more cases we want the files than not
+    const listFiles = options !== undefined ? options.listFiles : true;
+
+    let hasIndexHtmlFile = false;
 
     let isTruncated = true;
     let cursor: string | undefined;
@@ -78,17 +87,19 @@ export class S3Provider implements Provider {
         directories.add(directory.Prefix!.substring(path.length));
       });
 
-      result.Contents?.forEach(object => {
-        if (object.Key!.endsWith('index.html')) {
-          hasIndexHtmlFile = true;
-        }
+      if (listFiles) {
+        result.Contents?.forEach(object => {
+          if (object.Key!.endsWith('index.html')) {
+            hasIndexHtmlFile = true;
+          }
 
-        files.push({
-          name: object.Key!.substring(path.length),
-          size: object.Size!,
-          lastModified: object.LastModified!,
+          files.push({
+            name: object.Key!.substring(path.length),
+            size: object.Size!,
+            lastModified: object.LastModified!,
+          });
         });
-      });
+      }
 
       isTruncated = result.IsTruncated ?? false;
       cursor = result.NextContinuationToken;

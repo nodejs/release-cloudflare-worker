@@ -1,6 +1,6 @@
 import { CACHE_HEADERS } from '../constants/cache';
 
-export default (request: Request): Response => {
+export default (request: Pick<Request, 'method'>): Response => {
   return new Response(
     request.method !== 'HEAD' ? 'File not found' : undefined,
     {

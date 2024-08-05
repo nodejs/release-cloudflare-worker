@@ -1,5 +1,5 @@
 import { CACHE_HEADERS } from '../constants/cache';
-import { Env } from '../env';
+import type { Env } from '../env';
 
 export default (error: unknown, env: Pick<Env, 'ENVIRONMENT'>): Response => {
   let responseBody = 'Internal Server Error';
