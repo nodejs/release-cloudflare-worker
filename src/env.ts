@@ -25,31 +25,9 @@ export interface Env {
    */
   BUCKET_NAME: string;
   /**
-   * Directory listing toggle
-   *  on - Enabled for all paths
-   *  restricted - Directory listing enabled only for paths we want to be listed
-   *  off - No directory
-   * In prod, this should *always* be restricted
-   */
-  DIRECTORY_LISTING: 'on' | 'restricted' | 'off';
-  /**
-   * Api key for /_cf/cache-purge. If undefined, the endpoint is disabled.
-   */
-  CACHE_PURGE_API_KEY?: string;
-  /**
    * Sentry DSN, used for error monitoring
    * If missing, Sentry isn't used
    */
   SENTRY_DSN?: string;
-  /**
-   * If true and all retries to R2 fail, we will rewrite the request to
-   *  https://direct.nodejs.org
-   */
-  USE_FALLBACK_WHEN_R2_FAILS: boolean;
-  /**
-   * Host for the www/Digital Ocean/origin server
-   */
-  FALLBACK_HOST: string;
-
   ORIGIN_HOST: string;
 }

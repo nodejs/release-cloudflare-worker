@@ -1,13 +1,10 @@
 import { CACHE_HEADERS } from '../constants/cache';
 
-export default (request: Request): Response => {
-  return new Response(
-    request.method !== 'HEAD' ? 'File not found' : undefined,
-    {
-      status: 404,
-      headers: {
-        'cache-control': CACHE_HEADERS.failure,
-      },
-    }
-  );
+export default (method: Request['method']): Response => {
+  return new Response(method !== 'HEAD' ? 'File not found' : undefined, {
+    status: 404,
+    headers: {
+      'cache-control': CACHE_HEADERS.failure,
+    },
+  });
 };

@@ -1,8 +1,12 @@
-import { Env } from './env';
-import handlers from './handlers';
+import type { Env } from './env';
 import { Toucan } from 'toucan-js';
 import responses from './responses';
-import { Context } from './context';
+import type { Context } from './context';
+import { Router } from './routes/router';
+import { registerRoutes } from './routes';
+
+const router: Router = new Router();
+registerRoutes(router);
 
 interface Worker {
   /**
@@ -30,17 +34,8 @@ const cloudflareWorker: Worker = {
         env,
         execution: ctx,
       };
-      switch (request.method) {
-        case 'HEAD':
-        case 'GET':
-          return await handlers.get(request, context);
-        case 'POST':
-          return await handlers.post(request, context);
-        case 'OPTIONS':
-          return await handlers.options(request, context);
-        default:
-          return responses.methodNotAllowed();
-      }
+
+      return await router.handle(request, context);
     } catch (e) {
       // Send to sentry, if it's disabled this will just noop
       sentry.captureException(e);
