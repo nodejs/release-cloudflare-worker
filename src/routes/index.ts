@@ -9,7 +9,7 @@ import type { Router } from './router';
 
 export function registerRoutes(router: Router): void {
   const r2Middleware = cached(new R2Middleware());
-  const originMiddleware = cached(new OriginMiddleware());
+  const originMiddleware = new OriginMiddleware();
 
   router.options('*', [new OptionsMiddleware()]);
 
