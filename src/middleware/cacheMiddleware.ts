@@ -50,12 +50,9 @@ export function cached(middleware: Middleware): Middleware {
       if (!wasDeferred && response.status === 200) {
         // Successful request, let's cache it for next time
         const cachedResponse = response.clone();
-        cachedResponse.headers.append('x-cache-status', 'hit');
 
         ctx.execution.waitUntil(cache.put(request, cachedResponse));
       }
-
-      response.headers.append('x-cache-status', 'miss');
 
       return response;
     },
