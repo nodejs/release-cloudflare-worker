@@ -1,6 +1,6 @@
 name = 'dist-worker'
 main = 'src/worker.ts'
-compatibility_date = '2023-08-07'
+compatibility_date = '2024-09-05'
 account_id = '07be8d2fbc940503ca1be344714cb0d1'
 logpush = true
 
