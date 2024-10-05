@@ -1,0 +1,22 @@
+name: Promote Release
+
+on:
+  # Triggered by the dist server
+  workflow_dispatch:
+    inputs:
+      path:
+        description: 'path to promote'
+        required: true
+
+jobs:
+  promote-release:
+    name: Promote Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Promote Files
+        env:
+          CF_ACCESS_KEY_ID: ${{ secrets.CF_ACCESS_KEY_ID }}
+          CF_SECRET_ACCESS_KEY: ${{ secrets.CF_SECRET_ACCESS_KEY }}
+        runs: |
+          node scripts/promote-release.js ${{ inputs.path }}
