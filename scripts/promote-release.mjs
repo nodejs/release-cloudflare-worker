@@ -1,10 +1,21 @@
 #!/usr/bin/env node
 
+/**
+ * Usage: `promote-release <prefix in dist-staging to promote>`
+ *  ex/ `promote-release nodejs/release/v20.0.0`
+ */
+
 import {
   S3Client,
   ListObjectsV2Command,
   CopyObjectCommand,
 } from '@aws-sdk/client-s3';
+import {
+  ENDPOINT,
+  PROD_BUCKET,
+  STAGING_BUCKET,
+  R2_RETRY_COUNT,
+} from './constants.mjs';
 
 if (process.argv.length !== 3) {
   console.error(`usage: promote-release <prefix in dist-staging to promote>`);
@@ -21,12 +32,6 @@ if (!process.env.CF_SECRET_ACCESS_KEY) {
   process.exit(1);
 }
 
-const ENDPOINT =
-  'https://07be8d2fbc940503ca1be344714cb0d1.r2.cloudflarestorage.com';
-const PROD_BUCKET = 'dist-prod';
-const STAGING_BUCKET = 'dist-staging';
-const RETRY_LIMIT = 3;
-
 const client = new S3Client({
   endpoint: ENDPOINT,
   region: 'auto',
@@ -40,7 +45,7 @@ const path = process.argv[2];
 const files = await getFilesToPromote(path);
 
 for (const file of files) {
-  promoteFile(file);
+  await promoteFile(file);
 }
 
 /**
@@ -89,13 +94,15 @@ async function getFilesToPromote(path) {
 async function promoteFile(file) {
   console.log(`Promoting ${file}`);
 
-  await client.send(
-    new CopyObjectCommand({
-      Bucket: PROD_BUCKET,
-      CopySource: `${STAGING_BUCKET}/${file}`,
-      Key: file,
-    })
-  );
+  await retryWrapper(async () => {
+    return await client.send(
+      new CopyObjectCommand({
+        Bucket: PROD_BUCKET,
+        CopySource: `${STAGING_BUCKET}/${file}`,
+        Key: file,
+      })
+    );
+  }, R2_RETRY_COUNT);
 }
 
 /**
@@ -105,7 +112,7 @@ async function promoteFile(file) {
 async function retryWrapper(request, retryLimit) {
   let r2Error;
 
-  for (let i = 0; i < RETRY_LIMIT; i++) {
+  for (let i = 0; i < R2_RETRY_COUNT; i++) {
     try {
       const result = await request();
       return result;

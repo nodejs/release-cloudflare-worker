@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "wrangler dev --remote",
-    "format": "prettier --check --write \"**/*.{ts,js,json,md}\"",
-    "prettier": "prettier --check \"**/*.{ts,js,json,md}\"",
+    "format": "prettier --check --write \"**/*.{ts,js,mjs,json,md}\"",
+    "prettier": "prettier --check \"**/*.{ts,js,mjs,json,md}\"",
     "lint": "eslint ./src",
     "test": "npm run test:unit && npm run test:e2e",
     "test:unit": "node --test --test-reporter=@reporters/github --test-reporter-destination=stdout --test-reporter=spec --test-reporter-destination=stdout --import=tsx ./tests/unit/index.test.ts",
