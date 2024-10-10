@@ -7,6 +7,10 @@ on:
       path:
         description: 'path to promote'
         required: true
+      recursive:
+        description: 'is the path a directory'
+        type: boolean
+        required: true
 
 jobs:
   promote-release:
@@ -14,6 +18,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Git Checkout
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744
+      
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -24,5 +31,5 @@ jobs:
         env:
           CF_ACCESS_KEY_ID: ${{ secrets.CF_ACCESS_KEY_ID }}
           CF_SECRET_ACCESS_KEY: ${{ secrets.CF_SECRET_ACCESS_KEY }}
-        runs: |
-          node scripts/promote-release.js ${{ inputs.path }}
+        run: |
+          node scripts/promote-release.mjs ${{ inputs.path }} ${{ inputs.recursive == true && '--recursive' || '' }}
