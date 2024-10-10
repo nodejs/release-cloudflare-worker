@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 /**
- * Usage: `promote-release <prefix in dist-staging to promote>`
- *  ex/ `promote-release nodejs/release/v20.0.0`
+ * Usage: `promote-release <prefix in dist-staging to promote> [--recursive]`
+ *  ex/ `promote-release nodejs/release/v20.0.0/ --recursive`
  */
 
 import {
@@ -17,8 +17,10 @@ import {
   R2_RETRY_COUNT,
 } from './constants.mjs';
 
-if (process.argv.length !== 3) {
-  console.error(`usage: promote-release <prefix in dist-staging to promote>`);
+if (process.argv.length !== 3 && process.argv.length !== 4) {
+  console.error(
+    `usage: promote-release <prefix in dist-staging to promote> [--recursive]`
+  );
   process.exit(1);
 }
 
@@ -42,9 +44,16 @@ const client = new S3Client({
 });
 
 const path = process.argv[2];
-const files = await getFilesToPromote(path);
+const recursive =
+  process.argv.length === 4 && process.argv[3] === '--recursive';
 
-for (const file of files) {
+if (recursive) {
+  const files = await getFilesToPromote(path);
+
+  for (const file of files) {
+    await promoteFile(file);
+  }
+} else {
   await promoteFile(file);
 }
 

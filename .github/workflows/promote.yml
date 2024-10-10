@@ -7,6 +7,9 @@ on:
       path:
         description: 'path to promote'
         required: true
+      recursive:
+        description: 'is the path a directory'
+        required: true
 
 jobs:
   promote-release:
@@ -25,4 +28,4 @@ jobs:
           CF_ACCESS_KEY_ID: ${{ secrets.CF_ACCESS_KEY_ID }}
           CF_SECRET_ACCESS_KEY: ${{ secrets.CF_SECRET_ACCESS_KEY }}
         runs: |
-          node scripts/promote-release.js ${{ inputs.path }}
+          node scripts/promote-release.js ${{ inputs.path }} ${{ inputs.recursive === 'true' ? '--recursive' : '' }}
