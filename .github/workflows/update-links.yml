@@ -4,7 +4,7 @@ on:
   # Triggered by https://github.com/nodejs/node/blob/main/.github/workflows/update-release-links.yml
   workflow_dispatch:
   schedule:
-    - cron: "0 0 * * *"
+    - cron: '0 0 * * *'
 
 jobs:
   update-redirect-links:
@@ -23,7 +23,13 @@ jobs:
             node_modules/.cache
           key: ${{ runner.os }}-npm-${{ hashFiles('**/workflows/format.yml') }}
           restore-keys: ${{ runner.os }}-npm-
-      
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: 'npm'
+
       - name: Install dependencies
         run: npm install && npm update nodejs-latest-linker
 
@@ -32,7 +38,7 @@ jobs:
         env:
           CF_ACCESS_KEY_ID: ${{ secrets.CF_ACCESS_KEY_ID }}
           CF_SECRET_ACCESS_KEY: ${{ secrets.CF_SECRET_ACCESS_KEY }}
-      
+
       - name: Commit Changes
         id: git_auto_commit
         uses: stefanzweifel/git-auto-commit-action@8756aa072ef5b4a080af5dc8fef36c5d586e521d # v5.0.0
@@ -41,7 +47,7 @@ jobs:
           commit_message: 'chore: update redirect links'
           branch: update-redirect-links
           create_branch: true
-      
+
       - name: Open and Merge Pull Request
         if: steps.git_auto_commit.outputs.changes_detected == 'true'
         run: |
@@ -56,4 +62,3 @@ jobs:
           gh workflow run deploy.yml
         env:
           GITHUB_TOKEN: ${{ secrets.GH_BOT_TOKEN }}
-        

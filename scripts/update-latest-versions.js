@@ -22,9 +22,14 @@ const client = new S3Client({
 (async function main() {
   const allDirs = await listDirectory(RELEASE_DIR);
   const linker = new Linker({ baseDir: RELEASE_DIR, docsDir: DOCS_DIR });
-  const allLinks = await linker.getLinks(allDirs, dir =>
-    listDirectory(`${dir}/`)
-  );
+
+  const allLinks = await linker.getLinks(allDirs, dir => {
+    const files = listDirectory(`${dir}/`);
+
+    console.dir(files);
+
+    return files;
+  });
 
   const latestLinks = Array.from(allLinks).filter(link =>
     link[0].startsWith('nodejs/release')
