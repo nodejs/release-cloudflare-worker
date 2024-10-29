@@ -23,8 +23,8 @@ const client = new S3Client({
   const allDirs = await listDirectory(RELEASE_DIR);
   const linker = new Linker({ baseDir: RELEASE_DIR, docsDir: DOCS_DIR });
 
-  const allLinks = await linker.getLinks(allDirs, dir => {
-    const files = listDirectory(`${dir}/`);
+  const allLinks = await linker.getLinks(allDirs, async dir => {
+    const files = await listDirectory(`${dir}/`);
 
     console.dir(files);
 
