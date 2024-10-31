@@ -23,6 +23,7 @@ export class SubtitutionMiddleware implements Middleware {
   }
 
   handle(request: Request, _: Context): Promise<Response> {
+    // todo fix this
     return Promise.resolve(
       Response.redirect(
         request.url.replaceAll(this.searchValue, this.replaceValue)
