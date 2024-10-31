@@ -1,5 +1,8 @@
 name: Update Redirect Links
 
+permissions:
+  contents: write
+
 on:
   # Triggered by https://github.com/nodejs/node/blob/main/.github/workflows/update-release-links.yml
   workflow_dispatch:
