@@ -22,12 +22,15 @@
   "latest-v16.x": "v16.20.2",
   "latest-gallium": "v16.20.2",
   "latest-v17.x": "v17.9.1",
-  "latest-v18.x": "v18.19.0",
-  "latest-hydrogen": "v18.19.0",
+  "latest-v18.x": "v18.20.4",
+  "latest-hydrogen": "v18.20.4",
   "latest-v19.x": "v19.9.0",
-  "latest-v20.x": "v20.10.0",
-  "latest-iron": "v20.10.0",
-  "latest-v21.x": "v21.2.0",
-  "latest": "v21.2.0",
-  "node-latest.tar.gz": "v21.2.0/node-v21.2.0.tar.gz"
+  "latest-v20.x": "v20.18.0",
+  "latest-iron": "v20.18.0",
+  "latest-v21.x": "v21.7.3",
+  "latest-v22.x": "v22.11.0",
+  "latest-jod": "v22.11.0",
+  "latest-v23.x": "v23.1.0",
+  "latest": "v23.1.0",
+  "node-latest.tar.gz": "latest/nodejs/release/v23.1.0/node-v23.1.0.tar.gz"
 }
