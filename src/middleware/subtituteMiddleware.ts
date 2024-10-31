@@ -22,15 +22,12 @@ export class SubtitutionMiddleware implements Middleware {
     this.replaceValue = replaceValue;
   }
 
-  handle(request: Request, ctx: Context): Promise<Response> {
-    request.unsubtitutedUrl = request.urlObj;
-
-    // router will take care of setting request.urlObj
-    Object.assign(request, {
-      ...request,
-      url: request.url.replaceAll(this.searchValue, this.replaceValue),
-    });
-
-    return this.router.handle(request, ctx);
+  handle(request: Request, _: Context): Promise<Response> {
+    // todo fix this
+    return Promise.resolve(
+      Response.redirect(
+        request.url.replaceAll(this.searchValue, this.replaceValue)
+      )
+    );
   }
 }
