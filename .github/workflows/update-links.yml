@@ -26,6 +26,12 @@ jobs:
             node_modules/.cache
           key: ${{ runner.os }}-npm-${{ hashFiles('**/workflows/format.yml') }}
           restore-keys: ${{ runner.os }}-npm-
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: 'npm'
       
       - name: Install dependencies
         run: npm install && npm update nodejs-latest-linker
