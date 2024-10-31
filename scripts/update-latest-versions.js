@@ -21,7 +21,7 @@ const client = new S3Client({
 
 (async function main() {
   const allDirs = await listDirectory(RELEASE_DIR);
-  const linker = new Linker({ baseDir: RELEASE_DIR, docsDir: DOCS_DIR });
+  const linker = new Linker({ baseDir: RELEASE_DIR });
   const allLinks = await linker.getLinks(allDirs, dir =>
     listDirectory(`${dir}/`)
   );
@@ -57,5 +57,8 @@ async function listDirectory(dir) {
     truncated = data.IsTruncated;
     continuationToken = data.NextContinuationToken;
   }
-  return items.map(d => d.Prefix ?? d.Key);
+  return items.map(d => {
+    const path = d.Prefix ?? d.Key;
+    return path.substring(dir.length);
+  });
 }
