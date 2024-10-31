@@ -26,8 +26,9 @@ export class SubtitutionMiddleware implements Middleware {
     request.unsubtitutedUrl = request.urlObj;
 
     // router will take care of setting request.urlObj
-    Object.defineProperty(request, 'url', {
-      value: request.url.replaceAll(this.searchValue, this.replaceValue),
+    Object.assign(request, {
+      ...request,
+      url: request.url.replaceAll(this.searchValue, this.replaceValue),
     });
 
     return this.router.handle(request, ctx);
