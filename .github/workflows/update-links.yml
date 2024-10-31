@@ -34,7 +34,7 @@ jobs:
           cache: 'npm'
       
       - name: Install dependencies
-        run: npm install && npm update nodejs-latest-linker
+        run: npm install && npm update nodejs-latest-linker --save
 
       - name: Update Redirect Links
         run: node scripts/update-latest-versions.js && npm run format
