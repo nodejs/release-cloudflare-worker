@@ -1,5 +1,6 @@
 import { CACHE_HEADERS } from '../constants/cache';
 import type { Context } from '../context';
+import type { GetFileResult } from '../providers/provider';
 import { R2Provider } from '../providers/r2Provider';
 import responses from '../responses';
 import { hasTrailingSlash, isDirectoryPath } from '../utils/path';
@@ -107,9 +108,22 @@ async function getFile(
   r2Path: string,
   ctx: Context
 ): Promise<Response> {
-  const result = await getProvider(ctx).getFile(r2Path, {
-    conditionalHeaders: parseConditionalHeaders(request.headers),
-  });
+  const provider = getProvider(ctx);
+
+  let result: GetFileResult | undefined;
+  try {
+    result = await provider.getFile(r2Path, {
+      conditionalHeaders: parseConditionalHeaders(request.headers),
+    });
+  } catch (err) {
+    // Check if R2 threw a range not compatible error
+    if (err instanceof Error && err.message.includes('10039')) {
+      return new Response(undefined, { status: 416 });
+    }
+
+    ctx.sentry.captureException(err)
+    throw err;
+  }
 
   if (result === undefined) {
     return responses.fileNotFound(request.method);
