@@ -26,6 +26,37 @@ export class R2Provider implements Provider {
   }
 
   async headFile(path: string): Promise<HeadFileResult | undefined> {
+    try {
+      const object = await retryWrapper(
+        async () => await this.ctx.env.R2_BUCKET.head(path),
+        R2_RETRY_LIMIT,
+        this.ctx.sentry
+      );
+
+      if (object === null) {
+        this.ctx.sentry.addBreadcrumb({
+          category: 'r2provider',
+          message: `Object not found: ${path}`,
+          level: 'info'
+        });
+        return undefined;
+      }
+
+      return {
+        httpStatusCode: 200,
+        httpHeaders: r2MetadataToHeaders(object, 200),
+      };
+    } catch (error) {
+      this.ctx.sentry.captureException(error, {
+        extra: {
+          path,
+          method: 'headFile'
+        }
+      });
+      console.error(`Error in headFile: ${error.message}`);
+      return undefined;
+    }
+  }
     const object = await retryWrapper(
       async () => await this.ctx.env.R2_BUCKET.head(path),
       R2_RETRY_LIMIT,
@@ -43,6 +74,54 @@ export class R2Provider implements Provider {
   }
 
   async getFile(
+    path: string,
+    options?: GetFileOptions
+  ): Promise<GetFileResult | undefined> {
+    try {
+      const object = await retryWrapper(
+        async () => {
+          return this.ctx.env.R2_BUCKET.get(path, {
+            onlyIf: {
+              etagMatches: options?.conditionalHeaders?.ifMatch,
+              etagDoesNotMatch: options?.conditionalHeaders?.ifNoneMatch,
+              uploadedBefore: options?.conditionalHeaders?.ifUnmodifiedSince,
+              uploadedAfter: options?.conditionalHeaders?.ifModifiedSince,
+            },
+            range: options?.conditionalHeaders?.range,
+          });
+        },
+        R2_RETRY_LIMIT,
+        this.ctx.sentry
+      );
+
+      if (object === null) {
+        this.ctx.sentry.addBreadcrumb({
+          category: 'r2provider',
+          message: `Object not found: ${path}`,
+          level: 'info'
+        });
+        return undefined;
+      }
+
+      const hasBody = objectHasBody(object);
+      const httpStatusCode = determineHttpStatusCode(hasBody, options);
+
+      return {
+        contents: hasBody ? (object as R2ObjectBody).body : undefined,
+        httpStatusCode,
+        httpHeaders: r2MetadataToHeaders(object, httpStatusCode),
+      };
+    } catch (error) {
+      this.ctx.sentry.captureException(error, {
+        extra: {
+          path,
+          method: 'getFile'
+        }
+      });
+      console.error(`Error in getFile: ${error.message}`);
+      return undefined;
+    }
+  }
     path: string,
     options?: GetFileOptions
   ): Promise<GetFileResult | undefined> {
