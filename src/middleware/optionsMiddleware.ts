@@ -1,5 +1,5 @@
 import { CACHE_HEADERS } from '../constants/cache';
-import { Context } from '../context';
+import type { Context } from '../context';
 import type { Middleware } from './middleware';
 
 /**

@@ -1,4 +1,4 @@
-import { Context } from '../context';
+import type { Context } from '../context';
 import responses from '../responses';
 import type { Request } from '../routes/request';
 import type { Middleware } from './middleware';
