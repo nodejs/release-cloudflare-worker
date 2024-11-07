@@ -17,6 +17,14 @@ export class R2Middleware implements Middleware {
     const path = getR2Path(request);
     const isPathADirectory = isDirectoryPath(path);
 
+    ctx.sentry.addBreadcrumb({
+      category: 'R2Middleware',
+      data: {
+        r2Path: path,
+        isPathADirectory,
+      },
+    });
+
     return isPathADirectory
       ? handleDirectory(request, path, ctx)
       : handleFile(request, path, ctx);
