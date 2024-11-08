@@ -121,7 +121,7 @@ async function getFile(
       return new Response(undefined, { status: 416 });
     }
 
-    ctx.sentry.captureException(err)
+    ctx.sentry.captureException(err);
     throw err;
   }
 
