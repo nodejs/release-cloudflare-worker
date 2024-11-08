@@ -108,7 +108,7 @@ function r2MetadataToHeaders(
     'cache-control':
       httpStatusCode === 200 ? CACHE_HEADERS.success : CACHE_HEADERS.failure,
     expires: httpMetadata?.cacheExpiry?.toUTCString() ?? '',
-    'last-modified': object.uploaded.toUTCString(),
+    'last-modified': getLastModified(object),
     'content-language': httpMetadata?.contentLanguage ?? '',
     'content-disposition': httpMetadata?.contentDisposition ?? '',
     'content-length': object.size.toString(),
@@ -155,4 +155,14 @@ function determineHttpStatusCode(
 
   // We weren't given a body and preconditions succeeded.
   return 304;
+}
+
+function getLastModified(object: R2Object): string {
+  // `rclone` sets the mtime custom metadata to the mtime of the original
+  // file.
+  if (typeof object.customMetadata?.mtime === 'string') {
+    return new Date(Number(object.customMetadata.mtime) * 1000).toUTCString();
+  } else {
+    return object.uploaded.toUTCString();
+  }
 }
