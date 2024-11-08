@@ -172,6 +172,16 @@ describe('File Tests', () => {
     assert.strictEqual(body, '{ hello:');
   });
 
+  it('sends a 405 for anything other than GET or HEAD', async () => {
+    // Doesn't need to be all-inclusive
+    for (const method of ['POST', 'PATCH', 'DELETE', 'PROPFIND']) {
+      const res = await mf.dispatchFetch(`${url}`, {
+        method: method,
+      });
+      assert.strictEqual(res.status, 405, method);
+    }
+  });
+
   // Cleanup Miniflare
   after(async () => mf.dispose());
 });

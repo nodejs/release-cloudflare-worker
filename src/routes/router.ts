@@ -17,6 +17,14 @@ export class Router {
     return this.itty.fetch(request, ctx);
   }
 
+  all(endpoint: string, middlewares: Middleware[]): void {
+    const middlewareChain = buildMiddlewareChain(middlewares);
+
+    this.itty.all(endpoint, (req, ctx) => {
+      return callMiddlewareChain(middlewareChain, req, ctx);
+    });
+  }
+
   options(endpoint: string, middlewares: Middleware[]): void {
     const middlewareChain = buildMiddlewareChain(middlewares);
 
