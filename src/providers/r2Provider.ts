@@ -42,6 +42,10 @@ export class R2Provider implements Provider {
     };
   }
 
+  /**
+   * Important: the caller is responsible for wrapping this in a try/catch
+   *  and reporting any errors to Sentry
+   */
   async getFile(
     path: string,
     options?: GetFileOptions
@@ -59,7 +63,8 @@ export class R2Provider implements Provider {
         });
       },
       R2_RETRY_LIMIT,
-      this.ctx.sentry
+      // Don't pass sentry in,
+      undefined
     );
 
     if (object === null) {
