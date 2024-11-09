@@ -1,33 +1,43 @@
 # Dev Setup
 
-Guide to setting up this worker for development.
+Documentation on how to run the Release Worker locally.
 
-## Have Node Installed
+## Steps
 
-Node needs to be installed for the thing that serves Node downloads (latest LTS/even numbered major recommended)
+### 1. Prepare environment
 
-## Install Dependencies
+Read and follow the [Getting Started](../CONTRIBUTING.md) guide to get your
+local environment setup.
 
-Run `npm install`
+### 2. Setup your Cloudflare account
 
-## Testing
+Currently we run the worker in [remote mode](https://developers.cloudflare.com/workers/testing/local-development/#develop-using-remote-resources-and-bindings) as there isn't a nice way to
+locally populate an R2 bucket. This means that, to run the Release Worker
+locally, you must have a Cloudflare account that has an R2 bucket named
+`dist-prod`. You will also need to populate the bucket yourself.
 
-To run unit tests, `npm run test:unit`. To run e2e (end-to-end) tests, `npm run test:e2e`.
+Both of these will hopefully change in the future to make running the Release
+Worker easier.
 
-See the [/test](../tests/) folder for more info on testing.
+### 3. Create secrets for directory listings
 
-## Running Locally
+This step is optional but recommended.
 
-Spin up a Workerd instance on your machine that serves this worker
+The Release Worker uses R2's S3 API for directory listings. In order for
+directory listings to work, you need to make an R2 API key for your `dist-prod`
+bucket and provide it to the worker.
 
-### Login to Cloudflare Dash From Wrangler CLI
+Generating the API key can be done through the Cloudflare dashboard
+[here](https://dash.cloudflare.com/?account=/r2/api-tokens).
 
-Run `wrangler login`
+Then, make a `.dev.vars` file in the root of this repository with the following:
 
-### R2 Bucket
+```
+S3_ACCESS_KEY_ID=<your access key id>
+S3_ACCESS_KEY_SECRET=<your access key secret>
+```
 
-Create a R2 bucket named `dist-prod`. This is the bucket that the worker read from. It will either need to have a copy of Node's dist folder in it or something mimicing the folder there.
+### 4. Run the worker
 
-### Starting the Local Server
-
-Run `npm start`. This starts a Workerd instance in remote mode.
+Start the worker locally with `npm start`. You may be prompted to log into
+your Cloudflare account.
