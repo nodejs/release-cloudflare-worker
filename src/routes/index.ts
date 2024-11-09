@@ -1,5 +1,6 @@
 import latestVersions from '../constants/latestVersions.json' assert { type: 'json' };
 import { cached } from '../middleware/cacheMiddleware';
+import { MethodNotAllowedMiddleware } from '../middleware/methodNotAllowedMiddleware';
 import { NotFoundMiddleware } from '../middleware/notFoundMiddleware';
 import { OptionsMiddleware } from '../middleware/optionsMiddleware';
 import { OriginMiddleware } from '../middleware/originMiddleware';
@@ -52,6 +53,8 @@ export function registerRoutes(router: Router): void {
   ]);
 
   router.get('*', [new NotFoundMiddleware()]);
+
+  router.all('*', [new MethodNotAllowedMiddleware()]);
 }
 
 export * from './router';
