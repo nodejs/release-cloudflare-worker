@@ -23,6 +23,13 @@ export function cached(middleware: Middleware): Middleware {
 
   const wrapper: Middleware = {
     async handle(request, ctx, next) {
+      ctx.sentry.addBreadcrumb({
+        category: 'CacheMiddleware',
+        data: {
+          underlyingMiddleware: middleware.constructor.name,
+        },
+      });
+
       if (!isCacheEnabled(ctx.env)) {
         return middleware.handle(request, ctx, next);
       }

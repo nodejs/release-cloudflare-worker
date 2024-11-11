@@ -13,6 +13,11 @@ import type { Middleware } from './middleware';
  */
 export class OriginMiddleware implements Middleware {
   async handle(request: Request, ctx: Context): Promise<Response> {
+    ctx.sentry.addBreadcrumb({
+      category: 'OriginMiddleware',
+      message: 'hit',
+    });
+
     const res = await fetch(
       `${ctx.env.ORIGIN_HOST}${request.urlObj.pathname}`,
       {

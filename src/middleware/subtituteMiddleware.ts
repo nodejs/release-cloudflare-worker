@@ -22,12 +22,19 @@ export class SubtitutionMiddleware implements Middleware {
     this.replaceValue = replaceValue;
   }
 
-  handle(request: Request, _: Context): Promise<Response> {
+  handle(request: Request, ctx: Context): Promise<Response> {
+    const newUrl = request.url.replaceAll(this.searchValue, this.replaceValue);
+
+    ctx.sentry.addBreadcrumb({
+      type: 'navigation',
+      category: 'SubstitutionMiddleware',
+      data: {
+        from: request.url,
+        to: newUrl,
+      },
+    });
+
     // todo fix this
-    return Promise.resolve(
-      Response.redirect(
-        request.url.replaceAll(this.searchValue, this.replaceValue)
-      )
-    );
+    return Promise.resolve(Response.redirect(newUrl));
   }
 }

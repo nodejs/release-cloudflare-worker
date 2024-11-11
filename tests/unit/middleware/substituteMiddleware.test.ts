@@ -39,5 +39,9 @@ it('correctly substitutes url `/dist/latest` to `/dist/v1.0.0`', async () => {
   const middleware = new SubtitutionMiddleware(router, 'latest', 'v1.0.0');
 
   // @ts-expect-error full request & ctx not needed
-  middleware.handle(originalRequest, undefined);
+  middleware.handle(originalRequest, {
+    sentry: {
+      addBreadcrumb: () => {},
+    },
+  });
 });
