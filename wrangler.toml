@@ -33,15 +33,14 @@ bucket_name = 'dist-prod'
 
 # Prod
 [env.prod]
+tail_consumers = [{ service = "dist-worker-prod-tail" }]
+
 [env.prod.vars]
 workers_dev = false
 ENVIRONMENT = 'prod'
 S3_ENDPOINT = 'https://07be8d2fbc940503ca1be344714cb0d1.r2.cloudflarestorage.com'
 BUCKET_NAME='dist-prod'
 ORIGIN_HOST = 'https://origin.nodejs.org'
-
-[env.prod.tail_consumers]
-service = "dist-worker-prod-tail"
 
 [[env.prod.r2_buckets]]
 binding = 'R2_BUCKET'
