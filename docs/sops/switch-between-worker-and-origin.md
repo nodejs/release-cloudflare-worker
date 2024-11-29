@@ -1,6 +1,6 @@
 # Switching Between The Worker and The Origin Server
 
-Steps for toggling serves production traffic between the Release Worker and
+Steps for toggling server production traffic between the Release Worker and
 origin server. 
 
 ## Option A. Worker Routes
