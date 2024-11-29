@@ -1,10 +1,15 @@
-# Debugging
+# Debugging Prod
 
 Steps to aid with debugging the Release Worker's production environment.
 
+> [!NOTE]
+> This is mostly meant for Node.js Web Infra team members.
+> Some of these steps require access to resources only made available to Collaborators.
+
 ## Steps
 
-- Check [Sentry](https://nodejs-org.sentry.io/issues/?project=4506191181774848). All errors should be reported here.
+- Check [Sentry](https://nodejs-org.sentry.io/issues/?project=4506191181774848).
+  All errors should be reported here.
 
 - If a local reproduction is found, Cloudflare has an implementation of [Chrome's DevTools](https://developers.cloudflare.com/workers/observability/dev-tools/).
 

@@ -1,9 +1,10 @@
 # Rolling Back A Release
 
 > [!WARNING]
-> Rolling back a release should only be done when necessary, such as a
-> quick-fix for an on-going incident, and by a [Collaborator](../CONTRIBUTING.md#contributing).
-> The Web Infrastructure team should be made aware each time this happens.
+> Rolling back a release should only be done when necessary,
+> such as a quick-fix for an on-going incident,
+> and by a [Collaborator](../CONTRIBUTING.md#contributing).
+> The Web Infrastructure team should be aware each time this happens.
 
 ## Option A: via Github Actions
 
@@ -17,10 +18,8 @@ This is the preferred way, but takes a little bit longer.
 
 4. Merge PR & Deploy it
 
-If the rollback is prompted by an incident where the worker is entirely
-unavailable (i.e. all requests failing) or there is a security vulnerability
-present, a Collaborator may forcibly push the commit reverting the release onto
-the `main` branch.
+If the rollback is prompted by an incident where the worker is entirely unavailable (i.e. all requests failing) or there is a security vulnerability present,
+a Collaborator may forcibly push the commit reverting the release onto the `main` branch.
 
 ## Option B: via Cloudflare Dash
 
