@@ -28,8 +28,8 @@
   "latest-v20.x": "v20.18.1",
   "latest-iron": "v20.18.1",
   "latest-v21.x": "v21.7.3",
-  "latest-v22.x": "v22.11.0",
-  "latest-jod": "v22.11.0",
+  "latest-v22.x": "v22.12.0",
+  "latest-jod": "v22.12.0",
   "latest-v23.x": "v23.3.0",
   "latest": "v23.3.0",
   "node-latest.tar.gz": "latest/node-v23.3.0.tar.gz"
