@@ -1,0 +1,27 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: '/'
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: chore
+    open-pull-requests-limit: 10
+  - package-ecosystem: npm
+    directory: '/'
+    versioning-strategy: increase
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: chore
+    groups:
+      format:
+        patterns:
+          - 'prettier'
+      lint:
+        patterns:
+          - 'eslint'
+          - 'eslint-*'
+          - '@typescript-eslint/*'
+    ignore:
+      - dependency-name: nodejs-latest-linker
