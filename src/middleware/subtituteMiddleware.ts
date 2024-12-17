@@ -34,7 +34,11 @@ export class SubtitutionMiddleware implements Middleware {
       },
     });
 
-    // todo fix this
-    return Promise.resolve(Response.redirect(newUrl));
+    const substitutedRequest = new Request<CfProperties>(
+      newUrl,
+      new Request(request)
+    );
+
+    return this.router.handle(substitutedRequest, ctx);
   }
 }

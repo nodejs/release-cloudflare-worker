@@ -1,5 +1,6 @@
 import { CACHE_HEADERS } from '../constants/cache';
 import { R2_RETRY_LIMIT } from '../constants/limits';
+import CACHED_DIRECTORIES from '../constants/cachedDirectories.json' assert { type: 'json' };
 import contentTypeOverrides from '../constants/contentTypeOverrides.json' assert { type: 'json' };
 import type { Context } from '../context';
 import { objectHasBody } from '../utils/object';
@@ -86,9 +87,32 @@ export class R2Provider implements Provider {
     path: string,
     options?: ReadDirectoryOptions
   ): Promise<ReadDirectoryResult | undefined> {
+    if (path in CACHED_DIRECTORIES) {
+      // @ts-expect-error
+      const result: ReadDirectoryResult = CACHED_DIRECTORIES[path];
+
+      for (const file of result.files) {
+        if (typeof file.lastModified === 'string') {
+          file.lastModified = new Date(file.lastModified);
+        }
+      }
+
+      if (typeof result.lastModified === 'string') {
+        result.lastModified = new Date(result.lastModified);
+      }
+
+      return Promise.resolve({
+        subdirectories: result.subdirectories,
+        files: result.files,
+        hasIndexHtmlFile: result.hasIndexHtmlFile,
+        lastModified: new Date(result.lastModified),
+      });
+    }
+
     const s3Provider = new S3Provider({
       ctx: this.ctx,
     });
+
     return s3Provider.readDirectory(path, options);
   }
 }

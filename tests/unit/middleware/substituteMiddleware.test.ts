@@ -1,20 +1,17 @@
 import assert from 'node:assert';
 import { it } from 'node:test';
-import type { Request as WorkerRequest } from '../../../src/routes/request';
 import { SubtitutionMiddleware } from '../../../src/middleware/subtituteMiddleware';
-import { Router } from '../../../src/routes';
+import type { Request as WorkerRequest } from '../../../src/routes/request';
+import type { Router } from '../../../src/routes';
 
 it('correctly substitutes url `/dist/latest` to `/dist/v1.0.0`', async () => {
   const originalUrl = 'https://localhost/dist/latest';
 
-  const originalRequest: Partial<WorkerRequest> = {
-    ...new Request(originalUrl),
-    url: originalUrl,
-    urlObj: new URL(originalUrl),
-  };
+  const originalRequest: Partial<WorkerRequest> = new Request(originalUrl);
+  originalRequest.urlObj = new URL(originalUrl);
 
   const router: Partial<Router> = {
-    handle: (substitutedRequest: WorkerRequest) => {
+    handle: (substitutedRequest: WorkerRequest, _, unsubstitutedUrl) => {
       // Is the url is now substituted (latest -> v1.0.0)
       assert.strictEqual(
         substitutedRequest.url,
@@ -22,17 +19,14 @@ it('correctly substitutes url `/dist/latest` to `/dist/v1.0.0`', async () => {
       );
 
       // Did we save the unsubstituted path?
-      assert.strictEqual(
-        substitutedRequest.unsubtitutedUrl,
-        originalRequest.urlObj
-      );
+      assert.strictEqual(unsubstitutedUrl, originalRequest.urlObj);
 
       return Promise.resolve(new Response());
     },
   };
 
   // Pre-checks for sanity
-  assert.strictEqual(originalRequest.unsubtitutedUrl, undefined);
+  assert.strictEqual(originalRequest.unsubstitutedUrl, undefined);
   assert.strictEqual(originalRequest.urlObj!.pathname, '/dist/latest');
 
   // @ts-expect-error full router not needed
