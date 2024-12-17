@@ -11,41 +11,49 @@ import type { Request as WorkerRequest } from './request';
  * @see {Middleware}
  */
 export class Router {
-  private itty = IttyRouter<WorkerRequest, [Context], Response>();
+  private itty = IttyRouter<
+    WorkerRequest,
+    [Context, URL | undefined],
+    Response
+  >();
 
-  handle(request: Request, ctx: Context): Promise<Response> {
-    return this.itty.fetch(request, ctx);
+  handle(
+    request: Request,
+    ctx: Context,
+    unsubstitutedUrl?: URL
+  ): Promise<Response> {
+    return this.itty.fetch(request, ctx, unsubstitutedUrl);
   }
 
   all(endpoint: string, middlewares: Middleware[]): void {
     const middlewareChain = buildMiddlewareChain(middlewares);
 
-    this.itty.all(endpoint, (req, ctx) => {
-      return callMiddlewareChain(middlewareChain, req, ctx);
+    this.itty.all(endpoint, (req, ctx, unsubstitutedUrl) => {
+      return callMiddlewareChain(middlewareChain, req, ctx, unsubstitutedUrl);
     });
   }
 
   options(endpoint: string, middlewares: Middleware[]): void {
     const middlewareChain = buildMiddlewareChain(middlewares);
 
-    this.itty.options(endpoint, (req, ctx) => {
-      return callMiddlewareChain(middlewareChain, req, ctx);
+    this.itty.options(endpoint, (req, ctx, unsubstitutedUrl) => {
+      return callMiddlewareChain(middlewareChain, req, ctx, unsubstitutedUrl);
     });
   }
 
   head(endpoint: string, middlewares: Middleware[]): void {
     const middlewareChain = buildMiddlewareChain(middlewares);
 
-    this.itty.head(endpoint, (req, ctx) => {
-      return callMiddlewareChain(middlewareChain, req, ctx);
+    this.itty.head(endpoint, (req, ctx, unsubstitutedUrl) => {
+      return callMiddlewareChain(middlewareChain, req, ctx, unsubstitutedUrl);
     });
   }
 
   get(endpoint: string, middlewares: Middleware[]): void {
     const middlewareChain = buildMiddlewareChain(middlewares);
 
-    this.itty.get(endpoint, (req, ctx) => {
-      return callMiddlewareChain(middlewareChain, req, ctx);
+    this.itty.get(endpoint, (req, ctx, unsubstitutedUrl) => {
+      return callMiddlewareChain(middlewareChain, req, ctx, unsubstitutedUrl);
     });
   }
 }
@@ -86,7 +94,8 @@ function buildMiddlewareChain(middlewares: Middleware[]): MiddlewareChain {
 async function callMiddlewareChain(
   chain: MiddlewareChain,
   request: WorkerRequest,
-  ctx: Context
+  ctx: Context,
+  unsubstitutedUrl: URL | undefined
 ): Promise<Response> {
   // Parse url here so we don't have to do it multiple times later on
   const url = parseUrl(request);
@@ -95,6 +104,10 @@ async function callMiddlewareChain(
   }
 
   request.urlObj = url;
+
+  if (unsubstitutedUrl) {
+    request.unsubstitutedUrl = unsubstitutedUrl;
+  }
 
   return chain(request, ctx);
 }

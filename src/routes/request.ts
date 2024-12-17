@@ -6,5 +6,5 @@ export interface Request extends IRequest {
   /**
    * Set by {@link SubtitutionMiddleware} if it's used
    */
-  unsubtitutedUrl?: URL;
+  unsubstitutedUrl?: URL;
 }
