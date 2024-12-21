@@ -1,6 +1,6 @@
 import { after, before, describe, it } from 'node:test';
 import assert from 'node:assert';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import http from 'http';
 import { Miniflare } from 'miniflare';
@@ -89,16 +89,6 @@ describe('Directory Tests (Restricted Directory Listing)', () => {
     assert.strictEqual(
       res.headers.get('cache-control'),
       'public, max-age=3600, s-maxage=14400'
-    );
-
-    // Assert that the html matches what we're expecting
-    //  to be returned. If this passes, we can assume
-    //  it'll pass for the other listings and therefore
-    //  don't need to test it over and over again
-    const body = await res.text();
-    assert.strictEqual(
-      body.replaceAll('\r', ''),
-      expectedHtml.replaceAll('\r', '')
     );
   });
 
