@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env node
 'use strict';
 
 import { join } from 'node:path';

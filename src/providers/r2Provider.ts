@@ -88,7 +88,8 @@ export class R2Provider implements Provider {
     options?: ReadDirectoryOptions
   ): Promise<ReadDirectoryResult | undefined> {
     if (path in CACHED_DIRECTORIES) {
-      // @ts-expect-error
+      // @ts-expect-error dates may not be parsed at this point, we take care
+      //  of it below
       const result: ReadDirectoryResult = CACHED_DIRECTORIES[path];
 
       for (const file of result.files) {

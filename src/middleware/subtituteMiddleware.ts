@@ -39,6 +39,6 @@ export class SubtitutionMiddleware implements Middleware {
       new Request(request)
     );
 
-    return this.router.handle(substitutedRequest, ctx);
+    return this.router.handle(substitutedRequest, ctx, request.urlObj);
   }
 }
