@@ -108,7 +108,9 @@ The steps below will give you a general idea of how to prepare your local enviro
     npm run test:e2e
     ```
 
-10. Once you're happy with your changes, add and commit them to your branch, then push the branch to your fork.
+10. To run the worker locally, see [Dev Setup](./docs/dev-setup.md).
+
+11. Once you're happy with your changes, add and commit them to your branch, then push the branch to your fork.
 
     ```bash
     git add .
@@ -119,7 +121,7 @@ The steps below will give you a general idea of how to prepare your local enviro
     > [!IMPORTANT]\
     > Before committing and opening a Pull Request, please go first through our [Commit](#commit-guidelines) and [Pull Request](#pull-request-policy) guidelines outlined below.
 
-11. Create a Pull Request.
+12. Create a Pull Request.
 
 ### CLI Commands
 
