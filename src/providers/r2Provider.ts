@@ -98,10 +98,19 @@ function r2MetadataToHeaders(
 ): HttpResponseHeaders {
   const { httpMetadata } = object;
 
+  let contentType: string;
+  if (object.httpMetadata?.contentType !== undefined) {
+    contentType = object.httpMetadata.contentType;
+  } else {
+    // Serve .tab files as text files
+    contentType = object.key.endsWith('.tab')
+      ? 'text/plain'
+      : 'application/octet-stream';
+  }
+
   return {
     etag: object.httpEtag,
-    'content-type':
-      object.httpMetadata?.contentType ?? 'application/octet-stream',
+    'content-type': contentType,
     'accept-range': 'bytes',
     // https://github.com/nodejs/build/blob/e3df25d6a23f033db317a53ab1e904c953ba1f00/ansible/www-standalone/resources/config/nodejs.org?plain=1#L194-L196
     'access-control-allow-origin': object.key.endsWith('.json') ? '*' : '',
