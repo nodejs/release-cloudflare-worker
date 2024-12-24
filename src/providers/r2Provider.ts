@@ -16,6 +16,19 @@ import type {
 } from './provider';
 import { S3Provider } from './s3Provider';
 
+type CachedFile = {
+  name: string;
+  lastModified: string | Date;
+  size: number;
+};
+
+type CachedDirectory = {
+  subdirectories: string[];
+  hasIndexHtmlFile: boolean;
+  files: CachedFile[] | File[];
+  lastModified: string | Date;
+};
+
 type R2ProviderCtorOptions = {
   ctx: Context;
 };
@@ -88,20 +101,19 @@ export class R2Provider implements Provider {
     options?: ReadDirectoryOptions
   ): Promise<ReadDirectoryResult | undefined> {
     if (path in CACHED_DIRECTORIES) {
-      // @ts-expect-error dates may not be parsed at this point, we take care
-      //  of it below
-      const result: ReadDirectoryResult = CACHED_DIRECTORIES[path];
+      const result: CachedDirectory =
+        CACHED_DIRECTORIES[path as keyof typeof CACHED_DIRECTORIES];
 
-      for (const file of result.files) {
-        if (typeof file.lastModified === 'string') {
+      if (typeof result.lastModified === 'string') {
+        result.lastModified = new Date(result.lastModified);
+
+        for (const file of result.files) {
+          // @ts-expect-error this isn't readonly
           file.lastModified = new Date(file.lastModified);
         }
       }
 
-      if (typeof result.lastModified === 'string') {
-        result.lastModified = new Date(result.lastModified);
-      }
-
+      // @ts-expect-error at this point the result is parsed already
       return Promise.resolve({
         subdirectories: result.subdirectories,
         files: result.files,
