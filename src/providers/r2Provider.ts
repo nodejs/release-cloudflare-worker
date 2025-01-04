@@ -1,5 +1,6 @@
 import { CACHE_HEADERS } from '../constants/cache';
 import { R2_RETRY_LIMIT } from '../constants/limits';
+import contentTypeOverrides from '../constants/contentTypeOverrides.json' assert { type: 'json' };
 import type { Context } from '../context';
 import { objectHasBody } from '../utils/object';
 import { retryWrapper } from '../utils/provider';
@@ -98,14 +99,15 @@ function r2MetadataToHeaders(
 ): HttpResponseHeaders {
   const { httpMetadata } = object;
 
+  const fileExtension = object.key.substring(object.key.lastIndexOf('.') + 1);
+
   let contentType: string;
-  if (object.httpMetadata?.contentType !== undefined) {
-    contentType = object.httpMetadata.contentType;
+  if (fileExtension in contentTypeOverrides) {
+    contentType =
+      contentTypeOverrides[fileExtension as keyof typeof contentTypeOverrides];
   } else {
-    // Serve .tab files as text files
-    contentType = object.key.endsWith('.tab')
-      ? 'text/plain'
-      : 'application/octet-stream';
+    contentType =
+      object.httpMetadata?.contentType ?? 'application/octet-stream';
   }
 
   return {
