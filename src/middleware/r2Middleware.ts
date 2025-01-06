@@ -44,7 +44,6 @@ async function handleDirectory(
     return Response.redirect(`${url}/`, 301);
   }
 
-  // todo remove listpaths option?
   const result = await getProvider(ctx).readDirectory(r2Path);
 
   if (result === undefined) {

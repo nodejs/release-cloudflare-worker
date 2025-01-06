@@ -50,12 +50,9 @@ type TableElement = {
 
 function renderSubdirectory(name: string): TableElement {
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String#utf-16_characters_unicode_code_points_and_grapheme_clusters
-  // @ts-expect-error isWellFormed not recognized
-  // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
   const wellFormedName: string = name.isWellFormed()
     ? name
-    : // @ts-expect-error toWellFormed not recognized
-      name.toWellFormed();
+    : name.toWellFormed();
 
   const href = encodeURIComponent(
     wellFormedName.substring(0, wellFormedName.length - 1)

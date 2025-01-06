@@ -1,4 +1,3 @@
-import { isCacheEnabled } from '../utils/cache';
 import type { Middleware } from './middleware';
 
 /**
@@ -30,7 +29,7 @@ export function cached(middleware: Middleware): Middleware {
         },
       });
 
-      if (!isCacheEnabled(ctx.env)) {
+      if (!ctx.env.CACHING) {
         return middleware.handle(request, ctx, next);
       }
 

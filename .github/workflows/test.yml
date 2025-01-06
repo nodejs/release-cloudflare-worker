@@ -10,38 +10,12 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
-  unit-tests:
-    name: Unit Tests
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    if: ${{ github.event.action == 'opened' || github.event.action == 'ready_for_review' || github.event.action == 'synchronize' || (github.event.action == 'labeled' && github.event.label.name == 'force ci') }}
-
-    steps:
-      - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
-        with:
-          egress-policy: block
-          allowed-endpoints: >
-            api.github.com:443
-            github.com:443
-            registry.npmjs.org:443
-
-      - name: Git Checkout
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-
-      - name: Setup Node
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version: lts/*
-          cache: 'npm'
-      
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run Tests
-        run: node --run test:unit
-  e2e-test:
-    name: E2E Tests
+  tests:
+    name: Tests
     runs-on: ubuntu-latest
     timeout-minutes: 5
     if: ${{ github.event.action == 'opened' || github.event.action == 'ready_for_review' || github.event.action == 'synchronize' || (github.event.action == 'labeled' && github.event.label.name == 'force ci') }}
@@ -69,4 +43,4 @@ jobs:
         run: npm install
 
       - name: Run Tests
-        run: node --run test:e2e
+        run: node --run test:ci

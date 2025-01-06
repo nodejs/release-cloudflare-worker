@@ -1,7 +1,0 @@
-<ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01">
-  <Name>dist-prod</Name>
-  <Prefix />
-  <Marker />
-  <MaxKeys>1000</MaxKeys>
-  <IsTruncated>false</IsTruncated>
-</ListBucketResult>
