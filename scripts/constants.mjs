@@ -1,5 +1,8 @@
 'use strict';
 
+import { dirname, join } from 'node:path';
+import { readdir, readFile, stat } from 'node:fs/promises';
+
 export const ENDPOINT =
   process.env.ENDPOINT ??
   'https://07be8d2fbc940503ca1be344714cb0d1.r2.cloudflarestorage.com';
@@ -13,3 +16,5 @@ export const R2_RETRY_COUNT = 3;
 export const RELEASE_DIR = 'nodejs/release/';
 
 export const DOCS_DIR = 'nodejs/docs/';
+
+export const DEV_BUCKET_PATH = join(import.meta.dirname, '..', 'dev-bucket');
