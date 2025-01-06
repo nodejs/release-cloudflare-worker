@@ -101,14 +101,10 @@ function r2MetadataToHeaders(
 
   const fileExtension = object.key.substring(object.key.lastIndexOf('.') + 1);
 
-  let contentType: string;
-  if (fileExtension in contentTypeOverrides) {
-    contentType =
-      contentTypeOverrides[fileExtension as keyof typeof contentTypeOverrides];
-  } else {
-    contentType =
-      object.httpMetadata?.contentType ?? 'application/octet-stream';
-  }
+  const contentType =
+    contentTypeOverrides[fileExtension as keyof typeof contentTypeOverrides] ??
+    object.httpMetadata?.contentType ??
+    'application/octet-stream';
 
   return {
     etag: object.httpEtag,
