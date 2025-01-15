@@ -57,7 +57,6 @@ The Worker also uses several other Open Source libraries (not limited to) listed
 - [AWS S3 client](https://www.npmjs.com/package/@aws-sdk/client-s3) is used for interacting with R2's S3 entrypoint.
 - [Handlebars.js](https://www.npmjs.com/package/handlebars) is used for rendering templated pages.
 - [Sentry](https://sentry.io/about) is used for error reporting.
-- [Zod](https://zod.dev/?id=introduction) is used for error reporting.
 
 ## Code Editing
 
