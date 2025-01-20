@@ -17,14 +17,14 @@ jobs:
 
       - name: Deploy to Staging
         if: github.event_name == 'push'
-        uses: cloudflare/wrangler-action@6d58852c35a27e6034745c5d0bc373d739014f7f
+        uses: cloudflare/wrangler-action@7a5f8bbdfeedcde38e6777a50fe685f89259d4ca
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           command: deploy --env staging
 
       - name: Deploy to Production
         if: github.event_name == 'workflow_dispatch'
-        uses: cloudflare/wrangler-action@6d58852c35a27e6034745c5d0bc373d739014f7f
+        uses: cloudflare/wrangler-action@7a5f8bbdfeedcde38e6777a50fe685f89259d4ca
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           command: deploy --env prod
