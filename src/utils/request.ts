@@ -30,12 +30,15 @@ export function parseUrl(request: Request): URL | undefined {
 }
 
 export function parseConditionalHeaders(headers: Headers): ConditionalHeaders {
-  const ifModifiedSince = headers.has('if-modified-since')
+  let ifModifiedSince = headers.has('if-modified-since')
     ? new Date(headers.get('if-modified-since')!)
     : undefined;
 
   if (ifModifiedSince instanceof Date) {
     ifModifiedSince.setSeconds(ifModifiedSince.getSeconds() + 1);
+  } else {
+    // Invalid date
+    ifModifiedSince = undefined;
   }
 
   const ifMatch = headers.has('if-match')
@@ -46,9 +49,14 @@ export function parseConditionalHeaders(headers: Headers): ConditionalHeaders {
     ? headers.get('if-none-match')!.replaceAll('"', '')
     : undefined;
 
-  const ifUnmodifiedSince = headers.has('if-unmodified-since')
+  let ifUnmodifiedSince = headers.has('if-unmodified-since')
     ? new Date(headers.get('if-unmodified-since')!)
     : undefined;
+
+  if (!(ifUnmodifiedSince instanceof Date)) {
+    // Invalid date
+    ifUnmodifiedSince = undefined;
+  }
 
   const range = headers.has('range')
     ? parseRangeHeader(headers.get('range')!)
