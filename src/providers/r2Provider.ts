@@ -1,5 +1,6 @@
 import { CACHE_HEADERS } from '../constants/cache';
 import { R2_RETRY_LIMIT } from '../constants/limits';
+import contentTypeOverrides from '../constants/contentTypeOverrides.json' assert { type: 'json' };
 import type { Context } from '../context';
 import { objectHasBody } from '../utils/object';
 import { retryWrapper } from '../utils/provider';
@@ -98,10 +99,16 @@ function r2MetadataToHeaders(
 ): HttpResponseHeaders {
   const { httpMetadata } = object;
 
+  const fileExtension = object.key.substring(object.key.lastIndexOf('.') + 1);
+
+  const contentType =
+    contentTypeOverrides[fileExtension as keyof typeof contentTypeOverrides] ??
+    object.httpMetadata?.contentType ??
+    'application/octet-stream';
+
   return {
     etag: object.httpEtag,
-    'content-type':
-      object.httpMetadata?.contentType ?? 'application/octet-stream',
+    'content-type': contentType,
     'accept-range': 'bytes',
     // https://github.com/nodejs/build/blob/e3df25d6a23f033db317a53ab1e904c953ba1f00/ansible/www-standalone/resources/config/nodejs.org?plain=1#L194-L196
     'access-control-allow-origin': object.key.endsWith('.json') ? '*' : '',
