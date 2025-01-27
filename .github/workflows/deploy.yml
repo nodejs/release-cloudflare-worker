@@ -9,6 +9,7 @@ on:
 jobs:
   deploy:
     name: Deploy Cloudflare Worker
+    timeout-minutes: 5
     runs-on: ubuntu-latest
 
     steps:
