@@ -63,9 +63,7 @@ function getDateFromHeader(dateString: string | null): Date | undefined {
   }
 
   const date = new Date(dateString);
-
-  // @ts-expect-error date to number conversion
-  return date instanceof Date && !isNaN(date) ? date : undefined;
+  return !isNaN(date.getTime()) ? date : undefined;
 }
 
 /**
