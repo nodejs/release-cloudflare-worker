@@ -78,11 +78,14 @@ describe('File Tests', () => {
     assert.strictEqual(res.status, 200);
     assert.strictEqual(res.headers.has('last-modified'), true);
 
+    const date = new Date(res.headers.get('last-modified')!);
+    date.setSeconds(date.getSeconds() + 1);
+
     // Make sure it returns a 304 when If-Modified-Since
     //  >= file last modified
     res = await mf.dispatchFetch(`${url}dist/index.json`, {
       headers: {
-        'if-modified-since': res.headers.get('last-modified')!,
+        'if-modified-since': date.toUTCString(),
       },
     });
     assert.strictEqual(res.status, 304);

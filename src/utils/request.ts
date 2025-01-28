@@ -30,13 +30,7 @@ export function parseUrl(request: Request): URL | undefined {
 }
 
 export function parseConditionalHeaders(headers: Headers): ConditionalHeaders {
-  const ifModifiedSince = headers.has('if-modified-since')
-    ? new Date(headers.get('if-modified-since')!)
-    : undefined;
-
-  if (ifModifiedSince instanceof Date) {
-    ifModifiedSince.setSeconds(ifModifiedSince.getSeconds() + 1);
-  }
+  const ifModifiedSince = getDateFromHeader(headers.get('if-modified-since'));
 
   const ifMatch = headers.has('if-match')
     ? headers.get('if-match')!.replaceAll('"', '')
@@ -46,9 +40,9 @@ export function parseConditionalHeaders(headers: Headers): ConditionalHeaders {
     ? headers.get('if-none-match')!.replaceAll('"', '')
     : undefined;
 
-  const ifUnmodifiedSince = headers.has('if-unmodified-since')
-    ? new Date(headers.get('if-unmodified-since')!)
-    : undefined;
+  const ifUnmodifiedSince = getDateFromHeader(
+    headers.get('if-unmodified-since')
+  );
 
   const range = headers.has('range')
     ? parseRangeHeader(headers.get('range')!)
@@ -61,6 +55,15 @@ export function parseConditionalHeaders(headers: Headers): ConditionalHeaders {
     ifUnmodifiedSince,
     range,
   };
+}
+
+function getDateFromHeader(dateString: string | null): Date | undefined {
+  if (dateString === null) {
+    return undefined;
+  }
+
+  const date = new Date(dateString);
+  return !isNaN(date.getTime()) ? date : undefined;
 }
 
 /**

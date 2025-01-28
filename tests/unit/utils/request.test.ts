@@ -1,6 +1,9 @@
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
-import { parseRangeHeader } from '../../../src/utils/request';
+import {
+  parseConditionalHeaders,
+  parseRangeHeader,
+} from '../../../src/utils/request';
 
 describe('parseRangeHeader', () => {
   it('`bytes=0-10`', () => {
@@ -47,5 +50,22 @@ describe('parseRangeHeader', () => {
   it('`bytes=10-0`', () => {
     const result = parseRangeHeader('bytes=10-0');
     assert.strictEqual(result, undefined);
+  });
+});
+
+describe('parseConditionalHeaders', () => {
+  it('invalid dates', () => {
+    const headers = new Headers({
+      'if-modified-since': 'asd',
+      'if-unmodified-since': 'asd',
+    });
+
+    assert.deepStrictEqual(parseConditionalHeaders(headers), {
+      ifMatch: undefined,
+      ifNoneMatch: undefined,
+      ifModifiedSince: undefined,
+      ifUnmodifiedSince: undefined,
+      range: undefined,
+    });
   });
 });
