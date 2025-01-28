@@ -13,6 +13,7 @@ on:
 jobs:
   lint:
     name: Check Linting and Formatting
+    timeout-minutes: 5
     runs-on: ubuntu-latest
     if: ${{ github.event.action == 'opened' || github.event.action == 'ready_for_review' || github.event.action == 'synchronize' || (github.event.action == 'labeled' && github.event.label.name == 'force ci') }}
 
