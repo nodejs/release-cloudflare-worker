@@ -65,9 +65,9 @@ const latestVersions = await getLatestVersionMapping(client, releases);
 await writeFile(LATEST_VERSIONS_OUT, JSON.stringify(latestVersions));
 
 // Filter the latest version map so we only have the `latest-*` directories
-const latestVersionDirectories = Object.keys(latestVersions).map(version =>
-  version === 'node-latest.tar.gz' ? version : `${version}/`
-);
+const latestVersionDirectories = Object.keys(latestVersions)
+  .filter(version => version !== 'node-latest.tar.gz')
+  .map(version => `${version}/`);
 
 // Create the complete listing of `nodejs/release/` by adding what R2 returned
 //  and the latest version directories (which are the symlinks)
