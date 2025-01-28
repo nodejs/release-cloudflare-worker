@@ -1,6 +1,6 @@
 <!DOCTYPE html><html>
 <head>
-  <title>Index of /dist/</title>
+  <title>Index of /dist/v1.0.0/</title>
   <style>   
     @media (prefers-color-scheme: dark) {
       body {
@@ -17,8 +17,8 @@
   </style>
 </head>
 <body>
-<h1>Index of /dist/</h1><hr><pre><a href="../">../</a>
+<h1>Index of /dist/v1.0.0/</h1><hr><pre><a href="../">../</a>
 <a href="latest/">latest/</a>                                                           -                   -
-<a href="/dist/index.json">index.json</a>                                         12 Sept 2023, 05:43                 18 B
+<a href="/dist/v1.0.0/index.json">index.json</a>                                         12 Sept 2023, 05:43                 18 B
 </pre><hr /></body>
 </html>

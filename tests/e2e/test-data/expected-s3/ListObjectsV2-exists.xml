@@ -5,11 +5,11 @@
   <MaxKeys>1000</MaxKeys>
   <IsTruncated>false</IsTruncated>
   <CommonPrefixes>
-    <Prefix>nodejs/release/latest/</Prefix>
+    <Prefix>nodejs/release/v1.0.0/latest/</Prefix>
   </CommonPrefixes>
   <Contents>
     <ETag>"asd123"</ETag>
-    <Key>nodejs/release/index.json</Key>
+    <Key>nodejs/release/v1.0.0/index.json</Key>
     <LastModified>2023-09-12T05:43:00.000Z</LastModified>
     <Size>18</Size>
   </Contents>

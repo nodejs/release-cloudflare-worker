@@ -1,5 +1,6 @@
 import { CACHE_HEADERS } from '../constants/cache';
 import { R2_RETRY_LIMIT } from '../constants/limits';
+import CACHED_DIRECTORIES from '../constants/cachedDirectories.json' assert { type: 'json' };
 import contentTypeOverrides from '../constants/contentTypeOverrides.json' assert { type: 'json' };
 import type { Context } from '../context';
 import { objectHasBody } from '../utils/object';
@@ -14,6 +15,19 @@ import type {
   ReadDirectoryResult,
 } from './provider';
 import { S3Provider } from './s3Provider';
+
+type CachedFile = {
+  name: string;
+  lastModified: string | Date;
+  size: number;
+};
+
+type CachedDirectory = {
+  subdirectories: string[];
+  hasIndexHtmlFile: boolean;
+  files: CachedFile[] | File[];
+  lastModified: string | Date;
+};
 
 type R2ProviderCtorOptions = {
   ctx: Context;
@@ -86,9 +100,32 @@ export class R2Provider implements Provider {
     path: string,
     options?: ReadDirectoryOptions
   ): Promise<ReadDirectoryResult | undefined> {
+    if (path in CACHED_DIRECTORIES) {
+      const result: CachedDirectory =
+        CACHED_DIRECTORIES[path as keyof typeof CACHED_DIRECTORIES];
+
+      if (typeof result.lastModified === 'string') {
+        result.lastModified = new Date(result.lastModified);
+
+        for (const file of result.files) {
+          // @ts-expect-error this isn't readonly
+          file.lastModified = new Date(file.lastModified);
+        }
+      }
+
+      // @ts-expect-error at this point the result is parsed already
+      return Promise.resolve({
+        subdirectories: result.subdirectories,
+        files: result.files,
+        hasIndexHtmlFile: result.hasIndexHtmlFile,
+        lastModified: new Date(result.lastModified),
+      });
+    }
+
     const s3Provider = new S3Provider({
       ctx: this.ctx,
     });
+
     return s3Provider.readDirectory(path, options);
   }
 }

@@ -6,7 +6,7 @@ import http from 'node:http';
 const FILE_PATH_TO_TEST = 'dist/index.json';
 let fallbackFilePathHit = false;
 
-const DIRECTORY_TO_TEST = 'download/release/';
+const DIRECTORY_TO_TEST = 'download/v1.0.0/';
 let fallbackDirectoryPathHit = false;
 
 function startfallbackMock(): http.Server {

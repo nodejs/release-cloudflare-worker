@@ -1,4 +1,5 @@
 import { CACHE_HEADERS } from '../constants/cache';
+import docsDirectory from '../constants/docsDirectory.json' assert { type: 'json' };
 import type { Context } from '../context';
 import type { GetFileResult } from '../providers/provider';
 import { R2Provider } from '../providers/r2Provider';
@@ -32,12 +33,6 @@ export class R2Middleware implements Middleware {
   }
 }
 
-function shouldListFiles(path: string): boolean {
-  // /docs lists the nodejs/release directory - don't want to include the
-  //  files in there for that path
-  return !path.startsWith('/docs');
-}
-
 async function handleDirectory(
   request: Request,
   r2Path: string,
@@ -45,13 +40,12 @@ async function handleDirectory(
 ): Promise<Response> {
   if (!hasTrailingSlash(request.urlObj.pathname)) {
     // We always want directory listing requests to have a trailing slash
-    const url = request.unsubtitutedUrl ?? request.urlObj;
+    const url = request.unsubstitutedUrl ?? request.urlObj;
     return Response.redirect(`${url}/`, 301);
   }
 
-  const result = await getProvider(ctx).readDirectory(r2Path, {
-    listFiles: shouldListFiles(request.urlObj.pathname),
-  });
+  // todo remove listpaths option?
+  const result = await getProvider(ctx).readDirectory(r2Path);
 
   if (result === undefined) {
     return responses.directoryNotFound(request.method);
@@ -65,7 +59,7 @@ async function handleDirectory(
   let responseBody;
   if (request.method === 'GET') {
     responseBody = renderDirectoryListing(
-      request.unsubtitutedUrl ?? request.urlObj,
+      request.unsubstitutedUrl ?? request.urlObj,
       result
     );
   }
@@ -164,10 +158,16 @@ function getR2Path({
   } else if (pathname.startsWith('/docs')) {
     if (params.version !== undefined) {
       // /docs/vX.X.X at minimum
+
+      // Older version, docs exist in the docs folder
+      if (docsDirectory.includes(params.version)) {
+        return `nodejs/docs/${params.version}/${filePath}`;
+      }
+
       return `nodejs/release/${params.version}/docs/${filePath}`;
     } else {
       // Just /docs
-      return `nodejs/release/`;
+      return `nodejs/docs/`;
     }
   } else if (pathname.startsWith('/metrics')) {
     // Substring to cut off the leading /

@@ -1,6 +1,6 @@
 import { after, before, describe, it } from 'node:test';
 import assert from 'node:assert';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import http from 'http';
 import { Miniflare } from 'miniflare';
@@ -24,9 +24,12 @@ async function startS3Mock(): Promise<http.Server> {
     const r2Prefix = url.searchParams.get('prefix')!;
 
     let doesFolderExist =
-      ['nodejs/release/', 'nodejs/', 'nodejs/docs/', 'metrics/'].includes(
-        r2Prefix
-      ) || r2Prefix.endsWith('/docs/api/');
+      [
+        'nodejs/release/v1.0.0/',
+        'nodejs/',
+        'nodejs/docs/',
+        'metrics/',
+      ].includes(r2Prefix) || r2Prefix.endsWith('/docs/api/');
 
     if (doesFolderExist) {
       xmlFilePath += 'ListObjectsV2-exists.xml';
@@ -76,15 +79,27 @@ describe('Directory Tests (Restricted Directory Listing)', () => {
   });
 
   it('redirects `/dist` to `/dist/` and returns expected html', async () => {
-    const [originalRes, expectedHtml] = await Promise.all([
-      mf.dispatchFetch(`${url}dist`, { redirect: 'manual' }),
+    const originalRes = await mf.dispatchFetch(`${url}dist`, {
+      redirect: 'manual',
+    });
+
+    assert.strictEqual(originalRes.status, 301);
+    const res = await mf.dispatchFetch(originalRes.headers.get('location')!);
+    assert.strictEqual(res.status, 200);
+    assert.strictEqual(
+      res.headers.get('cache-control'),
+      'public, max-age=3600, s-maxage=14400'
+    );
+  });
+
+  it('`/dist/v1.0.0/` returns expected html', async () => {
+    const [res, expectedHtml] = await Promise.all([
+      mf.dispatchFetch(`${url}dist/v1.0.0/`),
       readFile('./tests/e2e/test-data/expected-html/dist.txt', {
         encoding: 'utf-8',
       }),
     ]);
 
-    assert.strictEqual(originalRes.status, 301);
-    const res = await mf.dispatchFetch(originalRes.headers.get('location')!);
     assert.strictEqual(res.status, 200);
     assert.strictEqual(
       res.headers.get('cache-control'),
