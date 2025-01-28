@@ -39,7 +39,7 @@ if (!process.env.CF_ACCESS_KEY_ID) {
   throw new TypeError('CF_ACCESS_KEY_ID missing');
 }
 
-if (!process.env.CF_ACCESS_KEY_ID) {
+if (!process.env.CF_SECRET_ACCESS_KEY) {
   throw new TypeError('CF_SECRET_ACCESS_KEY missing');
 }
 
