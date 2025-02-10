@@ -2,6 +2,7 @@ import { CACHE_HEADERS } from '../constants/cache';
 import { R2_RETRY_LIMIT } from '../constants/limits';
 import CACHED_DIRECTORIES from '../constants/cachedDirectories.json' assert { type: 'json' };
 import contentTypeOverrides from '../constants/contentTypeOverrides.json' assert { type: 'json' };
+import fileSymlinks from '../constants/fileSymlinks.json' assert { type: 'json' };
 import type { Context } from '../context';
 import { objectHasBody } from '../utils/object';
 import { retryWrapper } from '../utils/provider';
@@ -41,6 +42,11 @@ export class R2Provider implements Provider {
   }
 
   async headFile(path: string): Promise<HeadFileResult | undefined> {
+    if (path in fileSymlinks) {
+      // @ts-expect-error fileSymlinks is untyped
+      path = fileSymlinks[path];
+    }
+
     const object = await retryWrapper(
       async () => await this.ctx.env.R2_BUCKET.head(path),
       R2_RETRY_LIMIT,
@@ -65,6 +71,11 @@ export class R2Provider implements Provider {
     path: string,
     options?: GetFileOptions
   ): Promise<GetFileResult | undefined> {
+    if (path in fileSymlinks) {
+      // @ts-expect-error fileSymlinks is untyped
+      path = fileSymlinks[path];
+    }
+
     const object = await retryWrapper(
       async () => {
         return this.ctx.env.R2_BUCKET.get(path, {
