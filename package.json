@@ -28,7 +28,7 @@
     "globals": "^15.14.0",
     "nodejs-latest-linker": "^1.8.0",
     "prettier": "^3.5.0",
-    "terser": "^5.37.0",
+    "terser": "^5.39.0",
     "tsx": "^4.7.2",
     "typescript": "^5.7.3",
     "wrangler": "^3.107.2"
