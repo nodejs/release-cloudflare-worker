@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 'use strict';
 
-import { join } from 'node:path';
-import { writeFile } from 'node:fs/promises';
+import { basename, dirname, join } from 'node:path';
+import { readFile, writeFile } from 'node:fs/promises';
 import {
   HeadObjectCommand,
   ListObjectsV2Command,
@@ -33,6 +33,14 @@ const CACHED_DIRECTORIES_OUT = join(
   'src',
   'constants',
   'cachedDirectories.json'
+);
+
+const FILE_SYMLINKS = join(
+  import.meta.dirname,
+  '..',
+  'src',
+  'constants',
+  'fileSymlinks.json'
 );
 
 if (!process.env.CF_ACCESS_KEY_ID) {
@@ -117,6 +125,38 @@ const cachedDirectories = {
     lastModified: releases.lastModified,
   },
 };
+
+// Some older versions of Node exist in `nodejs/release/` and have folders
+//  with symlinks to them. For example, node-v0.1.100.tar.gz lives under
+//  `nodejs/release/`, but there's also `nodejs/release/v0.1.100/node-v0.1.100.tar.gz`
+//  which is just a symlink to it.
+// Let's add these to our cached directories.
+const fileSymlinks = JSON.parse(await readFile(FILE_SYMLINKS, 'utf8'));
+
+for (const file of Object.keys(fileSymlinks)) {
+  // Stat the actual file so we can get it's size, last modified
+  const actualFile = await headFile(client, fileSymlinks[file]);
+
+  const directory = `${dirname(file)}/`;
+
+  if (directory in cachedDirectories) {
+    // Directory was already cached, let's just append the file to the result
+    cachedDirectories[directory].files.push({
+      ...actualFile,
+      name: basename(file),
+    });
+  } else {
+    // List the directory that the symlink is in so we can append the symlink to
+    //  what's actually there
+    const contents = await listDirectory(client, directory);
+    contents.files.push({
+      ...actualFile,
+      name: basename(file),
+    });
+
+    cachedDirectories[directory] = contents;
+  }
+}
 
 await writeFile(CACHED_DIRECTORIES_OUT, JSON.stringify(cachedDirectories));
 
