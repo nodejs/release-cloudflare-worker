@@ -25,7 +25,7 @@
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.3",
     "glob": "^11.0.1",
-    "globals": "^15.14.0",
+    "globals": "^16.0.0",
     "nodejs-latest-linker": "^1.8.0",
     "prettier": "^3.5.1",
     "terser": "^5.39.0",
