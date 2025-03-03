@@ -180,13 +180,10 @@ function areConditionalHeadersPresent(
 
   const { conditionalHeaders } = options;
 
-  // Only check for if-none-match and if-unmodified-since because the docs said
+  // Only check for if-unmodified-since because the docs said
   //  so, also what nginx does from my experiments
   //  https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/412
-  return (
-    conditionalHeaders.ifNoneMatch !== undefined ||
-    conditionalHeaders.ifUnmodifiedSince !== undefined
-  );
+  return conditionalHeaders.ifUnmodifiedSince !== undefined;
 }
 
 function determineHttpStatusCode(
@@ -208,7 +205,7 @@ function determineHttpStatusCode(
     return 412;
   }
 
-  // We weren't given a body and preconditions succeeded.
+  // We weren't given a body
   return 304;
 }
 

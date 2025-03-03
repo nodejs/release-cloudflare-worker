@@ -160,7 +160,7 @@ describe('File Tests', () => {
         'if-none-match': originalETag,
       },
     });
-    assert(res.status === 304 || res.status === 412);
+    assert(res.status === 304);
   });
 
   it('handles range header correctly', async () => {
