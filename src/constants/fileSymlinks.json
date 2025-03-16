@@ -67,5 +67,6 @@
   "nodejs/release/v0.3.8/node-v0.3.8.tar.gz": "nodejs/release/node-v0.3.8.tar.gz",
   "nodejs/release/v0.1.15/node-v0.1.15.tar.gz": "nodejs/release/node-v0.1.15.tar.gz",
   "nodejs/release/v0.4.12/node-v0.4.12.tar.gz": "nodejs/release/node-v0.4.12.tar.gz",
-  "nodejs/release/v0.1.32/node-v0.1.32.tar.gz": "nodejs/release/node-v0.1.32.tar.gz"
+  "nodejs/release/v0.1.32/node-v0.1.32.tar.gz": "nodejs/release/node-v0.1.32.tar.gz",
+  "node-config-schema.json": "nodejs/release/v23.10.0/docs/node-config-schema.json"
 }

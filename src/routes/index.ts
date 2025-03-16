@@ -37,6 +37,9 @@ export function registerRoutes(router: Router): void {
     router.get(`/docs/${branch}*`, [subtitutionMiddleware]);
   }
 
+  router.head('/node-config-schema.json', [r2Middleware]);
+  router.get('/node-config-schema.json', [r2Middleware]);
+
   router.head('/dist/?:filePath+', [r2Middleware, originMiddleware]);
   router.get('/dist/?:filePath+', [cachedR2Middleware, originMiddleware]);
 
