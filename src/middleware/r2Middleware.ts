@@ -169,7 +169,10 @@ function getR2Path({
       // Just /docs
       return `nodejs/docs/`;
     }
-  } else if (pathname.startsWith('/metrics')) {
+  } else if (
+    pathname.startsWith('/metrics') ||
+    pathname === '/node-config-schema.json'
+  ) {
     // Substring to cut off the leading /
     return pathname.substring(1);
   }

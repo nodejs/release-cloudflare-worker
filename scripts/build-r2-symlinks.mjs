@@ -133,6 +133,9 @@ const cachedDirectories = {
 // Let's add these to our cached directories.
 const fileSymlinks = JSON.parse(await readFile(FILE_SYMLINKS, 'utf8'));
 
+// Delete this for now, we'll add it back again later
+delete fileSymlinks['node-config-schema.json'];
+
 for (const file of Object.keys(fileSymlinks)) {
   // Stat the actual file so we can get it's size, last modified
   const actualFile = await headFile(client, fileSymlinks[file]);
@@ -159,6 +162,13 @@ for (const file of Object.keys(fileSymlinks)) {
 }
 
 await writeFile(CACHED_DIRECTORIES_OUT, JSON.stringify(cachedDirectories));
+
+// Update the node-config-schema.json file symlink to point to the latest
+//  version
+fileSymlinks['node-config-schema.json'] =
+  `${RELEASE_DIR}${latestVersions['latest']}/docs/node-config-schema.json`;
+
+await writeFile(FILE_SYMLINKS, JSON.stringify(fileSymlinks));
 
 /**
  * @param {S3Client} client
