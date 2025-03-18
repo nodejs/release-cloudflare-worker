@@ -31,7 +31,7 @@ jobs:
         run: npm install
 
       - name: Run Tests
-        run: npm run test:unit
+        run: node --run test:unit
   e2e-test:
     name: E2E Tests
     runs-on: ubuntu-latest
@@ -52,4 +52,4 @@ jobs:
         run: npm install
 
       - name: Run Tests
-        run: npm run test:e2e
+        run: node --run test:e2e

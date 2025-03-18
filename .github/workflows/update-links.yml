@@ -37,7 +37,7 @@ jobs:
         run: npm install && npm update nodejs-latest-linker --save
 
       - name: Update Redirect Links
-        run: node scripts/build-r2-symlinks.mjs && npm run format
+        run: node scripts/build-r2-symlinks.mjs && node --run format
         env:
           CF_ACCESS_KEY_ID: ${{ secrets.CF_ACCESS_KEY_ID }}
           CF_SECRET_ACCESS_KEY: ${{ secrets.CF_SECRET_ACCESS_KEY }}
