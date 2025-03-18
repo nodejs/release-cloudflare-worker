@@ -103,9 +103,9 @@ The steps below will give you a general idea of how to prepare your local enviro
 9.  Run the following to confirm that linting and formatting are passing.
 
     ```bash
-    npm run format
-    npm run test:unit
-    npm run test:e2e
+    node --run format
+    node --run test:unit
+    node --run test:e2e
     ```
 
 10. To run the worker locally, see [Dev Setup](./docs/dev-setup.md).
@@ -130,11 +130,11 @@ This repository contains a few scripts and commands for performing numerous task
 <details>
     <summary>Commands for Testing, Maintaining, and Contributing to the Worker</summary>
 
-- `npm run format` Formats the code to the repository's standards.
-- `npm run lint` Lints the code to the repository's standards.
-- `npm run test:unit` Runs the [Unit Tests](./COLLABORATOR_GUIDE.md#unit-tests) to ensure individual components are working as expected.
-- `npm run test:e2e` Runs the [E2E Tests](./COLLABORATOR_GUIDE.md#e2e-tests) to ensure requests act as expected.
-- `npm run build:handlebars` Compiles the Handlebars templates. **Required for any changes to the templates to take affect**.
+- `node --run format` Formats the code to the repository's standards.
+- `node --run lint` Lints the code to the repository's standards.
+- `node --run test:unit` Runs the [Unit Tests](./COLLABORATOR_GUIDE.md#unit-tests) to ensure individual components are working as expected.
+- `node --run test:e2e` Runs the [E2E Tests](./COLLABORATOR_GUIDE.md#e2e-tests) to ensure requests act as expected.
+- `node --run build:handlebars` Compiles the Handlebars templates. **Required for any changes to the templates to take affect**.
 
 </details>
 
