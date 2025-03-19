@@ -15,6 +15,15 @@ jobs:
     steps:
       - name: Git Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+  
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm install
 
       - name: Deploy to Staging
         if: github.event_name == 'push'
