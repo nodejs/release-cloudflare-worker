@@ -1,0 +1,61 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "dist-worker",
+  "main": "src/worker.ts",
+  "compatibility_date": "2024-09-05",
+  "account_id": "07be8d2fbc940503ca1be344714cb0d1",
+  "logpush": true,
+  "vars": {
+    "workers_dev": true,
+    "ENVIRONMENT": "dev",
+    "S3_ENDPOINT": "https://07be8d2fbc940503ca1be344714cb0d1.r2.cloudflarestorage.com",
+    "BUCKET_NAME": "dist-prod",
+    "ORIGIN_HOST": "https://origin.nodejs.org"
+  },
+  "r2_buckets": [
+    {
+      "binding": "R2_BUCKET",
+      "preview_bucket_name": "dist-prod",
+      "bucket_name": "dist-prod"
+    }
+  ],
+  "env": {
+    "staging": {
+      "vars": {
+        "workers_dev": true,
+        "ENVIRONMENT": "staging",
+        "S3_ENDPOINT": "https://07be8d2fbc940503ca1be344714cb0d1.r2.cloudflarestorage.com",
+        "BUCKET_NAME": "dist-prod",
+        "ORIGIN_HOST": "https://origin.nodejs.org"
+      },
+      "r2_buckets": [
+        {
+          "binding": "R2_BUCKET",
+          "preview_bucket_name": "dist-prod",
+          "bucket_name": "dist-prod"
+        }
+      ]
+    },
+    "prod": {
+      "tail_consumers": [
+        {
+          "service": "dist-worker-prod-tail"
+        }
+      ],
+      "vars": {
+        "workers_dev": false,
+        "ENVIRONMENT": "prod",
+        "S3_ENDPOINT": "https://07be8d2fbc940503ca1be344714cb0d1.r2.cloudflarestorage.com",
+        "BUCKET_NAME": "dist-prod",
+        "ORIGIN_HOST": "https://origin.nodejs.org"
+      },
+      "r2_buckets": [
+        {
+          "binding": "R2_BUCKET",
+          "preview_bucket_name": "dist-prod",
+          "bucket_name": "dist-prod"
+        }
+      ]
+    }
+  }
+}
