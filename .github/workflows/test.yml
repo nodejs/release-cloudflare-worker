@@ -18,6 +18,10 @@ jobs:
     if: ${{ github.event.action == 'opened' || github.event.action == 'ready_for_review' || github.event.action == 'synchronize' || (github.event.action == 'labeled' && github.event.label.name == 'force ci') }}
 
     steps:
+      - uses: step-security/harden-runner@446798f8213ac2e75931c1b0769676d927801858 # v2.10.3
+        with:
+          egress-policy: audit
+
       - name: Git Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
@@ -39,6 +43,10 @@ jobs:
     if: ${{ github.event.action == 'opened' || github.event.action == 'ready_for_review' || github.event.action == 'synchronize' || (github.event.action == 'labeled' && github.event.label.name == 'force ci') }}
 
     steps:
+      - uses: step-security/harden-runner@446798f8213ac2e75931c1b0769676d927801858 # v2.10.3
+        with:
+          egress-policy: audit
+
       - name: Git Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
