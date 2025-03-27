@@ -46,12 +46,10 @@ jobs:
       - name: Alert on Failure
         if: failure() && github.repository == 'nodejs/release-cloudflare-worker'
         uses: rtCamp/action-slack-notify@c33737706dea87cd7784c687dadc9adf1be59990 # 2.3.2
-        runs-on: ubuntu-latest
         env:
           SLACK_COLOR: '#DE512A'
           SLACK_ICON: https://github.com/nodejs.png?size=48
           SLACK_TITLE: Deployment failed (${{ github.ref }})
-          SLACK_MESSAGE: |
-            A deployment of the Release Worker has failed.
+          SLACK_MESSAGE: A deployment of the Release Worker has failed.
           SLACK_USERNAME: nodejs-bot
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
