@@ -12,7 +12,7 @@
 - [Remarks on Technologies Used](#remarks-on-technologies-used)
 - [Additional Clarification](#additional-clarification)
 
-This document contains information for Collaborators of the Node.js release worker project regarding maintaining code, documentation, and issues.
+This document contains information for Collaborators of the Node.js Release Worker project regarding maintaining code, documentation, and issues.
 
 Collaborators should be familiar with the guidelines for new contributors in [CONTRIBUTING.md](./CONTRIBUTING.md)
 
@@ -20,7 +20,7 @@ Collaborators should be familiar with the guidelines for new contributors in [CO
 
 Courtesy should always be shown to individuals submitting issues and pull requests to the Node.js Release Worker project.
 
-Collaborators should feel free to take full responsibility for managing issues and pull requests they feel qualified to handle, as long as this is done while being mindful of these guidelines, the opinions of other Collaborators and guidance of the Web Infrastructure Group.
+Collaborators should feel free to take full responsibility for managing issues and pull requests they feel qualified to handle, as long as this is done while being mindful of these guidelines, the opinions of other Collaborators, and guidance of the Web Infrastructure Group.
 
 Collaborators may close any issue or pull request they believe is not relevant to the future of the Node.js project. Where this is unclear, the issue should be left open for several days for additional discussion. Where this does not yield input from Node.js Collaborators or additional evidence that the issue has relevance, then the issue may be closed. Remember that issues can always be re-opened if necessary.
 
@@ -43,7 +43,7 @@ We recommend collaborators follow the guidelines on the [Contributing Guide](./C
 Collaborators may opt to elevate pull requests or issues to the group for discussion by mentioning @nodejs/web-infra. This should be done where a pull request:
 
 - Has a significant impact on the codebase
-- Is inherently controlversial; or
+- Is inherently controversial; or
 - Has failed to reach a consensus amongst the Collaborators who are actively participating in the discussion.
 
 The Web Infrastructure should be the final arbiter where needed.
@@ -99,7 +99,7 @@ We chose [Cloudflare Workers](https://workers.cloudflare.com) because it is most
 
 Cloudflare has also graciously provided the OpenJS Foundation with an Enterprise account in addition to supporting us with any technical issues or questions we have faced.
 
-### What is the 'origin'/'DO' server?
+### What is the origin/DO/www server?
 
 This refers to the singular server instance that hosted the release assets (binaries, docs, shasums) among other things.
 This Worker aims to replace that server when it comes to serving the release assets.
@@ -115,4 +115,4 @@ Should any other pages be added to this worker, they should do the same unless a
 
 ## Additional Clarification
 
-If you have any further questions, please feel free to reach out in [an Issue](https://github.com/nodejs/release-cloudflare-worker/issues/new) or the `#r2-website-migration` channel in the [OpenJS Foundation Slack](https://openjsf.org/collaboration).
+If you have any further questions, please feel free to reach out in [an Issue](https://github.com/nodejs/release-cloudflare-worker/issues/new) or the `#nodejs-website` channel in the [OpenJS Foundation Slack](https://openjsf.org/collaboration).

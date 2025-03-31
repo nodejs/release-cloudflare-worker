@@ -24,32 +24,15 @@ You can find more details and guides about Collaborating with this repository th
 
 ### Becoming a Collaborator
 
-A collaborator of the Node.js Release Worker repository is a member of the Node.js Web Infrastructure Team.
+A Collaborator of the Node.js Release Worker repository is a member of the Node.js Web Infrastructure Team.
 
 The Web Infrastructure Team is responsible for maintaining the Infrastructure behind Node.js' Web Presence. It is expected that team members have significant knowledge about the infrastructure behind Node.js' Web Presence.
 
-Note that regular contributors do not need to become "Collaborators" as any contribution is appreciated (even without a status), and a Collaborator status is a formality that comes with obligations.
+Note that regular Contributors do not need to become "Collaborators" as any contribution is appreciated (even without a status), and a Collaborator status is a formality that comes with obligations.
 
-If you're an active contributor seeking to become a member, we recommend you contact one of the existing Team Members for guidance.
+If you're an active Contributor seeking to become a member, we recommend you contact one of the existing Team Members for guidance.
 
-<details>
-    <summary><b>What's the process for becoming a Collaborator?</b></summary>
-
-- You must be actively contributing to this repository.
-- Contributions must include significant code reviews or code modifications.
-- A nomination must be done by an existing Team Member of the Web Infra team with an issue.
-  - The Issue must explain and describe why the nominated person is a good addition to the team
-  - The Issue must contain links to the relevant contributions, including but not limited to:
-    - Code Reviews.
-    - Comments on issues and PRs.
-    - Authoring of PRs and issues.
-- The nomination must have at least three existing members of the Website Team agree with the nomination.
-  - This can be done through commenting with "agreement" (showing support) or reacting to the Issue with a 👍 (Thumbs-up Emoji).
-- The Issue must be open for at least 72 hours without an objection from an existing member of the Website Team.
-  - The nomination cannot pass until all open objections are resolved.
-  - Objections from the TSC or Core Collaborators are also counted as valid objections.
-
-</details>
+For information on how to become a Collaborator, see [GOVERNANCE.md](https://github.com/nodejs/nodejs.org/blob/main/GOVERNANCE.md#nodejs-web-infra-team-nodejsweb-infra) in the [nodejs/nodejs.org](https://github.com/nodejs/nodejs.org) repository.
 
 ## Getting Started
 
@@ -141,15 +124,15 @@ This repository contains a few scripts and commands for performing numerous task
 <details>
     <summary>Commands for Running the Worker</summary>
 
-- `npm start` Runs a local [workerd](https://github.com/cloudflare/workerd) instance with the Worker on your machine in remote mode.
+- `node --run start` Runs a local [workerd](https://github.com/cloudflare/workerd) instance with the Worker on your machine in remote mode.
 
 </details>
 
 ## Commit Guidelines
 
-This project follows the [Conventional Commits][https://www.conventionalcommits.org/en/v1.0.0/] specification.
+This project follows the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification.
 
-Commits should be signed. You can read more about [Commit Signing][https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits] here.
+Commits should be signed. You can read more about [Commit Signing](https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits) here.
 
 ### Commit Message Guidelines
 
@@ -166,7 +149,7 @@ We recommend reading our [Collaborator Guide](./COLLABORATOR_GUIDE.md) for in-de
 
 - Pull Requests must be open for at least 48 hours (or 72 hours if the PR was authored on the weekend).
   - If the Pull Request was marked as a draft, it must be marked "Ready for Review" for at least 48 hours (or 72 hours if done on a weekend) before being merged.
-  - Pull Requests may be immediately merged if they contain critical fixes, short errata (e.g. typos), or any critical change considered a "showstopper" for the website's operation or security.
+  - Pull Requests may be immediately merged if they contain critical fixes, short errata (e.g. typos), or any critical change considered a "showstopper" for the workers's operation or security.
     - This kind of Pull Request should only be done by existing Collaborators and/or signed off by administrators/maintainers.
     - This rule cannot be used for updates on the `COLLABORATOR_GUIDE.md`, `CONTRIBUTING.md`, `CODEOWNERS`, GitHub Actions, or any other document that changes the governing policies of this repository.
   - Pull Requests containing small bug fixes, small feature changes, or other non-critical/highly-impacting changes not covered by the previous rule that allows PRs to be merged immediately might be "fast-tracked". This means they can be merged before the usual 48 hour time period.
