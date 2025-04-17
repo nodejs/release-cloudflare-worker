@@ -16,11 +16,6 @@ export class RedirectionMiddleware implements Middleware {
   }
 
   async handle(): Promise<Response> {
-    return new Response(undefined, {
-      status: 308,
-      headers: {
-        Location: this.targetURL,
-      },
-    });
+    return Response.redirect(this.targetURL, 308);
   }
 }
