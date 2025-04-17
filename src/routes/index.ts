@@ -5,6 +5,7 @@ import { NotFoundMiddleware } from '../middleware/notFoundMiddleware';
 import { OptionsMiddleware } from '../middleware/optionsMiddleware';
 import { OriginMiddleware } from '../middleware/originMiddleware';
 import { R2Middleware } from '../middleware/r2Middleware';
+import { RedirectionMiddleware } from '../middleware/redirectionMiddleware';
 import { SubtitutionMiddleware } from '../middleware/subtituteMiddleware';
 import type { Router } from './router';
 
@@ -13,10 +14,15 @@ export function registerRoutes(router: Router): void {
   const cachedR2Middleware = cached(r2Middleware);
   const originMiddleware = new OriginMiddleware();
 
+  const corepackRedirectMiddleware = new RedirectionMiddleware('https://github.com/nodejs/corepack');
+
   router.options('*', [new OptionsMiddleware()]);
 
   router.head('/metrics/?:filePath+', [r2Middleware, originMiddleware]);
   router.get('/metrics/?:filePath+', [cachedR2Middleware, originMiddleware]);
+
+  router.all('/api/corepack.html', [corepackRedirectMiddleware]);
+  router.all('/docs/latest/api/corepack.html', [corepackRedirectMiddleware]);
 
   // Register routes for latest releases (e.g. `/dist/latest/`)
   for (const branch in latestVersions) {
