@@ -14,7 +14,7 @@
     "build:handlebars": "node scripts/compile-handlebars.js"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250414.0",
+    "@cloudflare/workers-types": "^4.20250421.0",
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.24.0",
     "@reporters/github": "^1.7.2",
