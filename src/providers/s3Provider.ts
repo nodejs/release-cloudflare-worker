@@ -1,4 +1,5 @@
 import { ListObjectsV2Command, S3Client } from '@aws-sdk/client-s3';
+import { FetchHttpHandler } from '@smithy/fetch-http-handler';
 import type { Context } from '../context';
 import type {
   File,
@@ -38,6 +39,7 @@ export class S3Provider implements Provider {
         accessKeyId: ctx.env.S3_ACCESS_KEY_ID,
         secretAccessKey: ctx.env.S3_ACCESS_KEY_SECRET,
       },
+      requestHandler: new FetchHttpHandler(),
     });
   }
 
