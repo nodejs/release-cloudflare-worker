@@ -1,3 +1,5 @@
+import { parseHttpDate } from './http-date';
+
 /**
  * Etags will have quotes removed from them
  * R2 supports every conditional header except `If-Range`
@@ -30,7 +32,7 @@ export function parseUrl(request: Request): URL | undefined {
 }
 
 export function parseConditionalHeaders(headers: Headers): ConditionalHeaders {
-  const ifModifiedSince = getDateFromHeader(headers.get('if-modified-since'));
+  const ifModifiedSince = parseHttpDate(headers.get('if-modified-since'));
 
   const ifMatch = headers.has('if-match')
     ? headers.get('if-match')!.replaceAll('"', '')
@@ -40,9 +42,7 @@ export function parseConditionalHeaders(headers: Headers): ConditionalHeaders {
     ? headers.get('if-none-match')!.replaceAll('"', '')
     : undefined;
 
-  const ifUnmodifiedSince = getDateFromHeader(
-    headers.get('if-unmodified-since')
-  );
+  const ifUnmodifiedSince = parseHttpDate(headers.get('if-unmodified-since'));
 
   const range = headers.has('range')
     ? parseRangeHeader(headers.get('range')!)
@@ -55,15 +55,6 @@ export function parseConditionalHeaders(headers: Headers): ConditionalHeaders {
     ifUnmodifiedSince,
     range,
   };
-}
-
-function getDateFromHeader(dateString: string | null): Date | undefined {
-  if (dateString === null) {
-    return undefined;
-  }
-
-  const date = new Date(dateString);
-  return !isNaN(date.getTime()) ? date : undefined;
 }
 
 /**
