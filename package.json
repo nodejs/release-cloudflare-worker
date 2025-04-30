@@ -14,27 +14,27 @@
     "build:handlebars": "node scripts/compile-handlebars.js"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250414.0",
+    "@cloudflare/workers-types": "^4.20250428.0",
     "@eslint/eslintrc": "^3.2.0",
-    "@eslint/js": "^9.24.0",
+    "@eslint/js": "^9.25.0",
     "@reporters/github": "^1.7.2",
-    "@types/node": "^22.14.1",
-    "@typescript-eslint/eslint-plugin": "^8.30.1",
-    "@typescript-eslint/parser": "^8.30.1",
-    "eslint": "^9.24.0",
+    "@types/node": "^22.15.3",
+    "@typescript-eslint/eslint-plugin": "^8.31.1",
+    "@typescript-eslint/parser": "^8.31.1",
+    "eslint": "^9.25.1",
     "eslint-config-prettier": "^10.1.2",
     "eslint-plugin-prettier": "^5.2.6",
-    "glob": "^11.0.1",
+    "glob": "^11.0.2",
     "globals": "^16.0.0",
     "nodejs-latest-linker": "^1.8.0",
     "prettier": "^3.5.3",
     "terser": "^5.39.0",
     "tsx": "^4.19.3",
     "typescript": "^5.8.3",
-    "wrangler": "^4.11.1"
+    "wrangler": "^4.12.0"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.787.0",
+    "@aws-sdk/client-s3": "^3.797.0",
     "handlebars": "^4.7.8",
     "itty-router": "^5.0.18",
     "toucan-js": "^4.1.1"
