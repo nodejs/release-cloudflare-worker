@@ -1,5 +1,16 @@
+/**
+ * Valid months that are allowed to be in an IMF date
+ */
 const IMF_DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+
+/**
+ * Specific locations that are expected to be spaces in an IMF date
+ */
 const IMF_SPACES = [4, 7, 11, 16, 25];
+
+/**
+ * Valid months that are allowed to be in an IMF date
+ */
 const IMF_MONTHS = [
   'jan',
   'feb',
@@ -14,10 +25,20 @@ const IMF_MONTHS = [
   'nov',
   'dec',
 ];
+
+/**
+ * Specific locations that are expected to be colons in an IMF date
+ */
 const IMF_COLONS = [19, 22];
 
+/**
+ * Specific locations that are expected to be spaces in an asctime() date
+ */
 const ASCTIME_SPACES = [3, 7, 10, 19];
 
+/**
+ * Valid days allowed in an RF850 date
+ */
 const RFC850_DAYS = [
   'monday',
   'tuesday',
@@ -39,7 +60,7 @@ export function parseHttpDate(
   // Sun Nov  6 08:49:37 1994         ; ANSI C's asctime() format
   // Sunday, 06-Nov-94 08:49:37 GMT   ; obsolete RFC 850 format
 
-  if (!date) {
+  if (date === null) {
     return undefined;
   }
 
@@ -68,12 +89,14 @@ function parseImfDate(date: string): Date | undefined {
     return undefined;
   }
 
+  // Ensure there are spaces in the expected locations
   for (const spaceInx of IMF_SPACES) {
     if (date[spaceInx] !== ' ') {
       return undefined;
     }
   }
 
+  // Ensure there are colons in the expected locations
   for (const colonIdx of IMF_COLONS) {
     if (date[colonIdx] !== ':') {
       return undefined;
@@ -134,6 +157,7 @@ function parseAscTimeDate(date: string): Date | undefined {
     return undefined;
   }
 
+  // Ensure there are spaces in the expected locations
   for (const spaceIdx of ASCTIME_SPACES) {
     if (date[spaceIdx] !== ' ') {
       return undefined;
@@ -206,6 +230,7 @@ function parseRfc850Date(date: string, now = new Date()): Date | undefined {
     return undefined;
   }
 
+  // Ensure there are spaces, dashes, and colons in the expected locations
   if (
     date[commaIndex + 1] !== ' ' ||
     date[commaIndex + 4] !== '-' ||
