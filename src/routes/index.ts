@@ -14,7 +14,9 @@ export function registerRoutes(router: Router): void {
   const cachedR2Middleware = cached(r2Middleware);
   const originMiddleware = new OriginMiddleware();
 
-  const corepackRedirectMiddleware = new RedirectionMiddleware('https://github.com/nodejs/corepack#readme');
+  const corepackRedirectMiddleware = new RedirectionMiddleware(
+    'https://github.com/nodejs/corepack#readme'
+  );
 
   router.options('*', [new OptionsMiddleware()]);
 
