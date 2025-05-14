@@ -25,13 +25,13 @@
   "latest-v18.x": "v18.20.8",
   "latest-hydrogen": "v18.20.8",
   "latest-v19.x": "v19.9.0",
-  "latest-v20.x": "v20.19.1",
-  "latest-iron": "v20.19.1",
+  "latest-v20.x": "v20.19.2",
+  "latest-iron": "v20.19.2",
   "latest-v21.x": "v21.7.3",
-  "latest-v22.x": "v22.15.0",
-  "latest-jod": "v22.15.0",
-  "latest-v23.x": "v23.11.0",
-  "latest-v24.x": "v24.0.1",
-  "latest": "v24.0.1",
-  "node-latest.tar.gz": "latest/node-v24.0.1.tar.gz"
+  "latest-v22.x": "v22.15.1",
+  "latest-jod": "v22.15.1",
+  "latest-v23.x": "v23.11.1",
+  "latest-v24.x": "v24.0.2",
+  "latest": "v24.0.2",
+  "node-latest.tar.gz": "latest/node-v24.0.2.tar.gz"
 }
