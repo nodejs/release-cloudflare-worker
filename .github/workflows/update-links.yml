@@ -9,6 +9,10 @@ on:
   schedule:
     - cron: "0 0 * * *"
 
+concurrency:
+  group: update-redirect-links
+  cancel-in-progress: false
+
 jobs:
   update-redirect-links:
     name: Update Redirect Links
