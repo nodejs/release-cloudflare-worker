@@ -27,7 +27,7 @@
     "glob": "^11.0.2",
     "globals": "^16.2.0",
     "nodejs-latest-linker": "^1.8.0",
-    "prettier": "^3.5.3",
+    "prettier": "^3.6.0",
     "terser": "^5.42.0",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3",
