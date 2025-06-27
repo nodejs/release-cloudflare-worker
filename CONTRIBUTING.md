@@ -117,7 +117,7 @@ This repository contains a few scripts and commands for performing numerous task
 - `node --run lint` Lints the code to the repository's standards.
 - `node --run test:unit` Runs the [Unit Tests](./COLLABORATOR_GUIDE.md#unit-tests) to ensure individual components are working as expected.
 - `node --run test:e2e` Runs the [E2E Tests](./COLLABORATOR_GUIDE.md#e2e-tests) to ensure requests act as expected.
-- `node --run build:handlebars` Compiles the Handlebars templates. **Required for any changes to the templates to take affect**.
+- `node --run build:mustache` Compiles the Mustache templates. **Required for any changes to the templates to take affect**.
 
 </details>
 

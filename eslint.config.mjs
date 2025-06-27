@@ -16,7 +16,7 @@ const compat = new FlatCompat({
 });
 
 export default [
-  { ignores: ['**/node_modules/', '**/dist/', 'src/templates/*.out.js'] },
+  { ignores: ['**/node_modules/', '**/dist/'] },
   ...compat.extends('eslint:recommended', 'prettier'),
   {
     languageOptions: {

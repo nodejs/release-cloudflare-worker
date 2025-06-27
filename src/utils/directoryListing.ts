@@ -1,9 +1,7 @@
-import Handlebars from 'handlebars';
 import type { File, ReadDirectoryResult } from '../providers/provider';
-import htmlTemplate from '../templates/directoryListing.out';
+import htmlTemplate from '../templates/directoryListing.out.json' with { type: 'json' };
 import { toReadableBytes } from '../utils/object';
-
-const handlebarsTemplate = Handlebars.template(htmlTemplate);
+import { template } from './template';
 
 // Closest we can get to nginx's time format with this api
 const dateFormatter = new Intl.DateTimeFormat('en-GB', {
@@ -33,7 +31,7 @@ export function renderDirectoryListing(
     tableElements.push(renderFile(url.pathname, file));
   }
 
-  return handlebarsTemplate({
+  return template(htmlTemplate, {
     pathname: url.pathname,
     entries: tableElements,
   });
