@@ -32,7 +32,7 @@
     "prettier": "^3.5.3",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3",
-    "wrangler": "^4.19.1"
+    "wrangler": "^4.23.0"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.826.0",
