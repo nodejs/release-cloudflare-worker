@@ -1,24 +1,5 @@
-<!DOCTYPE html><html>
-<head>
-  <title>Index of /dist/v1.0.0/</title>
-  <style>   
-    @media (prefers-color-scheme: dark) {
-      body {
-        color: white;
-        background-color: #1c1b22;
-      }
-      a {
-        color: #3391ff;
-      }
-      a:visited {
-        color: #C63B65;
-      }
-    }
-  </style>
-</head>
-<body>
-<h1>Index of /dist/v1.0.0/</h1><hr><pre><a href="../">../</a>
+<!DOCTYPE html><html><head><title>Index of /dist/v1.0.0/</title><style>@media (prefers-color-scheme:dark){body{color:#fff;background-color:#1c1b22}a{color:#3391ff}a:visited{color:#c63b65}}</style></head><body><h1>Index of /dist/v1.0.0/</h1><hr><pre>
+<a href="../">../</a>
 <a href="latest/">latest/</a>                                                           -                   -
 <a href="/dist/v1.0.0/index.json">index.json</a>                                         12 Sept 2023, 05:43                 18 B
-</pre><hr /></body>
-</html>
+</pre><hr></body></html>

@@ -55,7 +55,7 @@ The Node.js Release Worker is built upon [Cloudflare Workers](https://developers
 The Worker also uses several other Open Source libraries (not limited to) listed below:
 
 - [AWS S3 client](https://www.npmjs.com/package/@aws-sdk/client-s3) is used for interacting with R2's S3 entrypoint.
-- [Handlebars.js](https://www.npmjs.com/package/handlebars) is used for rendering templated pages.
+- [Mustache.js](https://www.npmjs.com/package/mustache) is used for rendering templated pages.
 - [Sentry](https://sentry.io/about) is used for error reporting.
 
 ## Code Editing
@@ -110,7 +110,7 @@ The bucket's file structure is a 1:1 mapping to the file structure of the releas
 
 ### Frontend Bits
 
-The directory listing page is the only frontend page that the Worker serves non-statically. For simplicitly, it is a pre-compiled Handlebars template.
+The directory listing page is the only frontend page that the Worker serves non-statically. For simplicitly, it is a pre-compiled Mustache template.
 Should any other pages be added to this worker, they should do the same unless a consensus is reached by the Collaborators.
 
 ## Additional Clarification
