@@ -30,7 +30,7 @@
     "html-minifier-terser": "^7.2.0",
     "nodejs-latest-linker": "^1.8.0",
     "prettier": "^3.5.3",
-    "tsx": "^4.19.4",
+    "tsx": "^4.20.3",
     "typescript": "^5.8.3",
     "wrangler": "^4.19.1"
   },
