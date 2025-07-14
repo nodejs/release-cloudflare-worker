@@ -14,7 +14,7 @@
     "build:mustache": "node scripts/compile-mustache.mjs"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250525.0",
+    "@cloudflare/workers-types": "^4.20250712.0",
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.28.0",
     "@reporters/github": "^1.7.2",
