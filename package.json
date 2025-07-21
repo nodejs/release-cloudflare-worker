@@ -19,7 +19,7 @@
     "@eslint/js": "^9.31.0",
     "@reporters/github": "^1.7.2",
     "@types/mustache": "^4.2.6",
-    "@types/node": "^24.0.1",
+    "@types/node": "^24.0.15",
     "@typescript-eslint/eslint-plugin": "^8.36.0",
     "@typescript-eslint/parser": "^8.32.1",
     "eslint": "^9.30.1",
