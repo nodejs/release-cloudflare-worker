@@ -3,7 +3,7 @@ updates:
   - package-ecosystem: github-actions
     directory: '/'
     schedule:
-      interval: weekly
+      interval: monthly
     commit-message:
       prefix: chore
     open-pull-requests-limit: 10
@@ -11,7 +11,7 @@ updates:
     directory: '/'
     versioning-strategy: increase
     schedule:
-      interval: weekly
+      interval: monthly
     commit-message:
       prefix: chore
     groups:
