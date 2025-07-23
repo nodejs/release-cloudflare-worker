@@ -9,7 +9,6 @@ Procedure for what to do if there's an incident with the Release Worker.
 
 2. If the incident affects traffic towards the Release Worker, update the Node.js status page (https://status.nodejs.org).
    If it is a ongoing security incident that we cannot disclose publicly yet, do not includes the details of the incident in the status page.
-
    - Optional, but preferably updates will be echoed on social media.
 
    - For any prolonged incidents, please consider pinning an issue tracking the incident so as to avoid spam.
