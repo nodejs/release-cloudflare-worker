@@ -16,7 +16,7 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250722.0",
     "@eslint/eslintrc": "^3.2.0",
-    "@eslint/js": "^9.31.0",
+    "@eslint/js": "^9.32.0",
     "@reporters/github": "^1.7.2",
     "@types/mustache": "^4.2.6",
     "@types/node": "^24.1.0",
