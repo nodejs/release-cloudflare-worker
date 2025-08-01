@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.850.0",
-    "itty-router": "^5.0.18",
+    "itty-router": "^5.0.20",
     "mustache": "^4.2.0",
     "toucan-js": "^4.1.1"
   }
