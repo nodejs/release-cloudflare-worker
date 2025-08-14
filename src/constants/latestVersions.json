@@ -31,7 +31,7 @@
   "latest-v22.x": "v22.18.0",
   "latest-jod": "v22.18.0",
   "latest-v23.x": "v23.11.1",
-  "latest-v24.x": "v24.5.0",
-  "latest": "v24.5.0",
-  "node-latest.tar.gz": "latest/node-v24.5.0.tar.gz"
+  "latest-v24.x": "v24.6.0",
+  "latest": "v24.6.0",
+  "node-latest.tar.gz": "latest/node-v24.6.0.tar.gz"
 }
