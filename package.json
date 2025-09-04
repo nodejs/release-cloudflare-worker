@@ -12,7 +12,7 @@
     "test:unit": "node --test --test-reporter=@reporters/github --test-reporter-destination=stdout --test-reporter=spec --test-reporter-destination=stdout --import=tsx ./tests/unit/index.test.ts",
     "test:e2e": "wrangler deploy --dry-run --outdir=dist && node --test --test-reporter=@reporters/github --test-reporter-destination=stdout --test-reporter=spec --test-reporter-destination=stdout --import=tsx ./tests/e2e/index.test.ts",
     "build:mustache": "node scripts/compile-mustache.mjs",
-    "build:workers-types": "wrangler types --include-env=false"
+    "build:workers-types": "wrangler types --include-env=false && node --run format"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
