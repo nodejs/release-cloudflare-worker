@@ -62,32 +62,36 @@ The Worker also uses several other Open Source libraries (not limited to) listed
 
 ### Structure of this Repository
 
-- `src/` - Worker
-- `scripts/` - Multi-purpose scripts
-- `tests/` - Tests for the worker
+- `dev-bucket/` - A recreation of the contents in the R2 bucket that the worker reads from
+- `docs/` - Documentation on things relating to the worker
+- `e2e-tests/` - End-to-End tests for the worker
+- `scripts/` - Miscellaneous scripts
+- `src/` - Code for the worker
 
 ## Testing
 
-Each new feature or bug fix should be accompanied by a unit or E2E test (when valuable). We use Node's test runner and Miniflare for our E2E tests.
+Each new feature or bug fix should be accompanied by a unit and/or E2E test (when valuable).
+We use [Vitest](https://vitest.dev/guide/) for both.
 
 ### Unit Testing
 
-Unit Tests are fundamental to ensure that code changes do not disrupt the functionalities of the Worker:
+Unit tests are important to ensure that individual parts of the Worker are acting as expected.
 
-- Unit Tests should be written as `.test.ts` files in the [tests/unit/](./tests/unit/) directory.
+- They should be written in the same directory as the file that is being tested.
+- They should be named `<name of tested file>.test.ts`.
 - They should cover utilities as well as any component that can be broken down and individually tested.
-- We utilize Node's [Test Runner](https://nodejs.org/api/test.html) and [Assert](https://nodejs.org/api/assert.html) APIs.
-- External services used in the worker should be mocked with Undici. If the service cannot be mocked with Undici, it should be mocked with a HTTP server via Node's `createServer` API.
+- They should make use of [Vitest's APIs](https://vitest.dev/guide/).
+- External services used in the worker should be mocked with Undici.
 
 ### End-to-End Testing
 
-E2E Tests are fundamental to ensure that requests made to the worker behave as expected:
+E2E tests are important to ensure that requests made to the worker as a whole behave as expected.
 
-- E2E Tests should be written as `.test.ts` files in the [tests/e2e/](./tests/e2e/) directory.
-- They should cover the various contexts of a request that could be sent to the worker from an external client.
-- We utilize Node's [Test Runner](https://nodejs.org/api/test.html) and [Assert](https://nodejs.org/api/assert.html) APIs.
-- A local version of the Worker is ran with Miniflare.
-- Like Unit Tests, any external services should be mocked for these tests as well.
+- They should be written as `.test.ts` files in the [e2e-tests/](./e2e-tests/) directory.
+- They should cover the various contexts in which a request could be sent to the worker from an external client.
+- We utilitize [Cloudflare's Vitest Integration](https://developers.cloudflare.com/workers/testing/vitest-integration/) to run a local version of the worker for these.
+- The contents of the [dev-bucket/](./dev-bucket/) folder are read and put into an in-memory R2 bucket mock for these tests. Anything in that directory is available in a test.
+- External services used in the worker should be mocked with Undici.
 
 ## Remarks on Structure and Background
 
