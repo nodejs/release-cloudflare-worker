@@ -7,6 +7,6 @@ declare module 'vitest' {
   }
 }
 
-declare module "cloudflare:test" {
-  interface ProvidedEnv extends Env { }
+declare module 'cloudflare:test' {
+  interface ProvidedEnv extends Env {}
 }
