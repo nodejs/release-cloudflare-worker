@@ -19,12 +19,6 @@ export default async function setup(project: TestProject) {
   project.provide('devBucket', devBucket);
 }
 
-declare module 'vitest' {
-  export interface ProvidedContext {
-    devBucket: Directory;
-  }
-}
-
 interface File {
   size: number;
   lastModified: number;

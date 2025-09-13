@@ -8,13 +8,13 @@
     "format": "prettier --check --write \"**/*.{ts,js,mjs,json,md}\"",
     "prettier": "prettier --check \"**/*.{ts,js,mjs,json,md}\"",
     "lint": "eslint ./src",
-    "test": "vitest",
-    "test:ci": "vitest --run",
+    "test": "vitest --run",
+    "test:watch": "vitest",
     "build:mustache": "node scripts/compile-mustache.mjs",
     "build:workers-types": "wrangler types --include-env=false && node --run format"
   },
   "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "^0.8.18",
+    "@cloudflare/vitest-pool-workers": "^0.9.0",
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.32.0",
     "@reporters/github": "^1.7.2",
@@ -32,8 +32,8 @@
     "prettier": "^3.6.2",
     "tsx": "^4.20.5",
     "typescript": "^5.8.3",
-    "wrangler": "^4.33.1",
-    "vitest": "^2.1.9"
+    "vitest": "^3.2.4",
+    "wrangler": "^4.33.1"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.859.0",

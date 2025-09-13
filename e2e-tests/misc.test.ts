@@ -1,8 +1,8 @@
 import { env, fetchMock, createExecutionContext } from 'cloudflare:test';
 import { test, beforeAll, expect } from 'vitest';
 import { populateR2WithDevBucket } from './util';
-import worker from '../worker';
-import type { Env } from '../env';
+import worker from '../src/worker';
+import type { Env } from '../src/env';
 
 const mockedEnv: Env = {
   ...env,

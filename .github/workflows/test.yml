@@ -43,4 +43,4 @@ jobs:
         run: npm install
 
       - name: Run Tests
-        run: node --run test:ci
+        run: node --run test

@@ -1,14 +1,10 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "lib": [
-      "esnext"
-    ],
+    "lib": ["esnext"],
     "module": "esnext",
     "moduleResolution": "Bundler",
-    "types": [
-      "./worker-configuration.d.ts"
-    ],
+    "types": ["./worker-configuration.d.ts"],
     "resolveJsonModule": true,
     "allowJs": true,
     "checkJs": false,
