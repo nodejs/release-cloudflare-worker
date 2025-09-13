@@ -8,7 +8,7 @@
     "workers_dev": true,
     "ENVIRONMENT": "dev",
     "CACHING": false,
-    "LOG_ERRORED": true,
+    "LOG_ERRORS": true,
     "S3_ENDPOINT": "https://07be8d2fbc940503ca1be344714cb0d1.r2.cloudflarestorage.com",
     "BUCKET_NAME": "dist-prod",
     "ORIGIN_HOST": "https://origin.nodejs.org"
