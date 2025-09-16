@@ -4,6 +4,7 @@
   "main": "src/worker.ts",
   "compatibility_date": "2024-09-05",
   "logpush": true,
+  "preview_urls": false,
   "vars": {
     "workers_dev": true,
     "ENVIRONMENT": "dev",
@@ -11,14 +12,14 @@
     "LOG_ERRORS": true,
     "S3_ENDPOINT": "https://07be8d2fbc940503ca1be344714cb0d1.r2.cloudflarestorage.com",
     "BUCKET_NAME": "dist-prod",
-    "ORIGIN_HOST": "https://origin.nodejs.org"
+    "ORIGIN_HOST": "https://origin.nodejs.org",
   },
   "r2_buckets": [
     {
       "binding": "R2_BUCKET",
       "preview_bucket_name": "dist-prod",
-      "bucket_name": "dist-prod"
-    }
+      "bucket_name": "dist-prod",
+    },
   ],
   "env": {
     "staging": {
@@ -27,40 +28,42 @@
         "workers_dev": true,
         "ENVIRONMENT": "staging",
         "CACHING": true,
+        "LOG_ERRORS": false,
         "S3_ENDPOINT": "https://07be8d2fbc940503ca1be344714cb0d1.r2.cloudflarestorage.com",
         "BUCKET_NAME": "dist-prod",
-        "ORIGIN_HOST": "https://origin.nodejs.org"
+        "ORIGIN_HOST": "https://origin.nodejs.org",
       },
       "r2_buckets": [
         {
           "binding": "R2_BUCKET",
           "preview_bucket_name": "dist-prod",
-          "bucket_name": "dist-prod"
-        }
-      ]
+          "bucket_name": "dist-prod",
+        },
+      ],
     },
     "prod": {
       "account_id": "07be8d2fbc940503ca1be344714cb0d1",
       "tail_consumers": [
         {
-          "service": "dist-worker-prod-tail"
-        }
+          "service": "dist-worker-prod-tail",
+        },
       ],
       "vars": {
         "workers_dev": false,
         "ENVIRONMENT": "prod",
         "CACHING": true,
+        "LOG_ERRORS": false,
         "S3_ENDPOINT": "https://07be8d2fbc940503ca1be344714cb0d1.r2.cloudflarestorage.com",
         "BUCKET_NAME": "dist-prod",
-        "ORIGIN_HOST": "https://origin.nodejs.org"
+        "ORIGIN_HOST": "https://origin.nodejs.org",
       },
       "r2_buckets": [
         {
           "binding": "R2_BUCKET",
           "preview_bucket_name": "dist-prod",
-          "bucket_name": "dist-prod"
-        }
-      ]
-    }
-  }
+          "bucket_name": "dist-prod",
+        },
+      ],
+    },
+  },
 }
