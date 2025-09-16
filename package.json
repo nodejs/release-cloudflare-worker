@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "wrangler dev --remote",
-    "format": "prettier --check --write \"**/*.{ts,js,mjs,json,md}\"",
+    "format": "prettier --check --write \"**/*.{ts,js,mjs,json,jsonc,md,yml}\"",
     "prettier": "prettier --check \"**/*.{ts,js,mjs,json,md}\"",
     "lint": "eslint ./src",
     "test": "vitest --run",
