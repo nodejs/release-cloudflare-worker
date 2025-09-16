@@ -25,13 +25,13 @@ type S3ProviderCtorOptions = {
  *  directories. Using the S3 api was the recommended fix from the R2 team.
  */
 export class S3Provider implements Provider {
-  private ctx: Context;
-  private client: S3Client;
+  #ctx: Context;
+  #client: S3Client;
 
   constructor({ ctx }: S3ProviderCtorOptions) {
-    this.ctx = ctx;
+    this.#ctx = ctx;
 
-    this.client = new S3Client({
+    this.#client = new S3Client({
       region: 'auto',
       endpoint: ctx.env.S3_ENDPOINT,
       credentials: {
@@ -71,9 +71,9 @@ export class S3Provider implements Provider {
     while (isTruncated) {
       const result = await retryWrapper(
         async () => {
-          return this.client.send(
+          return this.#client.send(
             new ListObjectsV2Command({
-              Bucket: this.ctx.env.BUCKET_NAME,
+              Bucket: this.#ctx.env.BUCKET_NAME,
               Prefix: path,
               Delimiter: '/',
               MaxKeys: S3_MAX_KEYS,
@@ -82,7 +82,7 @@ export class S3Provider implements Provider {
           );
         },
         R2_RETRY_LIMIT,
-        this.ctx.sentry
+        this.#ctx.sentry
       );
 
       result.CommonPrefixes?.forEach(directory => {
