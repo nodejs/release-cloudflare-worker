@@ -83,12 +83,11 @@ The steps below will give you a general idea of how to prepare your local enviro
     git merge upstream/main
     ```
 
-9.  Run the following to confirm that linting and formatting are passing.
+9.  Run the following to confirm that linting, formatting, and tests are passing.
 
     ```bash
     node --run format
-    node --run test:unit
-    node --run test:e2e
+    node --run test
     ```
 
 10. To run the worker locally, see [Dev Setup](./docs/dev-setup.md).
@@ -115,8 +114,8 @@ This repository contains a few scripts and commands for performing numerous task
 
 - `node --run format` Formats the code to the repository's standards.
 - `node --run lint` Lints the code to the repository's standards.
-- `node --run test:unit` Runs the [Unit Tests](./COLLABORATOR_GUIDE.md#unit-tests) to ensure individual components are working as expected.
-- `node --run test:e2e` Runs the [E2E Tests](./COLLABORATOR_GUIDE.md#e2e-tests) to ensure requests act as expected.
+- `node --run test` Run all tests (denoted by the `.test.ts` file extension) once
+- `node --run test:watch` Run all tests (denoted by the `.test.ts` file extension) once, then again on any file changes.
 - `node --run build:mustache` Compiles the Mustache templates. **Required for any changes to the templates to take affect**.
 
 </details>

@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
-    "target": "es2021",
-    "lib": ["es2021", "es2022"],
+    "target": "esnext",
+    "lib": ["esnext"],
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "Bundler",
     "types": ["./worker-configuration.d.ts"],
     "resolveJsonModule": true,
     "allowJs": true,
@@ -13,6 +13,7 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "erasableSyntaxOnly": true
   }
 }

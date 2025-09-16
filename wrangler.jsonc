@@ -3,11 +3,12 @@
   "name": "dist-worker",
   "main": "src/worker.ts",
   "compatibility_date": "2024-09-05",
-  "account_id": "07be8d2fbc940503ca1be344714cb0d1",
   "logpush": true,
   "vars": {
     "workers_dev": true,
     "ENVIRONMENT": "dev",
+    "CACHING": false,
+    "LOG_ERRORS": true,
     "S3_ENDPOINT": "https://07be8d2fbc940503ca1be344714cb0d1.r2.cloudflarestorage.com",
     "BUCKET_NAME": "dist-prod",
     "ORIGIN_HOST": "https://origin.nodejs.org"
@@ -21,9 +22,11 @@
   ],
   "env": {
     "staging": {
+      "account_id": "07be8d2fbc940503ca1be344714cb0d1",
       "vars": {
         "workers_dev": true,
         "ENVIRONMENT": "staging",
+        "CACHING": true,
         "S3_ENDPOINT": "https://07be8d2fbc940503ca1be344714cb0d1.r2.cloudflarestorage.com",
         "BUCKET_NAME": "dist-prod",
         "ORIGIN_HOST": "https://origin.nodejs.org"
@@ -37,6 +40,7 @@
       ]
     },
     "prod": {
+      "account_id": "07be8d2fbc940503ca1be344714cb0d1",
       "tail_consumers": [
         {
           "service": "dist-worker-prod-tail"
@@ -45,6 +49,7 @@
       "vars": {
         "workers_dev": false,
         "ENVIRONMENT": "prod",
+        "CACHING": true,
         "S3_ENDPOINT": "https://07be8d2fbc940503ca1be344714cb0d1.r2.cloudflarestorage.com",
         "BUCKET_NAME": "dist-prod",
         "ORIGIN_HOST": "https://origin.nodejs.org"
