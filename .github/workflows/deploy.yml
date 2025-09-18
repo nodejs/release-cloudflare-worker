@@ -34,7 +34,7 @@ jobs:
           cache: 'npm'
 
       - name: Install Dependencies
-        run: npm install
+        run: npm ci
 
       - name: Deploy to Staging
         if: github.event_name == 'push'
@@ -48,7 +48,7 @@ jobs:
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: |
-          npx sentry-cli sourcemaps inject --org nodejs --project dist-worker-staging ./dist && sentry-cli sourcemaps upload --org nodejs --project dist-worker-staging ./dist
+          npx sentry-cli sourcemaps inject --org nodejs --project dist-worker-staging ./dist && npx sentry-cli sourcemaps upload --org nodejs --project dist-worker-staging ./dist
 
       - name: Deploy to Production
         if: github.event_name == 'workflow_dispatch'
