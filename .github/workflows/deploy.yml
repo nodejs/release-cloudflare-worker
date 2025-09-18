@@ -41,14 +41,21 @@ jobs:
         uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3.14.1
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
-          command: deploy --env staging
+          command: deploy --env staging --outdir=./dist
+
+      - name: Upload sourcemaps for dist-worker-staging
+        if: github.event_name == 'push'
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        run: |
+          npx sentry-cli sourcemaps inject --org nodejs --project dist-worker-staging ./dist && sentry-cli sourcemaps upload --org nodejs --project dist-worker-staging ./dist
 
       - name: Deploy to Production
         if: github.event_name == 'workflow_dispatch'
         uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3.14.1
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
-          command: deploy --env prod
+          command: deploy --env prod --outdir=./dist
 
       - name: Alert on Failure
         if: failure() && github.repository == 'nodejs/release-cloudflare-worker'
