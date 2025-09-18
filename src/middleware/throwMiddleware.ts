@@ -1,4 +1,4 @@
-import { Middleware } from './middleware';
+import type { Middleware } from './middleware';
 
 /**
  * Middleware that exists just to throw an error
