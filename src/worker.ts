@@ -45,6 +45,13 @@ export default {
         execution: ctx,
       };
 
+      if (
+        env.ENVIRONMENT === 'staging' &&
+        request.url === '/_657ee98d-f9d3-46cd-837b-f58a88add70a'
+      ) {
+        throw new Error('sentry source map testing');
+      }
+
       return await router.handle(request, context);
     } catch (e) {
       // Send to sentry, if it's disabled this will just noop
