@@ -47,7 +47,7 @@ export default {
 
       if (
         env.ENVIRONMENT === 'staging' &&
-        request.url === '/_657ee98d-f9d3-46cd-837b-f58a88add70a'
+        request.url.endsWith('/_657ee98d-f9d3-46cd-837b-f58a88add70a')
       ) {
         throw new Error('sentry source map testing');
       }
