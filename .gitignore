@@ -3,5 +3,4 @@ node_modules/
 dist/
 .dev.vars
 
-# Sentry Config File
 .sentryclirc
