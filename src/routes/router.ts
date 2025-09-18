@@ -56,6 +56,14 @@ export class Router {
       return callMiddlewareChain(middlewareChain, req, ctx, unsubstitutedUrl);
     });
   }
+
+  post(endpoint: string, middlewares: Middleware[]): void {
+    const middlewareChain = buildMiddlewareChain(middlewares);
+
+    this.itty.post(endpoint, (req, ctx, unsubstitutedUrl) => {
+      return callMiddlewareChain(middlewareChain, req, ctx, unsubstitutedUrl);
+    });
+  }
 }
 
 type MiddlewareChain = (

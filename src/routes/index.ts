@@ -7,6 +7,7 @@ import { OriginMiddleware } from '../middleware/originMiddleware';
 import { R2Middleware } from '../middleware/r2Middleware';
 import { RedirectionMiddleware } from '../middleware/redirectionMiddleware';
 import { SubtitutionMiddleware } from '../middleware/subtituteMiddleware';
+import { ThrowMiddleware } from '../middleware/throwMiddleware';
 import type { Router } from './router';
 
 export function registerRoutes(router: Router): void {
@@ -62,6 +63,8 @@ export function registerRoutes(router: Router): void {
     cachedR2Middleware,
     originMiddleware,
   ]);
+
+  router.post('/_throw', [new ThrowMiddleware()]);
 
   router.get('*', [new NotFoundMiddleware()]);
 
