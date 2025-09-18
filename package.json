@@ -18,6 +18,7 @@
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.32.0",
     "@reporters/github": "^1.7.2",
+    "@sentry/cli": "^2.54.0",
     "@types/mustache": "^4.2.6",
     "@types/node": "^24.3.0",
     "@typescript-eslint/eslint-plugin": "^8.41.0",
