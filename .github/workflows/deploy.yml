@@ -15,14 +15,14 @@ jobs:
     steps:
       - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
         with:
-          egress-policy: block
-          allowed-endpoints: >
-            sparrow.cloudflare.com:443
-            api.cloudflare.com:443
-            api.github.com:443
-            github.com:443
-            hooks.slack.com:443
-            registry.npmjs.org:443
+          egress-policy: audit
+          # allowed-endpoints: >
+          #   sparrow.cloudflare.com:443
+          #   api.cloudflare.com:443
+          #   api.github.com:443
+          #   github.com:443
+          #   hooks.slack.com:443
+          #   registry.npmjs.org:443
 
       - name: Git Checkout
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
@@ -34,7 +34,7 @@ jobs:
           cache: 'npm'
 
       - name: Install Dependencies
-        run: npm install
+        run: npm ci
 
       - name: Deploy to Staging
         if: github.event_name == 'push'
@@ -48,7 +48,7 @@ jobs:
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: |
-          npx sentry-cli sourcemaps inject --org nodejs --project dist-worker-staging ./dist && sentry-cli sourcemaps upload --org nodejs --project dist-worker-staging ./dist
+          npx sentry-cli sourcemaps inject --org nodejs --project dist-worker-staging ./dist && npx sentry-cli sourcemaps upload --org nodejs --project dist-worker-staging ./dist
 
       - name: Deploy to Production
         if: github.event_name == 'workflow_dispatch'
