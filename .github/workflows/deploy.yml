@@ -45,6 +45,8 @@ jobs:
 
       - name: Upload sourcemaps for dist-worker-staging
         if: github.event_name == 'push'
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         runs: |
           npx sentry-cli sourcemaps inject --org nodejs --project dist-worker-staging ./dist && sentry-cli sourcemaps upload --org nodejs --project dist-worker-staging ./dist
 
