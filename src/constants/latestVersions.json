@@ -28,10 +28,10 @@
   "latest-v20.x": "v20.19.5",
   "latest-iron": "v20.19.5",
   "latest-v21.x": "v21.7.3",
-  "latest-v22.x": "v22.19.0",
-  "latest-jod": "v22.19.0",
+  "latest-v22.x": "v22.20.0",
+  "latest-jod": "v22.20.0",
   "latest-v23.x": "v23.11.1",
-  "latest-v24.x": "v24.8.0",
-  "latest": "v24.8.0",
-  "node-latest.tar.gz": "latest/node-v24.8.0.tar.gz"
+  "latest-v24.x": "v24.9.0",
+  "latest": "v24.9.0",
+  "node-latest.tar.gz": "latest/node-v24.9.0.tar.gz"
 }
