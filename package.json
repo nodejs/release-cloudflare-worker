@@ -37,7 +37,7 @@
     "wrangler": "^4.40.2"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.859.0",
+    "@aws-sdk/client-s3": "^3.899.0",
     "itty-router": "^5.0.22",
     "mustache": "^4.2.0",
     "toucan-js": "^4.1.1"
