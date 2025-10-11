@@ -9,9 +9,5 @@ export interface Middleware {
    * @param next Calls the next middleware in the chain. This may also call
    *  other middlewares before returning.
    */
-  handle(
-    request: Request,
-    ctx: Context,
-    next: MiddlewareNext
-  ): Promise<Response>;
+  handle(request: Request, ctx: Context): Promise<Response>;
 }

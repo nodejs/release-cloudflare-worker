@@ -1,5 +1,5 @@
 import type { Context } from '../context';
-import type { Router } from '../routes';
+import type { Router } from '../routes/router';
 import type { Request } from '../routes/request';
 import type { Middleware } from './middleware';
 
@@ -25,7 +25,7 @@ export class SubtitutionMiddleware implements Middleware {
   handle(request: Request, ctx: Context): Promise<Response> {
     const newUrl = request.url.replaceAll(this.searchValue, this.replaceValue);
 
-    ctx.sentry.addBreadcrumb({
+    ctx.sentry?.addBreadcrumb({
       type: 'navigation',
       category: 'SubstitutionMiddleware',
       data: {
@@ -39,6 +39,6 @@ export class SubtitutionMiddleware implements Middleware {
       new Request(request)
     );
 
-    return this.router.handle(substitutedRequest, ctx, request.urlObj);
+    return this.router.fetch(substitutedRequest, ctx, request.urlObj);
   }
 }

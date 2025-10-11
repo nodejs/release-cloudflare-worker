@@ -1,7 +1,7 @@
 import { describe, test, expect } from 'vitest';
 import { SubtitutionMiddleware } from './subtituteMiddleware';
 import type { Request as WorkerRequest } from '../routes/request';
-import type { Router } from '../routes';
+import type { Router } from '../routes/router';
 
 describe('SubtituteMiddleware', () => {
   test('correctly substitutes url `/dist/latest` to `/dist/v1.0.0`', () => {
@@ -11,7 +11,7 @@ describe('SubtituteMiddleware', () => {
     originalRequest.urlObj = new URL(originalUrl);
 
     const router: Partial<Router> = {
-      handle: (substitutedRequest: WorkerRequest, _, unsubstitutedUrl) => {
+      fetch: (substitutedRequest: WorkerRequest, _, unsubstitutedUrl) => {
         // Has the url been substituted? (latest -> v1.0.0)
         // strictEqual(substitutedRequest.url, 'https://localhost/dist/v1.0.0');
         expect(substitutedRequest.url).toStrictEqual(

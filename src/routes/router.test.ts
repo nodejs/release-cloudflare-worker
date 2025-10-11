@@ -1,69 +1,176 @@
-import { expect, test } from 'vitest';
-import type { Middleware } from '../middleware/middleware';
-import { type Context } from '../context';
+import { describe, expect, test } from 'vitest';
 import { Router } from './router';
+import type { Middleware } from '../middleware/middleware';
+import type { Context } from '../context';
 
-test('middleware chains properly', async () => {
-  const callOrder: string[] = [];
+const dummyCtx: Context = {
+  // @ts-expect-error don't need full thing
+  sentry: {
+    captureException(err) {
+      // Throw any errors in these tests that are sent to Sentry
+      throw err;
+    },
+  },
+};
 
-  const firstMiddleware: Middleware = {
-    handle: (_, _2, next) => {
-      callOrder.push('first');
-      return next();
-    },
-  };
-  const secondMiddleware: Middleware = {
-    handle: (_, _2, next) => {
-      callOrder.push('second');
-      return next();
-    },
-  };
-  const thirdMiddleware: Middleware = {
-    handle: () => {
-      callOrder.push('third');
-      return Promise.resolve(new Response('cool response'));
+describe('HTTP methods', () => {
+  const dummyMiddleware: Middleware = {
+    async handle() {
+      return new Response('asd');
     },
   };
 
-  const router = new Router();
-  router.get('/', [firstMiddleware, secondMiddleware, thirdMiddleware]);
+  test('all', async () => {
+    const router = new Router();
+    router.all('/test', dummyMiddleware);
 
-  // @ts-expect-error don't need a complete context
-  const ctx: Context = {};
+    for (const method of ['OPTIONS', 'GET', 'HEAD', 'POST']) {
+      const res = await router.fetch(
+        new Request('https://localhost/test', { method }),
+        dummyCtx
+      );
+      expect(res.status).toBe(200);
+    }
+  });
 
-  const response = await router.handle(new Request('http://localhost/'), ctx);
-  expect(await response.text()).toStrictEqual('cool response');
-  expect(callOrder).toStrictEqual(['first', 'second', 'third']);
+  test('OPTIONS', async () => {
+    const router = new Router();
+    router.options('/test', dummyMiddleware);
+
+    {
+      const res = await router.fetch(
+        new Request('https://localhost/test', { method: 'OPTIONS' }),
+        dummyCtx
+      );
+      expect(res.status).toBe(200);
+    }
+
+    expect(
+      await router.fetch(new Request('https://localhost/test'), dummyCtx)
+    ).toBeUndefined();
+  });
+
+  test('HEAD', async () => {
+    const router = new Router();
+    router.head('/test', dummyMiddleware);
+
+    {
+      const res = await router.fetch(
+        new Request('https://localhost/test', { method: 'HEAD' }),
+        dummyCtx
+      );
+      expect(res.status).toBe(200);
+    }
+
+    expect(
+      await router.fetch(new Request('https://localhost/test'), dummyCtx)
+    ).toBeUndefined();
+  });
+
+  test('GET', async () => {
+    const router = new Router();
+    router.get('/test', dummyMiddleware);
+
+    {
+      const res = await router.fetch(
+        new Request('https://localhost/test'),
+        dummyCtx
+      );
+      expect(res.status).toBe(200);
+    }
+
+    expect(
+      await router.fetch(
+        new Request('https://localhost/test', { method: 'OPTIONS' }),
+        dummyCtx
+      )
+    ).toBeUndefined();
+  });
+
+  test('POST', async () => {
+    const router = new Router();
+    router.post('/test', dummyMiddleware);
+
+    {
+      const res = await router.fetch(
+        new Request('https://localhost/test', { method: 'POST' }),
+        dummyCtx
+      );
+      expect(res.status).toBe(200);
+    }
+
+    expect(
+      await router.fetch(new Request('https://localhost/test'), dummyCtx)
+    ).toBeUndefined();
+  });
 });
 
-test('errors in middleware get skipped & reported', async () => {
-  const errorToThrow = new Error('error from first middleware');
-  const firstMiddleware: Middleware = {
-    handle: () => {
-      throw errorToThrow;
-    },
-  };
-  const secondMiddleware: Middleware = {
-    handle: (_, _2, _3) => {
-      return Promise.resolve(new Response('response from second middleware'));
-    },
-  };
-
+test('adds `urlObj` to request', async () => {
   const router = new Router();
-  router.get('/', [firstMiddleware, secondMiddleware]);
 
-  const response = await router.handle(new Request('http://localhost/'), {
-    // @ts-expect-error missing properties we don't need
-    env: {},
-    sentry: {
-      // @ts-expect-error incorrect signature but it's fine
-      captureException(exception) {
-        // Make sure sentry gets the error
-        expect(exception).toStrictEqual(errorToThrow);
-      },
+  router.get('/test', {
+    async handle(request) {
+      expect(request.urlObj).toBeDefined();
+      return new Response();
     },
   });
-  expect(await response.text()).toStrictEqual(
-    'response from second middleware'
+
+  await router.fetch(new Request('https://localhost/test'), dummyCtx);
+});
+
+test('adds `unsubstitutedUrl` to request', async () => {
+  const router = new Router();
+
+  const unsubstitutedUrl = new URL('https://localhost/unsubstituted');
+
+  router.get('/test', {
+    async handle(request) {
+      expect(request.unsubstitutedUrl).toBe(unsubstitutedUrl);
+      return new Response();
+    },
+  });
+
+  await router.fetch(
+    new Request('https://localhost/test'),
+    dummyCtx,
+    unsubstitutedUrl
   );
+});
+
+test('handles errors properly', async () => {
+  const router = new Router();
+
+  const error = new TypeError('asdf');
+  router.get(
+    '/test',
+    {
+      async handle() {
+        throw error;
+      },
+    },
+    {
+      async handle() {
+        return new Response('asd123');
+      },
+    }
+  );
+
+  let reportedToSentry = false;
+
+  const ctx: Context = {
+    // @ts-expect-error don't need full thing
+    sentry: {
+      captureException(err) {
+        expect(err).toStrictEqual(error);
+
+        reportedToSentry = true;
+        return '';
+      },
+    },
+  };
+
+  const res = await router.fetch(new Request('https://localhost/test'), ctx);
+  expect(res.status).toBe(200);
+  expect(await res.text()).toBe('asd123');
+  expect(reportedToSentry).toBeTruthy();
 });

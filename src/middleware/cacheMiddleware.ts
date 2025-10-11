@@ -21,21 +21,20 @@ export function cached(middleware: Middleware): Middleware {
   let cache: Cache;
 
   const wrapper: Middleware = {
-    async handle(request, ctx, next) {
-      ctx.sentry.addBreadcrumb({
+    async handle(request, ctx) {
+      ctx.sentry?.addBreadcrumb({
         category: 'CacheMiddleware',
         data: {
           underlyingMiddleware: middleware.constructor.name,
         },
       });
 
+      // Caching globally disabled, skip
       if (!ctx.env.CACHING) {
-        return middleware.handle(request, ctx, next);
+        return middleware.handle(request, ctx);
       }
 
-      if (cache === undefined) {
-        cache = await caches.open(middleware.constructor.name);
-      }
+      cache ??= await caches.open(middleware.constructor.name);
 
       // Check if the request is in the cache already, return it if so
       let response = await cache.match(request);
@@ -43,17 +42,9 @@ export function cached(middleware: Middleware): Middleware {
         return response;
       }
 
-      // Set to true when the middleware this wraps calls next().
-      //  We only want to cache the result for this middleware,
-      //  not the one after this.
-      let wasDeferred = false;
+      response = await middleware.handle(request, ctx);
 
-      response = await middleware.handle(request, ctx, () => {
-        wasDeferred = true;
-        return next();
-      });
-
-      if (!wasDeferred && response.status === 200) {
+      if (response instanceof Response && response.status === 200) {
         // Successful request, let's cache it for next time
         const cachedResponse = response.clone();
 
