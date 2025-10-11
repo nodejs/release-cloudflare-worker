@@ -853,13 +853,13 @@
     "files": [
       {
         "name": "index.json",
-        "lastModified": "2025-10-08T22:46:12.832Z",
-        "size": 307743
+        "lastModified": "2025-10-11T16:16:11.571Z",
+        "size": 307787
       },
       {
         "name": "index.tab",
-        "lastModified": "2025-10-08T22:46:13.830Z",
-        "size": 194686
+        "lastModified": "2025-10-11T16:16:12.337Z",
+        "size": 194724
       },
       {
         "name": "node-0.0.1.tar.gz",
@@ -1372,7 +1372,7 @@
         "size": 13782897
       }
     ],
-    "lastModified": "2025-10-08T22:46:13.830Z"
+    "lastModified": "2025-10-11T16:16:12.337Z"
   },
   "nodejs/docs/": {
     "subdirectories": [
@@ -2226,7 +2226,7 @@
     ],
     "hasIndexHtmlFile": false,
     "files": [],
-    "lastModified": "2025-10-08T22:46:13.830Z"
+    "lastModified": "2025-10-11T16:16:12.337Z"
   },
   "nodejs/release/v0.3.3/": {
     "subdirectories": [],
