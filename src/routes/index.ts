@@ -19,13 +19,13 @@ export function registerRoutes(router: Router): void {
     'https://github.com/nodejs/corepack#readme'
   );
 
-  router.options('*', [new OptionsMiddleware()]);
+  router.options('*', new OptionsMiddleware());
 
-  router.head('/metrics/?:filePath+', [r2Middleware, originMiddleware]);
-  router.get('/metrics/?:filePath+', [cachedR2Middleware, originMiddleware]);
+  router.head('/metrics/?:filePath+', r2Middleware, originMiddleware);
+  router.get('/metrics/?:filePath+', cachedR2Middleware, originMiddleware);
 
-  router.all('/api/corepack.html', [corepackRedirectMiddleware]);
-  router.all('/docs/latest/api/corepack.html', [corepackRedirectMiddleware]);
+  router.all('/api/corepack.html', corepackRedirectMiddleware);
+  router.all('/docs/latest/api/corepack.html', corepackRedirectMiddleware);
 
   // Register routes for latest releases (e.g. `/dist/latest/`)
   for (const branch in latestVersions) {
@@ -36,39 +36,40 @@ export function registerRoutes(router: Router): void {
       latestVersion
     );
 
-    router.head(`/dist/${branch}*`, [subtitutionMiddleware]);
-    router.get(`/dist/${branch}*`, [subtitutionMiddleware]);
+    router.head(`/dist/${branch}*`, subtitutionMiddleware);
+    router.get(`/dist/${branch}*`, subtitutionMiddleware);
 
-    router.head(`/download/release/${branch}*`, [subtitutionMiddleware]);
-    router.get(`/download/release/${branch}*`, [subtitutionMiddleware]);
+    router.head(`/download/release/${branch}*`, subtitutionMiddleware);
+    router.get(`/download/release/${branch}*`, subtitutionMiddleware);
 
-    router.head(`/docs/${branch}*`, [subtitutionMiddleware]);
-    router.get(`/docs/${branch}*`, [subtitutionMiddleware]);
+    router.head(`/docs/${branch}*`, subtitutionMiddleware);
+    router.get(`/docs/${branch}*`, subtitutionMiddleware);
   }
 
-  router.head('/node-config-schema.json', [r2Middleware]);
-  router.get('/node-config-schema.json', [r2Middleware]);
+  router.head('/node-config-schema.json', r2Middleware);
+  router.get('/node-config-schema.json', r2Middleware);
 
-  router.head('/dist/?:filePath+', [r2Middleware, originMiddleware]);
-  router.get('/dist/?:filePath+', [cachedR2Middleware, originMiddleware]);
+  router.head('/dist/?:filePath+', r2Middleware, originMiddleware);
+  router.get('/dist/?:filePath+', cachedR2Middleware, originMiddleware);
 
-  router.head('/download/?:filePath+', [r2Middleware, originMiddleware]);
-  router.get('/download/?:filePath+', [cachedR2Middleware, originMiddleware]);
+  router.head('/download/?:filePath+', r2Middleware, originMiddleware);
+  router.get('/download/?:filePath+', cachedR2Middleware, originMiddleware);
 
-  router.head('/api/?:filePath+', [r2Middleware, originMiddleware]);
-  router.get('/api/?:filePath+', [cachedR2Middleware, originMiddleware]);
+  router.head('/api/?:filePath+', r2Middleware, originMiddleware);
+  router.get('/api/?:filePath+', cachedR2Middleware, originMiddleware);
 
-  router.head('/docs/?:version?/:filePath+?', [r2Middleware, originMiddleware]);
-  router.get('/docs/?:version?/:filePath+?', [
+  router.head('/docs/?:version?/:filePath+?', r2Middleware, originMiddleware);
+  router.get(
+    '/docs/?:version?/:filePath+?',
     cachedR2Middleware,
-    originMiddleware,
-  ]);
+    originMiddleware
+  );
 
-  router.post('/_throw', [new ThrowMiddleware()]);
+  router.post('/_throw', new ThrowMiddleware());
 
-  router.get('*', [new NotFoundMiddleware()]);
+  router.get('*', new NotFoundMiddleware());
 
-  router.all('*', [new MethodNotAllowedMiddleware()]);
+  router.all('*', new MethodNotAllowedMiddleware());
 }
 
 export * from './router';

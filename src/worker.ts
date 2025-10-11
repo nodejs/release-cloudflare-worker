@@ -23,34 +23,39 @@ export default {
       },
     });
 
+    sentry.setTag('request_id', crypto.randomUUID());
+
     if (env.LOG_ERRORS === true) {
       const originalCaptureException = sentry.captureException.bind(sentry);
 
       sentry.captureException = (exception, hint): string => {
-        const exceptionStr =
-          exception instanceof Error ? exception.stack : exception;
-
-        console.error(
-          `sentry.captureException called (hint=${hint}): ${exceptionStr}`
-        );
+        console.error(exception, `(hint=${hint})`);
 
         return originalCaptureException(exception, hint);
       };
     }
 
+    const context: Context = {
+      sentry,
+      env: env,
+      execution: ctx,
+    };
+
     try {
-      const context: Context = {
-        sentry,
-        env: env,
-        execution: ctx,
-      };
+      const response: unknown = await router.fetch(request, context);
 
-      return await router.handle(request, context);
-    } catch (e) {
-      // Send to sentry, if it's disabled this will just noop
-      sentry.captureException(e);
+      if (!(response instanceof Response)) {
+        // Didn't get a proper response from the router
+        throw new TypeError(
+          `router response not instanceof Response (typeof=${typeof response}, ctor=${response?.constructor?.name})`
+        );
+      }
 
-      return responses.internalServerError(e, env);
+      return response;
+    } catch (err) {
+      sentry.captureException(err);
+
+      return responses.internalServerError(err, env);
     }
   },
 };

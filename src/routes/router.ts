@@ -1,144 +1,111 @@
-import { IttyRouter } from 'itty-router';
-import type { Middleware } from '../middleware/middleware';
-import type { Context } from '../context';
-import { parseUrl } from '../utils/request';
-import responses from '../responses';
+import { IttyRouter, type RequestHandler } from 'itty-router';
 import type { Request as WorkerRequest } from './request';
+import type { Context } from '../context';
+import responses from '../responses';
+import type { Middleware } from '../middleware/middleware';
+
+type IttyRouterArgs = [Context, URL | undefined];
+type WorkerRequestHandler = RequestHandler<WorkerRequest, IttyRouterArgs>;
 
 /**
- * Simple wrapper around {@link IttyRouter} that allows us to do a middleware
- *  approach with our routing.
- * @see {Middleware}
+ * Middleware that's placed at the end of a route's middleware chain so we can
+ * know if a request was unhandled by all the middleware in front of this one
+ */
+const finalMiddleware: WorkerRequestHandler = () => {
+  throw new Error('reached the end of middleware');
+};
+
+/**
+ * Simple wrapper around {@link IttyRouter} that allows us to do some better
+ * error handling.
  */
 export class Router {
-  private itty = IttyRouter<
-    WorkerRequest,
-    [Context, URL | undefined],
-    Response
-  >();
+  #itty = IttyRouter<WorkerRequest, IttyRouterArgs, Response>();
 
-  handle(
+  fetch(
     request: Request,
     ctx: Context,
     unsubstitutedUrl?: URL
   ): Promise<Response> {
-    return this.itty.fetch(request, ctx, unsubstitutedUrl);
+    return this.#itty.fetch(request, ctx, unsubstitutedUrl);
   }
 
-  all(endpoint: string, middlewares: Middleware[]): void {
-    const middlewareChain = buildMiddlewareChain(middlewares);
-
-    this.itty.all(endpoint, (req, ctx, unsubstitutedUrl) => {
-      return callMiddlewareChain(middlewareChain, req, ctx, unsubstitutedUrl);
-    });
+  all(path: string, ...middlewares: Middleware[]): void {
+    this.#itty.all(
+      path,
+      ...middlewares.map(middlewareToRoute),
+      finalMiddleware
+    );
   }
 
-  options(endpoint: string, middlewares: Middleware[]): void {
-    const middlewareChain = buildMiddlewareChain(middlewares);
-
-    this.itty.options(endpoint, (req, ctx, unsubstitutedUrl) => {
-      return callMiddlewareChain(middlewareChain, req, ctx, unsubstitutedUrl);
-    });
+  options(path: string, ...middlewares: Middleware[]): void {
+    this.#itty.options(
+      path,
+      ...middlewares.map(middlewareToRoute),
+      finalMiddleware
+    );
   }
 
-  head(endpoint: string, middlewares: Middleware[]): void {
-    const middlewareChain = buildMiddlewareChain(middlewares);
-
-    this.itty.head(endpoint, (req, ctx, unsubstitutedUrl) => {
-      return callMiddlewareChain(middlewareChain, req, ctx, unsubstitutedUrl);
-    });
+  head(path: string, ...middlewares: Middleware[]): void {
+    this.#itty.head(
+      path,
+      ...middlewares.map(middlewareToRoute),
+      finalMiddleware
+    );
   }
 
-  get(endpoint: string, middlewares: Middleware[]): void {
-    const middlewareChain = buildMiddlewareChain(middlewares);
-
-    this.itty.get(endpoint, (req, ctx, unsubstitutedUrl) => {
-      return callMiddlewareChain(middlewareChain, req, ctx, unsubstitutedUrl);
-    });
+  get(path: string, ...middlewares: Middleware[]): void {
+    this.#itty.get(
+      path,
+      ...middlewares.map(middlewareToRoute),
+      finalMiddleware
+    );
   }
 
-  post(endpoint: string, middlewares: Middleware[]): void {
-    const middlewareChain = buildMiddlewareChain(middlewares);
-
-    this.itty.post(endpoint, (req, ctx, unsubstitutedUrl) => {
-      return callMiddlewareChain(middlewareChain, req, ctx, unsubstitutedUrl);
-    });
+  post(path: string, ...middlewares: Middleware[]): void {
+    this.#itty.post(
+      path,
+      ...middlewares.map(middlewareToRoute),
+      finalMiddleware
+    );
   }
-}
-
-type MiddlewareChain = (
-  request: WorkerRequest,
-  ctx: Context
-) => Promise<Response>;
-
-/**
- * Builds a chain of middlewares to call. Chains them in the same order as they
- *  are in the `middlewares` array.
- */
-function buildMiddlewareChain(middlewares: Middleware[]): MiddlewareChain {
-  // root will be the very first middleware in the chain
-  let root: MiddlewareChain = () => {
-    throw new Error('reached the end of the middleware chain');
-  };
-
-  // Link the middlewares in reverse order for simplicity sakes
-  for (const middleware of middlewares.toReversed()) {
-    const wrappedMiddleware = errorHandled(middleware);
-
-    // Store the previous
-    const previous = root;
-
-    root = (request, ctx): Promise<Response> => {
-      return wrappedMiddleware.handle(request, ctx, () => {
-        return previous(request, ctx);
-      });
-    };
-  }
-
-  return root;
-}
-
-async function callMiddlewareChain(
-  chain: MiddlewareChain,
-  request: WorkerRequest,
-  ctx: Context,
-  unsubstitutedUrl: URL | undefined
-): Promise<Response> {
-  // Parse url here so we don't have to do it multiple times later on
-  const url = parseUrl(request);
-
-  if (url === undefined) {
-    return responses.badRequest();
-  }
-
-  request.urlObj = url;
-
-  if (unsubstitutedUrl) {
-    request.unsubstitutedUrl = unsubstitutedUrl;
-  }
-
-  return chain(request, ctx);
 }
 
 /**
- * Wraps a {@link Middleware} to add basic error reporting and handling to it.
- *  If an error is thrown, it will log it and skip to the next middleware in
- *  the chain.
+ * Wraps a {@link Middleware} in a {@link WorkerRequestHandler}, defines
+ * properties on the request that are specific to us, and adds error handling
+ * to gracefully take care of any errors that happen.
+ *
+ * If an error does occur, we report it to Sentry and move onto the middleware
+ * after this one. If that middleware is the {@link finalMiddleware}, another
+ * error is thrown up to the scope that the router's {@link Router#fetch} was
+ * called.
  */
-function errorHandled(middleware: Middleware): Middleware {
-  const wrapper: Middleware = {
-    async handle(request: WorkerRequest, ctx: Context, next) {
-      try {
-        return await middleware.handle(request, ctx, next);
-      } catch (err) {
-        if (ctx.sentry !== undefined) {
-          ctx.sentry.captureException(err);
-        }
-
-        return next();
+function middlewareToRoute(middleware: Middleware): WorkerRequestHandler {
+  return async (req, ctx, unsubstitutedUrl) => {
+    if (req.urlObj === undefined) {
+      const url = URL.parse(req.url);
+      if (!url) {
+        return responses.badRequest();
       }
-    },
-  };
 
-  return wrapper;
+      req.urlObj = url;
+    }
+
+    if (unsubstitutedUrl && req.unsubstitutedUrl === undefined) {
+      req.unsubstitutedUrl = unsubstitutedUrl;
+    }
+
+    try {
+      const response = await middleware.handle(req, ctx);
+
+      return response;
+    } catch (err) {
+      // Catch the exception, report to Sentry
+      ctx.sentry?.captureException(err);
+
+      // Don't return anything so itty router will continue to next route in
+      // the chain
+    }
+  };
 }
