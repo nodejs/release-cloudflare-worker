@@ -11,7 +11,6 @@ class TestMiddleware implements Middleware {
   }
 
   async handle(): Promise<Response> {
-    // Returns a cacheable response
     return new Response('asd', { status: this.#successful ? 200 : 500 });
   }
 }
