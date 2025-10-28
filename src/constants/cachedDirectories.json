@@ -11,6 +11,7 @@
       "latest-hydrogen/",
       "latest-iron/",
       "latest-jod/",
+      "latest-krypton/",
       "latest-v0.10.x/",
       "latest-v0.12.x/",
       "latest-v10.x/",
@@ -666,6 +667,7 @@
       "v24.0.2/",
       "v24.1.0/",
       "v24.10.0/",
+      "v24.11.0/",
       "v24.2.0/",
       "v24.3.0/",
       "v24.4.0/",
@@ -856,13 +858,13 @@
     "files": [
       {
         "name": "index.json",
-        "lastModified": "2025-10-20T23:50:20.390Z",
-        "size": 308644
+        "lastModified": "2025-10-28T17:00:07.554Z",
+        "size": 309042
       },
       {
         "name": "index.tab",
-        "lastModified": "2025-10-20T23:50:21.160Z",
-        "size": 195281
+        "lastModified": "2025-10-28T17:00:08.322Z",
+        "size": 195535
       },
       {
         "name": "node-0.0.1.tar.gz",
@@ -1375,7 +1377,7 @@
         "size": 13782897
       }
     ],
-    "lastModified": "2025-10-20T23:50:21.160Z"
+    "lastModified": "2025-10-28T17:00:08.322Z"
   },
   "nodejs/docs/": {
     "subdirectories": [
@@ -1389,6 +1391,7 @@
       "latest-hydrogen/",
       "latest-iron/",
       "latest-jod/",
+      "latest-krypton/",
       "latest-v0.10.x/",
       "latest-v0.12.x/",
       "latest-v10.x/",
@@ -2044,6 +2047,7 @@
       "v24.0.2/",
       "v24.1.0/",
       "v24.10.0/",
+      "v24.11.0/",
       "v24.2.0/",
       "v24.3.0/",
       "v24.4.0/",
@@ -2232,7 +2236,7 @@
     ],
     "hasIndexHtmlFile": false,
     "files": [],
-    "lastModified": "2025-10-20T23:50:21.160Z"
+    "lastModified": "2025-10-28T17:00:08.322Z"
   },
   "nodejs/release/v0.3.3/": {
     "subdirectories": [],
