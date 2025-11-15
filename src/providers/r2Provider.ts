@@ -16,6 +16,7 @@ import type {
   ReadDirectoryResult,
 } from './provider';
 import { S3Provider } from './s3Provider';
+import { KvProvider } from './kvProvider';
 
 type CachedFile = {
   name: string;
@@ -111,33 +112,41 @@ export class R2Provider implements Provider {
     path: string,
     options?: ReadDirectoryOptions
   ): Promise<ReadDirectoryResult | undefined> {
-    if (path in CACHED_DIRECTORIES) {
-      const result: CachedDirectory =
-        CACHED_DIRECTORIES[path as keyof typeof CACHED_DIRECTORIES];
+    if (this.ctx.env.USE_KV) {
+      const kvProvider = new KvProvider({
+        ctx: this.ctx,
+      });
 
-      if (typeof result.lastModified === 'string') {
-        result.lastModified = new Date(result.lastModified);
+      return kvProvider.readDirectory(path, options);
+    } else {
+      if (path in CACHED_DIRECTORIES) {
+        const result: CachedDirectory =
+          CACHED_DIRECTORIES[path as keyof typeof CACHED_DIRECTORIES];
 
-        for (const file of result.files) {
-          // @ts-expect-error this isn't readonly
-          file.lastModified = new Date(file.lastModified);
+        if (typeof result.lastModified === 'string') {
+          result.lastModified = new Date(result.lastModified);
+
+          for (const file of result.files) {
+            // @ts-expect-error this isn't readonly
+            file.lastModified = new Date(file.lastModified);
+          }
         }
+
+        // @ts-expect-error at this point the result is parsed already
+        return Promise.resolve({
+          subdirectories: result.subdirectories,
+          files: result.files,
+          hasIndexHtmlFile: result.hasIndexHtmlFile,
+          lastModified: new Date(result.lastModified),
+        });
       }
 
-      // @ts-expect-error at this point the result is parsed already
-      return Promise.resolve({
-        subdirectories: result.subdirectories,
-        files: result.files,
-        hasIndexHtmlFile: result.hasIndexHtmlFile,
-        lastModified: new Date(result.lastModified),
+      const s3Provider = new S3Provider({
+        ctx: this.ctx,
       });
+
+      return s3Provider.readDirectory(path, options);
     }
-
-    const s3Provider = new S3Provider({
-      ctx: this.ctx,
-    });
-
-    return s3Provider.readDirectory(path, options);
   }
 }
 

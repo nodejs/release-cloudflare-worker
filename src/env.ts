@@ -17,6 +17,16 @@ export interface Env {
   R2_BUCKET: R2Bucket;
 
   /**
+   * KV namespace with cached directory listings
+   */
+  DIRECTORIES_NAMESPACE: KVNamespace;
+
+  /**
+   * Temp flag for whether or not to use KV instead of S3
+   */
+  USE_KV: boolean;
+
+  /**
    * Endpoint to hit when using the S3 api.
    */
   S3_ENDPOINT: string;
