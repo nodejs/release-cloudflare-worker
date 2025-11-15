@@ -31,6 +31,7 @@
         "workers_dev": true,
         "ENVIRONMENT": "staging",
         "CACHING": true,
+        "USE_KV": true,
         "LOG_ERRORS": false,
         "S3_ENDPOINT": "https://07be8d2fbc940503ca1be344714cb0d1.r2.cloudflarestorage.com",
         "BUCKET_NAME": "dist-prod",
@@ -41,6 +42,12 @@
           "binding": "R2_BUCKET",
           "preview_bucket_name": "dist-prod",
           "bucket_name": "dist-prod",
+        },
+      ],
+      "kv_namespaces": [
+        {
+          "binding": "DIRECTORY_CACHE",
+          "id": "TODO",
         },
       ],
     },
@@ -65,6 +72,12 @@
           "binding": "R2_BUCKET",
           "preview_bucket_name": "dist-prod",
           "bucket_name": "dist-prod",
+        },
+      ],
+      "kv_namespaces": [
+        {
+          "binding": "DIRECTORY_CACHE",
+          "id": "TODO",
         },
       ],
     },

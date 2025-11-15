@@ -12,10 +12,7 @@ export interface Provider {
     options?: GetFileOptions
   ): Promise<GetFileResult | undefined>;
 
-  readDirectory(
-    path: string,
-    options?: ReadDirectoryOptions
-  ): Promise<ReadDirectoryResult | undefined>;
+  readDirectory(path: string): Promise<ReadDirectoryResult | undefined>;
 }
 
 /**
@@ -66,10 +63,6 @@ export type File = {
   name: string;
   lastModified: Date;
   size: number;
-};
-
-export type ReadDirectoryOptions = {
-  listFiles: boolean;
 };
 
 export type ReadDirectoryResult = {
