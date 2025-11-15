@@ -9,7 +9,12 @@ import {
   S3Client,
 } from '@aws-sdk/client-s3';
 import { Linker } from 'nodejs-latest-linker/common.js';
-import { DOCS_DIR, ENDPOINT, PROD_BUCKET, RELEASE_DIR } from './constants.mjs';
+import {
+  DOCS_DIR,
+  R2_ENDPOINT,
+  PROD_BUCKET,
+  RELEASE_DIR,
+} from './constants.mjs';
 
 const DOCS_DIRECTORY_OUT = join(
   import.meta.dirname,
@@ -52,7 +57,7 @@ if (!process.env.CF_SECRET_ACCESS_KEY) {
 }
 
 const client = new S3Client({
-  endpoint: ENDPOINT,
+  endpoint: R2_ENDPOINT,
   region: 'auto',
   credentials: {
     accessKeyId: process.env.CF_ACCESS_KEY_ID,
