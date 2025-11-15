@@ -1,7 +1,7 @@
 // This file is used to setup things before we switch into a wranglerd isolate.
 // It is ran in Node.js and has access to Node's apis.
 
-import { dirname, join } from 'node:path';
+import { join, relative } from 'node:path';
 import { readdir, readFile, stat } from 'node:fs/promises';
 import type { TestProject } from 'vitest/node';
 
@@ -33,7 +33,7 @@ export interface Directory {
 
 async function listDirectory(directoryPath: string): Promise<Directory> {
   const directory: Directory = {
-    name: dirname(directoryPath),
+    name: relative(DEV_BUCKET_PATH, directoryPath),
     subdirectories: {},
     files: {},
   };

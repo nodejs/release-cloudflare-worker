@@ -10,6 +10,7 @@ export default defineWorkersConfig({
         },
         miniflare: {
           r2Buckets: ['R2_BUCKET'],
+          kvNamespaces: ['DIRECTORY_CACHE'],
         },
       },
     },
