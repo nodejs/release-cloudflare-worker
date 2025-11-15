@@ -1,7 +1,7 @@
 import { CACHE_HEADERS } from '../constants/cache';
-import { R2_RETRY_LIMIT } from '../constants/limits';
+import { R2_RETRY_LIMIT } from '../../common/limits.mjs';
 import CACHED_DIRECTORIES from '../constants/cachedDirectories.json' assert { type: 'json' };
-import contentTypeOverrides from '../constants/contentTypeOverrides.json' assert { type: 'json' };
+import { CONTENT_TYPE_OVERRIDES } from '../constants/contentTypeOverrides';
 import fileSymlinks from '../constants/fileSymlinks.json' assert { type: 'json' };
 import type { Context } from '../context';
 import { objectHasBody } from '../utils/object';
@@ -12,10 +12,10 @@ import type {
   HeadFileResult,
   HttpResponseHeaders,
   Provider,
-  ReadDirectoryOptions,
   ReadDirectoryResult,
 } from './provider';
 import { S3Provider } from './s3Provider';
+import { KvProvider } from './kvProvider';
 
 type CachedFile = {
   name: string;
@@ -107,10 +107,15 @@ export class R2Provider implements Provider {
     };
   }
 
-  readDirectory(
-    path: string,
-    options?: ReadDirectoryOptions
-  ): Promise<ReadDirectoryResult | undefined> {
+  readDirectory(path: string): Promise<ReadDirectoryResult | undefined> {
+    if (this.ctx.env.USE_KV) {
+      const kvProvider = new KvProvider({
+        ctx: this.ctx,
+      });
+
+      return kvProvider.readDirectory(path);
+    }
+
     if (path in CACHED_DIRECTORIES) {
       const result: CachedDirectory =
         CACHED_DIRECTORIES[path as keyof typeof CACHED_DIRECTORIES];
@@ -137,7 +142,7 @@ export class R2Provider implements Provider {
       ctx: this.ctx,
     });
 
-    return s3Provider.readDirectory(path, options);
+    return s3Provider.readDirectory(path);
   }
 }
 
@@ -150,7 +155,9 @@ function r2MetadataToHeaders(
   const fileExtension = object.key.substring(object.key.lastIndexOf('.') + 1);
 
   const contentType =
-    contentTypeOverrides[fileExtension as keyof typeof contentTypeOverrides] ??
+    CONTENT_TYPE_OVERRIDES[
+      fileExtension as keyof typeof CONTENT_TYPE_OVERRIDES
+    ] ??
     object.httpMetadata?.contentType ??
     'application/octet-stream';
 
