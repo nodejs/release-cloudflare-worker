@@ -682,6 +682,7 @@
       "v25.0.0/",
       "v25.1.0/",
       "v25.2.0/",
+      "v25.2.1/",
       "v4.0.0/",
       "v4.1.0/",
       "v4.1.1/",
@@ -862,13 +863,13 @@
     "files": [
       {
         "name": "index.json",
-        "lastModified": "2025-11-11T22:31:50.094Z",
-        "size": 310690
+        "lastModified": "2025-11-17T09:38:31.961Z",
+        "size": 311083
       },
       {
         "name": "index.tab",
-        "lastModified": "2025-11-11T22:31:50.727Z",
-        "size": 196593
+        "lastModified": "2025-11-17T09:38:32.498Z",
+        "size": 196840
       },
       {
         "name": "node-0.0.1.tar.gz",
@@ -1372,8 +1373,8 @@
       },
       {
         "name": "node-latest.tar.gz",
-        "lastModified": "2025-11-11T22:31:30.000Z",
-        "size": 111224990
+        "lastModified": "2025-11-17T09:38:15.000Z",
+        "size": 111219213
       },
       {
         "name": "node-v0.10.14.tar.gz",
@@ -1381,7 +1382,7 @@
         "size": 13782897
       }
     ],
-    "lastModified": "2025-11-11T22:31:50.727Z"
+    "lastModified": "2025-11-17T09:38:32.498Z"
   },
   "nodejs/docs/": {
     "subdirectories": [
@@ -2066,6 +2067,7 @@
       "v25.0.0/",
       "v25.1.0/",
       "v25.2.0/",
+      "v25.2.1/",
       "v4.0.0/",
       "v4.1.0/",
       "v4.1.1/",
@@ -2244,7 +2246,7 @@
     ],
     "hasIndexHtmlFile": false,
     "files": [],
-    "lastModified": "2025-11-11T22:31:50.727Z"
+    "lastModified": "2025-11-17T09:38:32.498Z"
   },
   "nodejs/release/v0.3.3/": {
     "subdirectories": [],
