@@ -31,8 +31,8 @@
   "latest-v22.x": "v22.21.1",
   "latest-jod": "v22.21.1",
   "latest-v23.x": "v23.11.1",
-  "latest-v24.x": "v24.11.1",
-  "latest-krypton": "v24.11.1",
+  "latest-v24.x": "v24.12.0",
+  "latest-krypton": "v24.12.0",
   "latest-v25.x": "v25.2.1",
   "latest": "v25.2.1",
   "node-latest.tar.gz": "latest/node-v25.2.1.tar.gz"
