@@ -6,8 +6,6 @@ permissions:
 on:
   # Triggered by https://github.com/nodejs/node/blob/main/.github/workflows/update-release-links.yml
   workflow_dispatch:
-  schedule:
-    - cron: '0 0 * * *'
 
 concurrency:
   group: update-redirect-links
