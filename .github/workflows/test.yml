@@ -21,7 +21,7 @@ jobs:
     if: ${{ github.event.action == 'opened' || github.event.action == 'ready_for_review' || github.event.action == 'synchronize' || (github.event.action == 'labeled' && github.event.label.name == 'force ci') }}
 
     steps:
-      - uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+      - uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
         with:
           egress-policy: block
           allowed-endpoints: >
