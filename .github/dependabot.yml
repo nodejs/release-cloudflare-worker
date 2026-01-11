@@ -26,6 +26,11 @@ updates:
         patterns:
           - 'eslint'
           - 'eslint-*'
+          - '@eslint/*'
           - '@typescript-eslint/*'
+      vitest:
+        patterns:
+          - 'vitest'
+          - '@cloudflare/vitest-pool-workers'
     ignore:
       - dependency-name: nodejs-latest-linker
