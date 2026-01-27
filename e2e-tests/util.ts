@@ -35,7 +35,9 @@ function populateDirectoryCache(directory: Directory): Array<Promise<unknown>> {
     files: Object.keys(directory.files).map(name => {
       const file = directory.files[name];
 
-      // TODO check for indx file
+      if (!hasIndexHtmlFile && name.match(/index.htm(?:l)$/)) {
+        hasIndexHtmlFile = true;
+      }
 
       return {
         name,
@@ -48,7 +50,7 @@ function populateDirectoryCache(directory: Directory): Array<Promise<unknown>> {
   };
   cachedDirectory.hasIndexHtmlFile = hasIndexHtmlFile;
 
-  const promises: Array<Promise<unknown>> = [
+  const promises: Array<Promise<void>> = [
     env.DIRECTORY_CACHE.put(
       `${directory.name}/`,
       JSON.stringify(cachedDirectory)

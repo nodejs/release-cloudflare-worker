@@ -20,6 +20,8 @@ export const STAGING_BUCKET = process.env.STAGING_BUCKET ?? 'dist-staging';
 export const RELEASE_DIR = 'nodejs/release/';
 export const DOCS_DIR = 'nodejs/docs/';
 
+export const NODE_LATEST_FILE_NAME = 'node-latest.tar.gz';
+
 export const DEV_BUCKET_PATH = join(import.meta.dirname, '..', 'dev-bucket');
 export const CACHED_DIRECTORIES_PATH = join(
   import.meta.dirname,

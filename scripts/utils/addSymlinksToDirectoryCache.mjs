@@ -3,6 +3,7 @@ import { basename, dirname } from 'node:path';
 import { S3Client } from '@aws-sdk/client-s3';
 import {
   DOCS_DIR,
+  NODE_LATEST_FILE_NAME,
   PROD_BUCKET,
   RELEASE_DIR,
   STATIC_FILE_SYMLINKS_PATH,
@@ -24,7 +25,7 @@ export async function addLatestTarSymlinkToCache(
   latestVersionMap,
   latestVersion
 ) {
-  const nodeLatestPath = `${RELEASE_DIR}${latestVersionMap['node-latest.tar.gz'].replaceAll('latest', latestVersion)}`;
+  const nodeLatestPath = `${RELEASE_DIR}${latestVersionMap[NODE_LATEST_FILE_NAME].replaceAll('latest', latestVersion)}`;
 
   // Stat the file that `node-latest.tar.gz` points to so we can have accurate
   // size & last modified info for the directory listing. Also acts as a safety
@@ -37,7 +38,7 @@ export async function addLatestTarSymlinkToCache(
   }
 
   releaseDirectory.files.push({
-    name: 'node-latest.tar.gz',
+    name: NODE_LATEST_FILE_NAME,
     lastModified: nodeLatest.lastModified,
     size: nodeLatest.size,
   });
@@ -54,7 +55,8 @@ export function addLatestDirectorySymlinksToCache(
 ) {
   releaseDirectory.subdirectories.push(
     ...Object.keys(latestVersionMap)
-      .filter(version => version !== 'node-latest.tar.gz')
+      // We only want directories, remove the only file in the map
+      .filter(version => version !== NODE_LATEST_FILE_NAME)
       .map(version => `${version}/`)
   );
   releaseDirectory.subdirectories.sort();
@@ -116,14 +118,20 @@ export async function addStaticFileSymlinksToCache(
   // TODO: remove when KV is considered stable
   const directoriesIncludedInFileCache = new Set([RELEASE_DIR, DOCS_DIR]);
 
+  const fileSymlinksFile = await readFile(STATIC_FILE_SYMLINKS_PATH, 'utf8');
+
   /**
    * @type {Record<string, string>}
    */
-  const fileSymlinks = JSON.parse(
-    await readFile(STATIC_FILE_SYMLINKS_PATH, 'utf8')
-  );
+  const fileSymlinks = JSON.parse(fileSymlinksFile);
 
-  // This isn't static, delete it for now
+  // This file is an exception for two reasons:
+  //  1. It's dynamic and points to the latest Node version
+  //  2. It's handled specially and is technically in the root directory,
+  //     which we should never be listing thus don't need to add it to the
+  //     directory cache.
+  // So, let's remove it then add it back once we're done handling the rest of
+  // the static file symlinks.
   fileSymlinks['node-config-schema.json'] = undefined;
 
   // Add the symlinks to the directory cache
