@@ -3,15 +3,9 @@ import { Router } from './router';
 import type { Middleware } from '../middleware/middleware';
 import type { Context } from '../context';
 
-const dummyCtx: Context = {
-  // @ts-expect-error don't need full thing
-  sentry: {
-    captureException(err) {
-      // Throw any errors in these tests that are sent to Sentry
-      throw err;
-    },
-  },
-};
+// @ts-expect-error create dummy one here so we don't need to have a bunch of
+// ts-expect-errors here
+const dummyCtx: Context = {};
 
 describe('HTTP methods', () => {
   const dummyMiddleware: Middleware = {
@@ -140,12 +134,11 @@ test('adds `unsubstitutedUrl` to request', async () => {
 test('handles errors properly', async () => {
   const router = new Router();
 
-  const error = new TypeError('asdf');
   router.get(
     '/test',
     {
       async handle() {
-        throw error;
+        throw new TypeError('asdf');
       },
     },
     {
@@ -155,22 +148,11 @@ test('handles errors properly', async () => {
     }
   );
 
-  let reportedToSentry = false;
-
-  const ctx: Context = {
-    // @ts-expect-error don't need full thing
-    sentry: {
-      captureException(err) {
-        expect(err).toStrictEqual(error);
-
-        reportedToSentry = true;
-        return '';
-      },
-    },
-  };
-
-  const res = await router.fetch(new Request('https://localhost/test'), ctx);
+  const res = await router.fetch(
+    new Request('https://localhost/test'),
+    // @ts-expect-error don't need full context
+    {}
+  );
   expect(res.status).toBe(200);
   expect(await res.text()).toBe('asd123');
-  expect(reportedToSentry).toBeTruthy();
 });

@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/cloudflare';
 import type { Middleware } from './middleware';
 
 /**
@@ -22,7 +23,7 @@ export function cached(middleware: Middleware): Middleware {
 
   const wrapper: Middleware = {
     async handle(request, ctx) {
-      ctx.sentry?.addBreadcrumb({
+      Sentry.addBreadcrumb({
         category: 'CacheMiddleware',
         data: {
           underlyingMiddleware: middleware.constructor.name,
