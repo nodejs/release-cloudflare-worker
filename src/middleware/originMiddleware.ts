@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/cloudflare';
 import { CACHE_HEADERS } from '../constants/cache';
 import type { Context } from '../context';
 import type { Request } from '../routes/request';
@@ -13,7 +14,7 @@ import type { Middleware } from './middleware';
  */
 export class OriginMiddleware implements Middleware {
   async handle(request: Request, ctx: Context): Promise<Response> {
-    ctx.sentry.addBreadcrumb({
+    Sentry.addBreadcrumb({
       category: 'OriginMiddleware',
       message: 'hit',
     });

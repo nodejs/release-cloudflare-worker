@@ -1,13 +1,13 @@
+import * as Sentry from '@sentry/cloudflare';
 import { CACHE_HEADERS } from '../constants/cache';
-import type { Context } from '../context';
 import type { Middleware } from './middleware';
 
 /**
  * Handles OPTION requests, just returns what HTTP methods we support
  */
 export class OptionsMiddleware implements Middleware {
-  handle(_: Request, ctx: Context): Promise<Response> {
-    ctx.sentry.addBreadcrumb({
+  handle(_: Request): Promise<Response> {
+    Sentry.addBreadcrumb({
       category: 'OptionsMiddleware',
       message: 'hit',
     });

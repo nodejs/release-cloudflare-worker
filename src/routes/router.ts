@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/cloudflare';
 import { IttyRouter, type RequestHandler } from 'itty-router';
 import type { Request as WorkerRequest } from './request';
 import type { Context } from '../context';
@@ -102,7 +103,7 @@ function middlewareToRoute(middleware: Middleware): WorkerRequestHandler {
       return response;
     } catch (err) {
       // Catch the exception, report to Sentry
-      ctx.sentry?.captureException(err);
+      Sentry.captureException(err);
 
       // Don't return anything so itty router will continue to next route in
       // the chain
