@@ -1,4 +1,4 @@
-import type { Toucan } from 'toucan-js';
+import * as Sentry from '@sentry/cloudflare';
 
 /**
  * Utility for retrying request sent to a provider's data source
@@ -7,8 +7,7 @@ import type { Toucan } from 'toucan-js';
  */
 export async function retryWrapper<T>(
   request: () => Promise<T>,
-  retryLimit: number,
-  sentry?: Toucan
+  retryLimit: number
 ): Promise<T> {
   let r2Error: unknown = undefined;
   for (let i = 0; i < retryLimit; i++) {
@@ -20,9 +19,8 @@ export async function retryWrapper<T>(
     }
   }
 
-  if (sentry !== undefined) {
-    sentry.captureException(r2Error);
-  }
+  // again isn't this captured somewhere else?
+  Sentry.captureException(r2Error);
 
   throw r2Error;
 }

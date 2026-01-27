@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/cloudflare';
 import { CACHE_HEADERS } from '../constants/cache';
 import docsDirectory from '../constants/docsDirectory.json' assert { type: 'json' };
 import type { Context } from '../context';
@@ -19,7 +20,7 @@ export class R2Middleware implements Middleware {
     const path = getR2Path(request);
     const isPathADirectory = isDirectoryPath(path);
 
-    ctx.sentry.addBreadcrumb({
+    Sentry.addBreadcrumb({
       category: 'R2Middleware',
       data: {
         r2Path: path,
@@ -127,7 +128,8 @@ async function getFile(
       }
     }
 
-    ctx.sentry.captureException(err);
+    // todo doesn't this get reported to sentry by the router?
+    Sentry.captureException(err);
     throw err;
   }
 
