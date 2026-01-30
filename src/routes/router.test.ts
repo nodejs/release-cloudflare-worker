@@ -4,7 +4,6 @@ import type { Middleware } from '../middleware/middleware';
 import type { Context } from '../context';
 
 // @ts-expect-error create dummy one here so we don't need to have a bunch of
-// ts-expect-errors here
 const dummyCtx: Context = {};
 
 describe('HTTP methods', () => {
