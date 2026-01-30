@@ -45,7 +45,6 @@ export default Sentry.withSentry<Env>(
 
         return response;
       } catch (err) {
-        console.log('asd');
         Sentry.captureException(err);
 
         if (env.LOG_ERRORS === true) {
