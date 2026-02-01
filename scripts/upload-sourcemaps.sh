@@ -22,7 +22,7 @@ npx sentry-cli releases new $SENTRY_RELEASE
     --project=$SENTRY_PROJECT
 
 # Associate the commits since last release with this release
-sentry-cli releases set-commits --auto $SENTRY_RELEASE
+npx sentry-cli releases set-commits --auto $SENTRY_RELEASE
 
 npx sentry-cli sourcemaps upload \
     --org=$SENTRY_ORG \
