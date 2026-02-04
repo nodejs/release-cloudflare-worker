@@ -15,10 +15,8 @@ fi
 
 SENTRY_RELEASE=$(npx sentry-cli releases propose-version)
 
-echo Creating release $SENTRY_RELEASE
-
-npx sentry-cli releases new $SENTRY_RELEASE
-    --org=$SENTRY_ORG
+npx sentry-cli releases new $SENTRY_RELEASE \
+    --org=$SENTRY_ORG \
     --project=$SENTRY_PROJECT
 
 # Associate the commits since last release with this release

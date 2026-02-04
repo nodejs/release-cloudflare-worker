@@ -11,7 +11,9 @@
     "test": "vitest --run",
     "test:watch": "vitest",
     "build:mustache": "node scripts/compile-mustache.mjs",
-    "build:workers-types": "wrangler types --include-env=false && node --run format"
+    "build:workers-types": "wrangler types --include-env=false && node --run format",
+    "deploy:prod": "wrangler deploy --env prod --outdir=./dist --upload-source-maps --var SENTRY_RELEASE:$(npx sentry-cli releases propose-version)",
+    "deploy:staging": "wrangler deploy --env staging --outdir=./dist --upload-source-maps --var SENTRY_RELEASE:$(npx sentry-cli releases propose-version)"
   },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "^0.10.1",
