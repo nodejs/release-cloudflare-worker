@@ -7,19 +7,19 @@ describe('SubtituteMiddleware', () => {
   test('correctly substitutes url `/dist/latest` to `/dist/v1.0.0`', () => {
     const originalUrl = 'https://localhost/dist/latest';
 
-    const originalRequest: Partial<WorkerRequest> = new Request(originalUrl);
+    // @ts-expect-error missing property set on the next line
+    const originalRequest: WorkerRequest = new Request(originalUrl);
     originalRequest.urlObj = new URL(originalUrl);
 
-    const router: Partial<Router> = {
+    // @ts-expect-error full router not needed
+    const router: Router = {
       fetch: (substitutedRequest: WorkerRequest, _, unsubstitutedUrl) => {
         // Has the url been substituted? (latest -> v1.0.0)
-        // strictEqual(substitutedRequest.url, 'https://localhost/dist/v1.0.0');
         expect(substitutedRequest.url).toStrictEqual(
           'https://localhost/dist/v1.0.0'
         );
 
         // Was the original url saved?
-        // strictEqual(unsubstitutedUrl, originalRequest.urlObj);
         expect(unsubstitutedUrl).toStrictEqual(originalRequest.urlObj);
 
         return Promise.resolve(new Response());
@@ -30,14 +30,12 @@ describe('SubtituteMiddleware', () => {
     expect(originalRequest.unsubstitutedUrl).toStrictEqual(undefined);
     expect(originalRequest.urlObj!.pathname).toStrictEqual('/dist/latest');
 
-    // @ts-expect-error full router not needed
     const middleware = new SubtitutionMiddleware(router, 'latest', 'v1.0.0');
 
-    // @ts-expect-error full router & ctx not needed
-    middleware.handle(originalRequest, {
-      sentry: {
-        addBreadcrumb: () => {},
-      },
-    });
+    middleware.handle(
+      originalRequest,
+      // @ts-expect-error don't need full context
+      {}
+    );
   });
 });

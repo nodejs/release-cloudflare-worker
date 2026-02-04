@@ -71,21 +71,17 @@ export class S3Provider implements Provider {
     let cursor: string | undefined;
     let lastModified: Date = new Date(0);
     while (isTruncated) {
-      const result = await retryWrapper(
-        async () => {
-          return this.client.send(
-            new ListObjectsV2Command({
-              Bucket: this.ctx.env.BUCKET_NAME,
-              Prefix: path,
-              Delimiter: '/',
-              MaxKeys: S3_MAX_KEYS,
-              ContinuationToken: cursor,
-            })
-          );
-        },
-        R2_RETRY_LIMIT,
-        this.ctx.sentry
-      );
+      const result = await retryWrapper(async () => {
+        return this.client.send(
+          new ListObjectsV2Command({
+            Bucket: this.ctx.env.BUCKET_NAME,
+            Prefix: path,
+            Delimiter: '/',
+            MaxKeys: S3_MAX_KEYS,
+            ContinuationToken: cursor,
+          })
+        );
+      }, R2_RETRY_LIMIT);
 
       result.CommonPrefixes?.forEach(directory => {
         directories.add(directory.Prefix!.substring(path.length));

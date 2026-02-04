@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/cloudflare';
 import type { Context } from '../context';
 import type { Router } from '../routes/router';
 import type { Request } from '../routes/request';
@@ -25,7 +26,7 @@ export class SubtitutionMiddleware implements Middleware {
   handle(request: Request, ctx: Context): Promise<Response> {
     const newUrl = request.url.replaceAll(this.searchValue, this.replaceValue);
 
-    ctx.sentry?.addBreadcrumb({
+    Sentry.addBreadcrumb({
       type: 'navigation',
       category: 'SubstitutionMiddleware',
       data: {

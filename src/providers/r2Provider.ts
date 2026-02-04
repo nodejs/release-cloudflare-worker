@@ -49,8 +49,7 @@ export class R2Provider implements Provider {
 
     const object = await retryWrapper(
       async () => await this.ctx.env.R2_BUCKET.head(path),
-      R2_RETRY_LIMIT,
-      this.ctx.sentry
+      R2_RETRY_LIMIT
     );
 
     if (object === null) {
@@ -76,22 +75,17 @@ export class R2Provider implements Provider {
       path = fileSymlinks[path];
     }
 
-    const object = await retryWrapper(
-      async () => {
-        return this.ctx.env.R2_BUCKET.get(path, {
-          onlyIf: {
-            etagMatches: options?.conditionalHeaders?.ifMatch,
-            etagDoesNotMatch: options?.conditionalHeaders?.ifNoneMatch,
-            uploadedBefore: options?.conditionalHeaders?.ifUnmodifiedSince,
-            uploadedAfter: options?.conditionalHeaders?.ifModifiedSince,
-          },
-          range: options?.conditionalHeaders?.range,
-        });
-      },
-      R2_RETRY_LIMIT,
-      // Don't pass sentry in,
-      undefined
-    );
+    const object = await retryWrapper(async () => {
+      return this.ctx.env.R2_BUCKET.get(path, {
+        onlyIf: {
+          etagMatches: options?.conditionalHeaders?.ifMatch,
+          etagDoesNotMatch: options?.conditionalHeaders?.ifNoneMatch,
+          uploadedBefore: options?.conditionalHeaders?.ifUnmodifiedSince,
+          uploadedAfter: options?.conditionalHeaders?.ifModifiedSince,
+        },
+        range: options?.conditionalHeaders?.range,
+      });
+    }, R2_RETRY_LIMIT);
 
     if (object === null) {
       return undefined;
