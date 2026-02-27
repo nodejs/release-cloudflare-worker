@@ -129,9 +129,10 @@ export async function addStaticFileSymlinksToCache(
   //  2. It's handled specially and is technically in the root directory,
   //     which we should never be listing thus don't need to add it to the
   //     directory cache.
-  // So, let's remove it then add it back once we're done handling the rest of
-  // the static file symlinks.
+  // So, let's remove them then add them back once we're done handling the rest
+  // of the static file symlinks.
   fileSymlinks['node-config-schema.json'] = undefined;
+  fileSymlinks['llms.txt'] = undefined;
 
   // Add the symlinks to the directory cache
   for (const symlink of Object.keys(fileSymlinks)) {
@@ -171,10 +172,11 @@ export async function addStaticFileSymlinksToCache(
     });
   }
 
-  // Update the node-config-schema.json file symlink to point to the latest
-  //  version
+  // Update the node-config-schema.json and llms.txt file symlinks to point to
+  //  the latest version
   fileSymlinks['node-config-schema.json'] =
     `${RELEASE_DIR}${latestVersion}/docs/node-config-schema.json`;
+  fileSymlinks['llms.txt'] = `${RELEASE_DIR}${latestVersion}/docs/llms.txt`;
 
   // Update file so it can be used in the worker
   await writeFile(
@@ -201,10 +203,11 @@ export async function addStaticFileSymlinksToCache(
  *
  * We use symlinks to point to both files and directories.
  *
- * The file symlinks are more or less static. There are only two that are
+ * The file symlinks are more or less static. There are only a few that are
  * constantly updated with each release:
  *  - `nodejs/release/node-latest.tar.gz`
  *  - `node-config-schema.json`
+ *  - `llms.txt`
  *
  * The directory symlinks are dynamic with a few exceptions for a select number
  * of directories in `nodejs/docs/`
