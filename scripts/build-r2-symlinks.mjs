@@ -133,8 +133,9 @@ const cachedDirectories = {
 // Let's add these to our cached directories.
 const fileSymlinks = JSON.parse(await readFile(FILE_SYMLINKS, 'utf8'));
 
-// Delete this for now, we'll add it back again later
+// Delete these for now, we'll add them back again later
 delete fileSymlinks['node-config-schema.json'];
+delete fileSymlinks['llms.txt'];
 
 for (const file of Object.keys(fileSymlinks)) {
   // Stat the actual file so we can get it's size, last modified
@@ -163,10 +164,12 @@ for (const file of Object.keys(fileSymlinks)) {
 
 await writeFile(CACHED_DIRECTORIES_OUT, JSON.stringify(cachedDirectories));
 
-// Update the node-config-schema.json file symlink to point to the latest
-//  version
+// Update the node-config-schema.json and llms.txt file symlinks to point to
+//  the latest version
 fileSymlinks['node-config-schema.json'] =
   `${RELEASE_DIR}${latestVersions['latest']}/docs/node-config-schema.json`;
+fileSymlinks['llms.txt'] =
+  `${RELEASE_DIR}${latestVersions['latest']}/docs/llms.txt`;
 
 await writeFile(FILE_SYMLINKS, JSON.stringify(fileSymlinks));
 
