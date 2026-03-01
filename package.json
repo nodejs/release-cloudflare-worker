@@ -22,7 +22,7 @@
     "@reporters/github": "^1.7.2",
     "@sentry/cli": "^2.58.4",
     "@types/mustache": "^4.2.6",
-    "@types/node": "^25.1.0",
+    "@types/node": "^25.3.1",
     "@typescript-eslint/eslint-plugin": "^8.54.0",
     "@typescript-eslint/parser": "^8.32.1",
     "eslint": "^9.39.2",
