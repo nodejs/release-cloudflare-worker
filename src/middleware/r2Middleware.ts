@@ -170,7 +170,8 @@ function getR2Path({
     }
   } else if (
     pathname.startsWith('/metrics') ||
-    pathname === '/node-config-schema.json'
+    pathname === '/node-config-schema.json' ||
+    pathname === '/llms.txt'
   ) {
     // Substring to cut off the leading /
     return pathname.substring(1);
