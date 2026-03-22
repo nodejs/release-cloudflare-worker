@@ -1,7 +1,7 @@
 // This file is used to setup things before we switch into a wranglerd isolate.
 // It is ran in Node.js and has access to Node's apis.
 
-import { dirname, join } from 'node:path';
+import { join, relative } from 'node:path';
 import { readdir, readFile, stat } from 'node:fs/promises';
 import type { TestProject } from 'vitest/node';
 
@@ -33,20 +33,20 @@ export interface Directory {
 
 async function listDirectory(directoryPath: string): Promise<Directory> {
   const directory: Directory = {
-    name: dirname(directoryPath),
+    name: relative(DEV_BUCKET_PATH, directoryPath),
     subdirectories: {},
     files: {},
   };
 
-  const paths = await readdir(directoryPath, { recursive: true });
+  const paths = await readdir(directoryPath);
 
   for (const path of paths) {
-    const relativePath = join(directoryPath, path);
+    const absolutePath = join(directoryPath, path);
 
-    const statResult = await stat(relativePath);
+    const statResult = await stat(absolutePath);
 
     if (statResult.isFile()) {
-      const contents = await readFile(relativePath, 'utf8');
+      const contents = await readFile(absolutePath, 'utf8');
 
       directory.files[path] = {
         size: contents.length,
@@ -54,7 +54,7 @@ async function listDirectory(directoryPath: string): Promise<Directory> {
         contents,
       };
     } else {
-      const subdirectory = await listDirectory(relativePath);
+      const subdirectory = await listDirectory(absolutePath);
 
       directory.subdirectories[path] = subdirectory;
     }
