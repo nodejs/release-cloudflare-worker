@@ -1,0 +1,25 @@
+name: Auto-merge PRs
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  pull-requests: write
+  contents: write
+
+jobs:
+  auto-merge:
+    if: github.repository == 'nodejs/release-cloudflare-worker'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@e3f713f2d8f53843e71c69a996d56f51aa9adfb9 # v2.14.1
+        with:
+          egress-policy: audit
+
+      - uses: nodejs/web-team/actions/auto-merge-prs@b087df186d25f8792fb85cc7794f68718726b8ee
+        with:
+          merge-method: squash
