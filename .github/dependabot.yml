@@ -4,6 +4,10 @@ updates:
     directory: '/'
     schedule:
       interval: monthly
+    labels:
+      - dependencies
+      - github_actions
+      - auto-merge
     commit-message:
       prefix: chore
     cooldown:
@@ -14,6 +18,10 @@ updates:
     versioning-strategy: increase
     schedule:
       interval: monthly
+    labels:
+      - dependencies
+      - javascript
+      - auto-merge
     commit-message:
       prefix: chore
     cooldown:
