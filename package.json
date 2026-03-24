@@ -20,7 +20,7 @@
     "@eslint/eslintrc": "^3.3.5",
     "@eslint/js": "^10.0.1",
     "@reporters/github": "^1.7.2",
-    "@sentry/cli": "^2.58.4",
+    "@sentry/cli": "^3.3.3",
     "@types/mustache": "^4.2.6",
     "@types/node": "^25.3.1",
     "@typescript-eslint/eslint-plugin": "^8.57.1",
