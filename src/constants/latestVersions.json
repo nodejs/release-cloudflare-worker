@@ -33,7 +33,7 @@
   "latest-v23.x": "v23.11.1",
   "latest-v24.x": "v24.14.1",
   "latest-krypton": "v24.14.1",
-  "latest-v25.x": "v25.8.2",
-  "latest": "v25.8.2",
-  "node-latest.tar.gz": "latest/node-v25.8.2.tar.gz"
+  "latest-v25.x": "v25.9.0",
+  "latest": "v25.9.0",
+  "node-latest.tar.gz": "latest/node-v25.9.0.tar.gz"
 }
