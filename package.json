@@ -39,7 +39,7 @@
     "wrangler": "^4.51.0"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.1014.0",
+    "@aws-sdk/client-s3": "^3.859.0",
     "@sentry/cloudflare": "^10.37.0",
     "itty-router": "^5.0.22",
     "mustache": "^4.2.0"
