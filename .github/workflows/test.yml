@@ -43,5 +43,5 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run Tests
-        run: node --run test
+      - name: Run Coverage
+        run: node --run test:coverage
