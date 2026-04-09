@@ -9,7 +9,7 @@
     "prettier": "prettier --check \"**/*.{ts,js,mjs,json,md}\"",
     "lint": "eslint ./src",
     "test": "vitest --run",
-    "test:coverage": "vitest run --coverage",
+    "test:coverage": "vitest --run --coverage",
     "test:watch": "vitest",
     "build:mustache": "node scripts/compile-mustache.mjs",
     "build:workers-types": "wrangler types --include-env=false && node --run format",
