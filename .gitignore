@@ -1,5 +1,6 @@
 node_modules/
 .wrangler/
 dist/
+coverage/
 .dev.vars
 .sentryclirc
