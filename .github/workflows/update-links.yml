@@ -27,6 +27,7 @@ jobs:
           egress-policy: block
           allowed-endpoints: >
             api.github.com:443
+            api.cloudflare.com:443
             dist-prod.07be8d2fbc940503ca1be344714cb0d1.r2.cloudflarestorage.com:443
             github.com:443
             hooks.slack.com:443

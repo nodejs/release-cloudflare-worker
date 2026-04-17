@@ -12,7 +12,8 @@ export const R2_ENDPOINT =
  * The id of the KV namespace used for caching directories
  */
 export const DIRECTORY_CACHE_NAMESPACE_ID =
-  process.env.DIRECTORY_CACHE_NAMESPACE_ID ?? 'TODO';
+  process.env.DIRECTORY_CACHE_NAMESPACE_ID ??
+  'a8378d5444a2465ca7202ebaa5d8deb1';
 
 export const PROD_BUCKET = process.env.PROD_BUCKET ?? 'dist-prod';
 export const STAGING_BUCKET = process.env.STAGING_BUCKET ?? 'dist-staging';

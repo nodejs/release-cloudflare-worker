@@ -38,7 +38,7 @@ export async function writeKeysToKv(client, namespace, values) {
 
   while (keys.length) {
     // Can only write 10,000 keys at once
-    const batch = keys.splice(0, 10_000);
+    const batch = keys.splice(0, KV_MAX_KEYS);
 
     await client.kv.namespaces.bulkUpdate(namespace, {
       account_id: CLOUDFLARE_ACCOUNT_ID,

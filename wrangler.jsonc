@@ -47,6 +47,7 @@
       "kv_namespaces": [
         {
           "binding": "DIRECTORY_CACHE",
+          "id": "a8378d5444a2465ca7202ebaa5d8deb1",
         },
       ],
     },
@@ -76,6 +77,7 @@
       "kv_namespaces": [
         {
           "binding": "DIRECTORY_CACHE",
+          "id": "a8378d5444a2465ca7202ebaa5d8deb1",
         },
       ],
     },
