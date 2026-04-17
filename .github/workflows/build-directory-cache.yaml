@@ -1,0 +1,77 @@
+name: Build Directory Cache
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-directory-cache:
+    name: Build Directory Cache
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: step-security/harden-runner@a90bcbc6539c36a85cdfeb73f7e2f433735f215b # v2.15.0
+        with:
+          egress-policy: audit
+
+      - name: Git Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Cache Dependencies
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        with:
+          path: |
+            ~/.npm
+            node_modules/.cache
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/workflows/format.yml') }}
+          restore-keys: ${{ runner.os }}-npm-
+
+      - name: Setup Node
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: lts/*
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci && npm update nodejs-latest-linker --save
+
+      - name: Build Directory Cache
+        run: node scripts/build-directory-cache.mjs && node --run format
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          S3_ACCESS_KEY_ID: ${{ secrets.CF_ACCESS_KEY_ID }}
+          S3_ACCESS_KEY_SECRET: ${{ secrets.CF_SECRET_ACCESS_KEY }}
+
+      - name: Commit Changes
+        id: git_auto_commit
+        uses: stefanzweifel/git-auto-commit-action@04702edda442b2e678b25b537cec683a1493fcb9 # v7.1.0
+        with:
+          commit_options: '--no-verify --no-signoff'
+          commit_message: 'chore: update redirect links'
+          branch: build-directory-cache
+          create_branch: true
+
+      - name: Open and Merge Pull Request
+        if: steps.git_auto_commit.outputs.changes_detected == 'true'
+        run: |
+          gh pr create --fill
+          gh pr merge --squash --delete-branch --admin
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_BOT_TOKEN }}
+
+      - name: Deploy to Production
+        if: steps.git_auto_commit.outputs.changes_detected == 'true'
+        run: |
+          gh workflow run deploy.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_BOT_TOKEN }}
+
+      - name: Alert on Failure
+        if: failure() && github.repository == 'nodejs/release-cloudflare-worker'
+        uses: rtCamp/action-slack-notify@e31e87e03dd19038e411e38ae27cbad084a90661 # 2.3.3
+        env:
+          SLACK_COLOR: '#DE512A'
+          SLACK_ICON: https://github.com/nodejs.png?size=48
+          SLACK_TITLE: Build Directory Cache failed (${{ github.ref }})
+          SLACK_MESSAGE: The `build-directory-cache.yaml` action has failed.
+          SLACK_USERNAME: nodejs-bot
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
