@@ -152,7 +152,7 @@ export async function addStaticFileSymlinksToCache(
 
     if (!sourceFile) {
       throw new TypeError(
-        `symlink '${symlink}' points to invalid file '${sourceFile}'`
+        `symlink '${symlink}' points to invalid file '${fileSymlinks[symlink]}'`
       );
     }
 
