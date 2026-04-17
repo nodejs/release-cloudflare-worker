@@ -1,7 +1,8 @@
+import * as Sentry from '@sentry/cloudflare';
 import { CACHE_HEADERS } from '../constants/cache';
-import { R2_RETRY_LIMIT } from '../constants/limits';
+import { R2_RETRY_LIMIT } from '../../lib/limits.mjs';
 import CACHED_DIRECTORIES from '../constants/cachedDirectories.json' assert { type: 'json' };
-import contentTypeOverrides from '../constants/contentTypeOverrides.json' assert { type: 'json' };
+import { CONTENT_TYPE_OVERRIDES } from '../constants/contentTypeOverrides';
 import fileSymlinks from '../constants/fileSymlinks.json' assert { type: 'json' };
 import type { Context } from '../context';
 import { objectHasBody } from '../utils/object';
@@ -12,10 +13,10 @@ import type {
   HeadFileResult,
   HttpResponseHeaders,
   Provider,
-  ReadDirectoryOptions,
   ReadDirectoryResult,
 } from './provider';
 import { S3Provider } from './s3Provider';
+import { KvProvider } from './kvProvider';
 
 type CachedFile = {
   name: string;
@@ -101,37 +102,65 @@ export class R2Provider implements Provider {
     };
   }
 
-  readDirectory(
-    path: string,
-    options?: ReadDirectoryOptions
-  ): Promise<ReadDirectoryResult | undefined> {
+  async readDirectory(path: string): Promise<ReadDirectoryResult | undefined> {
+    const kvProvider = new KvProvider({
+      ctx: this.ctx,
+    });
+
+    if (this.ctx.env.USE_KV) {
+      return await kvProvider.readDirectory(path);
+    }
+
+    let result: ReadDirectoryResult | undefined;
     if (path in CACHED_DIRECTORIES) {
-      const result: CachedDirectory =
+      const cachedResult: CachedDirectory =
         CACHED_DIRECTORIES[path as keyof typeof CACHED_DIRECTORIES];
 
-      if (typeof result.lastModified === 'string') {
-        result.lastModified = new Date(result.lastModified);
+      if (typeof cachedResult.lastModified === 'string') {
+        cachedResult.lastModified = new Date(cachedResult.lastModified);
 
-        for (const file of result.files) {
+        for (const file of cachedResult.files) {
           // @ts-expect-error this isn't readonly
           file.lastModified = new Date(file.lastModified);
         }
       }
 
-      // @ts-expect-error at this point the result is parsed already
-      return Promise.resolve({
-        subdirectories: result.subdirectories,
-        files: result.files,
-        hasIndexHtmlFile: result.hasIndexHtmlFile,
-        lastModified: new Date(result.lastModified),
+      result = {
+        subdirectories: cachedResult.subdirectories,
+        // @ts-expect-error we already handled type difference above
+        files: cachedResult.files,
+        hasIndexHtmlFile: cachedResult.hasIndexHtmlFile,
+        lastModified: new Date(cachedResult.lastModified),
+      };
+    } else {
+      const s3Provider = new S3Provider({
+        ctx: this.ctx,
       });
+
+      result = await s3Provider.readDirectory(path);
     }
 
-    const s3Provider = new S3Provider({
-      ctx: this.ctx,
-    });
+    // Temporary: compare S3/cached listing result to what the KV provider returns
+    if (this.ctx.env.ENVIRONMENT !== 'e2e-tests') {
+      this.ctx.execution.waitUntil(
+        (async (): Promise<undefined> => {
+          try {
+            const kvResult = await kvProvider.readDirectory(path);
 
-    return s3Provider.readDirectory(path, options);
+            if (JSON.stringify(kvResult) !== JSON.stringify(result)) {
+              throw new Error('listing mismatch');
+            }
+          } catch (err) {
+            // Either an error when hitting KV or a mismatch between S3 & KV
+            Sentry.captureException(
+              new Error(`KvProvider error for path ${path}`, { cause: err })
+            );
+          }
+        })()
+      );
+    }
+
+    return result;
   }
 }
 
@@ -144,7 +173,9 @@ function r2MetadataToHeaders(
   const fileExtension = object.key.substring(object.key.lastIndexOf('.') + 1);
 
   const contentType =
-    contentTypeOverrides[fileExtension as keyof typeof contentTypeOverrides] ??
+    CONTENT_TYPE_OVERRIDES[
+      fileExtension as keyof typeof CONTENT_TYPE_OVERRIDES
+    ] ??
     object.httpMetadata?.contentType ??
     'application/octet-stream';
 
