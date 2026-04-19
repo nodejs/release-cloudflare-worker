@@ -140,15 +140,64 @@ export class R2Provider implements Provider {
       result = await s3Provider.readDirectory(path);
     }
 
-    // Temporary: compare S3/cached listing result to what the KV provider returns
+    // Temporary: compare S3/cached listing result to what the KV provider returns.
+    // We expect a little difference in last modified dates, but otherwise things should match up
     if (this.ctx.env.ENVIRONMENT !== 'e2e-tests') {
       this.ctx.execution.waitUntil(
         (async (): Promise<undefined> => {
           try {
             const kvResult = await kvProvider.readDirectory(path);
 
-            if (JSON.stringify(kvResult) !== JSON.stringify(result)) {
-              throw new Error('listing mismatch');
+            if (result === undefined) {
+              if (kvResult !== undefined) {
+                throw new Error('non-existent directory exists in kv');
+              }
+
+              // Directory doesn't exist in both sources, nothing further to do
+              return;
+            }
+
+            if (kvResult === undefined) {
+              // Directory exists in r2 but not in kv
+              throw new Error('kv missing directory');
+            }
+
+            if (result.hasIndexHtmlFile !== kvResult.hasIndexHtmlFile) {
+              throw new Error('hasIndexHtmlFile mismatch');
+            }
+
+            // Both subdirectory properties should be indentical
+            if (
+              JSON.stringify(result.subdirectories) !==
+              JSON.stringify(kvResult.subdirectories)
+            ) {
+              throw new Error('directories mismatch');
+            }
+
+            // We should have the same number of files in both
+            if (result.files.length !== kvResult.files.length) {
+              throw new Error(
+                `file count mismatch: ${result.files.length - kvResult.files.length}`
+              );
+            }
+
+            // R2 & KV file listings should be identical besides kv having
+            // slightly higher precise timestamps
+            for (let i = 0; i < result.files.length; i++) {
+              const r2File = result.files[i];
+              const kvFile = kvResult.files[i];
+
+              if (r2File.name !== kvFile.name) {
+                throw new Error(
+                  `file name mismatch: ${r2File.name} ${kvFile.name}`
+                );
+              }
+
+              if (r2File.size !== kvFile.size) {
+                throw new Error(
+                  `file size mismatch: ${r2File.size} ${kvFile.size}`
+                );
+              }
             }
           } catch (err) {
             // Either an error when hitting KV or a mismatch between S3 & KV
