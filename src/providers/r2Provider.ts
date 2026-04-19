@@ -1,4 +1,3 @@
-import * as Sentry from '@sentry/cloudflare';
 import { CACHE_HEADERS } from '../constants/cache';
 import { R2_RETRY_LIMIT } from '../../lib/limits.mjs';
 import CACHED_DIRECTORIES from '../constants/cachedDirectories.json' assert { type: 'json' };
@@ -138,26 +137,6 @@ export class R2Provider implements Provider {
       });
 
       result = await s3Provider.readDirectory(path);
-    }
-
-    // Temporary: compare S3/cached listing result to what the KV provider returns
-    if (this.ctx.env.ENVIRONMENT !== 'e2e-tests') {
-      this.ctx.execution.waitUntil(
-        (async (): Promise<undefined> => {
-          try {
-            const kvResult = await kvProvider.readDirectory(path);
-
-            if (JSON.stringify(kvResult) !== JSON.stringify(result)) {
-              throw new Error('listing mismatch');
-            }
-          } catch (err) {
-            // Either an error when hitting KV or a mismatch between S3 & KV
-            Sentry.captureException(
-              new Error(`KvProvider error for path ${path}`, { cause: err })
-            );
-          }
-        })()
-      );
     }
 
     return result;
