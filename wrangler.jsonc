@@ -53,6 +53,20 @@
     },
     "prod": {
       "account_id": "07be8d2fbc940503ca1be344714cb0d1",
+      "routes": [
+        { "pattern": "nodejs.org/api", "zone_name": "nodejs.org" },
+        { "pattern": "nodejs.org/api/*", "zone_name": "nodejs.org" },
+        { "pattern": "nodejs.org/dist", "zone_name": "nodejs.org" },
+        { "pattern": "nodejs.org/dist/*", "zone_name": "nodejs.org" },
+        { "pattern": "nodejs.org/docs", "zone_name": "nodejs.org" },
+        { "pattern": "nodejs.org/docs/*", "zone_name": "nodejs.org" },
+        { "pattern": "nodejs.org/download", "zone_name": "nodejs.org" },
+        { "pattern": "nodejs.org/download/*", "zone_name": "nodejs.org" },
+        { "pattern": "nodejs.org/metrics", "zone_name": "nodejs.org" },
+        { "pattern": "nodejs.org/metrics/*", "zone_name": "nodejs.org" },
+        { "pattern": "nodejs.org/node-config-schema.json", "zone_name": "nodejs.org" },
+        { "pattern": "r2.nodejs.org/*", "zone_name": "nodejs.org" },
+      ],
       "tail_consumers": [
         {
           "service": "dist-worker-prod-tail",
