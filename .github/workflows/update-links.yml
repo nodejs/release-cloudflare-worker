@@ -1,7 +1,7 @@
 name: Update Redirect Links
 
 permissions:
-  contents: write
+  contents: write # needed by stefanzweifel/git-auto-commit-action
 
 on:
   # Triggered by https://github.com/nodejs/node/blob/main/.github/workflows/update-release-links.yml

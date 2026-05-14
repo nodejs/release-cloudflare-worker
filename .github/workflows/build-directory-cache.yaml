@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: write # needed by stefanzweifel/git-auto-commit-action
 
 jobs:
   build-directory-cache:
