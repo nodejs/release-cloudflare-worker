@@ -11,7 +11,7 @@ updates:
     commit-message:
       prefix: chore
     cooldown:
-      default-days: 3
+      default-days: 7
     open-pull-requests-limit: 10
   - package-ecosystem: npm
     directory: '/'
@@ -25,7 +25,7 @@ updates:
     commit-message:
       prefix: chore
     cooldown:
-      default-days: 3
+      default-days: 7
     groups:
       format:
         patterns:
