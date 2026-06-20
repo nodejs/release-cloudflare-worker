@@ -29,7 +29,7 @@ test('GET `/dist/index.json` returns 200', async () => {
   await res.text();
 
   expect(res.status).toBe(200);
-  expect(res.headers.get('cache-control')).toStrictEqual(CACHE_HEADERS.success);
+  expect(res.headers.get('cache-control')).toStrictEqual(CACHE_HEADERS.mutable);
 });
 
 test('GET `/dist/asd123.json` returns 404', async () => {
@@ -223,7 +223,7 @@ test('`if-match` header', async () => {
 
     expect(res.status).toBe(200);
     expect(res.headers.get('cache-control')).toStrictEqual(
-      CACHE_HEADERS.success
+      CACHE_HEADERS.mutable
     );
   }
 });
