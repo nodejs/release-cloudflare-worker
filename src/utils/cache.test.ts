@@ -29,6 +29,15 @@ describe('isImmutablePath', () => {
     '/docs/latest/api/fs.html',
     '/download/release/latest/win-x64/node_pdb.7z',
     '/dist/latest-v20.x/node-v20.0.0.tar.gz',
+    // Legacy `latest-v0.X.x` aliases
+    '/dist/latest-v0.10.x/node-v0.10.48.tar.gz',
+    '/dist/latest-v0.12.x/node-v0.12.18.tar.gz',
+    // Codename aliases
+    '/dist/latest-argon/node-v4.9.1.tar.gz',
+    '/download/release/latest-iron/win-x64/node_pdb.7z',
+    '/docs/latest-hydrogen/api/fs.html',
+    // `node-latest.tar.gz` is a moving alias too
+    '/dist/node-latest.tar.gz',
   ])('returns false for mutable path `%s`', path => {
     expect(isImmutablePath(path)).toEqual(false);
   });

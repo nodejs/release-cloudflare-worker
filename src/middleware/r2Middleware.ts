@@ -132,10 +132,16 @@ async function getFile(
     if (err instanceof Error) {
       if (err.message.includes('10020')) {
         // Object name not valid, url probably has some weirdness in it
-        return new Response(undefined, { status: 400 });
+        return new Response(undefined, {
+          status: 400,
+          headers: { 'cache-control': CACHE_HEADERS.failure },
+        });
       } else if (err.message.includes('10039')) {
         // Range not compatible, probably out of bounds
-        return new Response(undefined, { status: 416 });
+        return new Response(undefined, {
+          status: 416,
+          headers: { 'cache-control': CACHE_HEADERS.failure },
+        });
       }
     }
 
