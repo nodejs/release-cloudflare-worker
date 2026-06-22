@@ -68,6 +68,10 @@
           "pattern": "nodejs.org/node-config-schema.json",
           "zone_name": "nodejs.org",
         },
+        {
+          "pattern": "nodejs.org/llms.txt",
+          "zone_name": "nodejs.org",
+        },
         { "pattern": "r2.nodejs.org/*", "zone_name": "nodejs.org" },
       ],
       "tail_consumers": [
