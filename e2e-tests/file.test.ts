@@ -1,5 +1,5 @@
 import { env, createExecutionContext } from 'cloudflare:test';
-import { test, beforeAll, expect } from 'vitest';
+import { test, beforeAll, afterEach, expect, vi } from 'vitest';
 import { populateR2WithDevBucket } from './util';
 import worker from '../src/worker';
 import type { Env } from '../src/env';
@@ -16,6 +16,86 @@ beforeAll(async () => {
   await populateR2WithDevBucket();
 });
 
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
+test('GET a versioned asset is cached immutably', async () => {
+  const ctx = createExecutionContext();
+
+  const res = await worker.fetch(
+    new Request('https://localhost/dist/v20.0.0/SHASUMS256.txt'),
+    mockedEnv,
+    ctx
+  );
+
+  // Consume the body promise
+  await res.text();
+
+  expect(res.status).toBe(200);
+  expect(res.headers.get('cache-control')).toStrictEqual(
+    CACHE_HEADERS.immutable
+  );
+});
+
+test('HEAD a versioned asset is cached immutably', async () => {
+  const ctx = createExecutionContext();
+
+  const res = await worker.fetch(
+    new Request('https://localhost/dist/v20.0.0/SHASUMS256.txt', {
+      method: 'HEAD',
+    }),
+    mockedEnv,
+    ctx
+  );
+
+  // Consume the body promise
+  await res.text();
+
+  expect(res.status).toBe(200);
+  expect(res.headers.get('cache-control')).toStrictEqual(
+    CACHE_HEADERS.immutable
+  );
+});
+
+test('GET an invalid object name returns 400 with the failure cache policy', async () => {
+  vi.spyOn(env.R2_BUCKET, 'get').mockImplementation(() => {
+    // R2 error 10020: object name not valid
+    throw new Error('10020: The specified key does not exist.');
+  });
+
+  const ctx = createExecutionContext();
+
+  const res = await worker.fetch(
+    new Request('https://localhost/dist/v20.0.0/SHASUMS256.txt'),
+    mockedEnv,
+    ctx
+  );
+
+  expect(res.status).toBe(400);
+  expect(res.headers.get('cache-control')).toStrictEqual(CACHE_HEADERS.failure);
+});
+
+test('GET an out-of-bounds range returns 416 with the failure cache policy', async () => {
+  vi.spyOn(env.R2_BUCKET, 'get').mockImplementation(() => {
+    // R2 error 10039: range not satisfiable
+    throw new Error('10039: The requested range is not satisfiable.');
+  });
+
+  const ctx = createExecutionContext();
+
+  const res = await worker.fetch(
+    new Request('https://localhost/dist/v20.0.0/SHASUMS256.txt', {
+      headers: { range: 'bytes=999999-1000000' },
+    }),
+    mockedEnv,
+    ctx
+  );
+
+  expect(res.status).toBe(416);
+  expect(res.headers.get('cache-control')).toStrictEqual(CACHE_HEADERS.failure);
+});
+
 test('GET `/dist/index.json` returns 200', async () => {
   const ctx = createExecutionContext();
 
@@ -29,7 +109,7 @@ test('GET `/dist/index.json` returns 200', async () => {
   await res.text();
 
   expect(res.status).toBe(200);
-  expect(res.headers.get('cache-control')).toStrictEqual(CACHE_HEADERS.success);
+  expect(res.headers.get('cache-control')).toStrictEqual(CACHE_HEADERS.mutable);
 });
 
 test('GET `/dist/asd123.json` returns 404', async () => {
@@ -223,7 +303,7 @@ test('`if-match` header', async () => {
 
     expect(res.status).toBe(200);
     expect(res.headers.get('cache-control')).toStrictEqual(
-      CACHE_HEADERS.success
+      CACHE_HEADERS.mutable
     );
   }
 });

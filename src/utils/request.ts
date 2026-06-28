@@ -1,4 +1,15 @@
 import { parseHttpDate } from './http-date';
+import type { Request } from '../routes/request';
+
+/**
+ * Returns the URL the client originally requested, before any alias
+ *  substitution (e.g. `/dist/latest/`) was applied by SubtitutionMiddleware.
+ */
+export function getOriginalUrl(
+  request: Pick<Request, 'unsubstitutedUrl' | 'urlObj'>
+): URL {
+  return request.unsubstitutedUrl ?? request.urlObj;
+}
 
 /**
  * Etags will have quotes removed from them
