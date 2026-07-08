@@ -1,4 +1,5 @@
 export const CACHE_HEADERS = {
-  success: 'public, max-age=3600, s-maxage=14400',
+  immutable: 'public, immutable, max-age=31536000, s-maxage=31536000',
+  mutable: 'public, max-age=86400, s-maxage=86400, must-revalidate',
   failure: 'private, no-cache, no-store, max-age=0, must-revalidate',
 };

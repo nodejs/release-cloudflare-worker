@@ -3,6 +3,8 @@ import { CACHE_HEADERS } from '../constants/cache';
 import type { Context } from '../context';
 import type { Request } from '../routes/request';
 import { isDirectoryPath } from '../utils/path';
+import { cacheControlFor } from '../utils/cache';
+import { getOriginalUrl } from '../utils/request';
 import type { Middleware } from './middleware';
 
 /**
@@ -18,6 +20,8 @@ export class OriginMiddleware implements Middleware {
       category: 'OriginMiddleware',
       message: 'hit',
     });
+
+    const originPathname = getOriginalUrl(request).pathname;
 
     const res = await fetch(
       `${ctx.env.ORIGIN_HOST}${request.urlObj.pathname}`,
@@ -53,9 +57,9 @@ export class OriginMiddleware implements Middleware {
         // Don't cache this response on the client if it's a directory listing,
         //  since our listing response might end up differently from nginx's at
         //  some point
-        'cache-control': isDirectoryPath(request.urlObj.pathname)
+        'cache-control': isDirectoryPath(originPathname)
           ? CACHE_HEADERS.failure
-          : CACHE_HEADERS.success,
+          : cacheControlFor(originPathname, res.status),
       },
     });
   }
