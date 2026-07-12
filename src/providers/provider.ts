@@ -24,6 +24,7 @@ export type HttpResponseHeaders = {
   'accept-range': string;
   'access-control-allow-origin': string;
   'cache-control': string;
+  'cache-tag': string;
   expires: string;
   'last-modified': string;
   'content-encoding': string;

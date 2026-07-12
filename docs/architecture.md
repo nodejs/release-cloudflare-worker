@@ -8,10 +8,10 @@ A high-level overview of how a request flows through Node.js' infrastructure:
 
 ```mermaid
 flowchart LR
-    request[Request] --> cloudflare(Cloudflare Routing Rules)
+    request[Request] --> cloudflare(Cloudflare Routing & Cache)
     cloudflare -- /dist/, /download/, /docs/, /api/, /metrics/ --> worker@{ shape: procs, label: "Release Worker"}
     cloudflare -- /... --> website(Website)
-    worker -- Cache miss --> r2[(R2 bucket)]
+    worker --> r2[(R2 bucket)]
     worker -- Error --> originServer(Origin Server)
     originServer
     website
@@ -31,7 +31,6 @@ This goes on until the request is handled or we run out of middlewares to handle
 
 We currently have the following middlewares (in no particular order):
 
-- [CacheMiddleware](../src/middleware/cacheMiddleware.ts) - Caches responses to GET request.
 - [R2Middleware](../src/middleware/r2Middleware.ts) - Fetches resource from R2.
 - [OriginMiddleware](../src/middleware/originMiddleware.ts) - Fetches resource from the origin server.
   Used as a fallback if the R2 middleware fails.
@@ -45,11 +44,10 @@ We currently have the following middlewares (in no particular order):
 flowchart TD
     request[Request] --> worker(Release Worker)
     worker --> routerHandle("Router.handle")
-    routerHandle -- HTTP GET --> cacheMiddleware("Cache Middleware")
+    routerHandle -- HTTP GET --> r2Middleware("R2 Middleware")
     routerHandle -- HTTP HEAD --> r2Middleware
     routerHandle -- HTTP OPTIONS --> optionsMiddleware("Options Middleware")
     routerHandle -- Request --> substituteMiddleware("Substitute Middleware")
     substituteMiddleware -- Substituted Request --> routerHandle
-    cacheMiddleware -- Cache miss --> r2Middleware("R2 Middleware")
     r2Middleware -- Error --> originMiddleware("Origin Middleware")
 ```
