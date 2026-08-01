@@ -30,7 +30,6 @@
         { "pattern": "r2.staging.nodejs.org/*", "zone_name": "nodejs.org" }
       ],
       "vars": {
-        "workers_dev": true,
         "ENVIRONMENT": "staging",
         "USE_KV": true,
         "LOG_ERRORS": false,
@@ -38,6 +37,7 @@
         "BUCKET_NAME": "dist-prod",
         "ORIGIN_HOST": "https://origin.nodejs.org",
       },
+      "workers_dev": true,
       "r2_buckets": [
         {
           "binding": "R2_BUCKET",
