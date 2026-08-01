@@ -1,5 +1,4 @@
 import latestVersions from '../constants/latestVersions.json' assert { type: 'json' };
-import { cached } from '../middleware/cacheMiddleware';
 import { MethodNotAllowedMiddleware } from '../middleware/methodNotAllowedMiddleware';
 import { NotFoundMiddleware } from '../middleware/notFoundMiddleware';
 import { OptionsMiddleware } from '../middleware/optionsMiddleware';
@@ -12,7 +11,6 @@ import type { Router } from './router';
 
 export function registerRoutes(router: Router): void {
   const r2Middleware = new R2Middleware();
-  const cachedR2Middleware = cached(r2Middleware);
   const originMiddleware = new OriginMiddleware();
 
   const corepackRedirectMiddleware = new RedirectionMiddleware(
@@ -22,7 +20,7 @@ export function registerRoutes(router: Router): void {
   router.options('*', new OptionsMiddleware());
 
   router.head('/metrics/?:filePath+', r2Middleware, originMiddleware);
-  router.get('/metrics/?:filePath+', cachedR2Middleware, originMiddleware);
+  router.get('/metrics/?:filePath+', r2Middleware, originMiddleware);
 
   router.all('/api/corepack.html', corepackRedirectMiddleware);
   router.all('/docs/latest/api/corepack.html', corepackRedirectMiddleware);
@@ -53,20 +51,16 @@ export function registerRoutes(router: Router): void {
   router.get('/llms.txt', r2Middleware);
 
   router.head('/dist/?:filePath+', r2Middleware, originMiddleware);
-  router.get('/dist/?:filePath+', cachedR2Middleware, originMiddleware);
+  router.get('/dist/?:filePath+', r2Middleware, originMiddleware);
 
   router.head('/download/?:filePath+', r2Middleware, originMiddleware);
-  router.get('/download/?:filePath+', cachedR2Middleware, originMiddleware);
+  router.get('/download/?:filePath+', r2Middleware, originMiddleware);
 
   router.head('/api/?:filePath+', r2Middleware, originMiddleware);
-  router.get('/api/?:filePath+', cachedR2Middleware, originMiddleware);
+  router.get('/api/?:filePath+', r2Middleware, originMiddleware);
 
   router.head('/docs/?:version?/:filePath+?', r2Middleware, originMiddleware);
-  router.get(
-    '/docs/?:version?/:filePath+?',
-    cachedR2Middleware,
-    originMiddleware
-  );
+  router.get('/docs/?:version?/:filePath+?', r2Middleware, originMiddleware);
 
   router.post('/_throw', new ThrowMiddleware());
 

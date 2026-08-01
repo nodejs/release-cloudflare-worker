@@ -166,6 +166,7 @@ function r2MetadataToHeaders(
     'access-control-allow-origin': object.key.endsWith('.json') ? '*' : '',
     'cache-control':
       httpStatusCode === 200 ? CACHE_HEADERS.success : CACHE_HEADERS.failure,
+    'cache-tag': 'release-worker,release-worker:file',
     expires: httpMetadata?.cacheExpiry?.toUTCString() ?? '',
     'last-modified': getLastModified(object),
     'content-language': httpMetadata?.contentLanguage ?? '',

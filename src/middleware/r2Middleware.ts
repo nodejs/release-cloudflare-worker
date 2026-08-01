@@ -69,6 +69,7 @@ async function handleDirectory(
       'last-modified': result.lastModified.toUTCString(),
       'content-type': 'text/html',
       'cache-control': CACHE_HEADERS.success,
+      'cache-tag': 'release-worker,release-worker:directory',
     },
   });
 }

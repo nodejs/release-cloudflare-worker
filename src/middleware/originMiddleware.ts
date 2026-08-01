@@ -56,6 +56,7 @@ export class OriginMiddleware implements Middleware {
         'cache-control': isDirectoryPath(request.urlObj.pathname)
           ? CACHE_HEADERS.failure
           : CACHE_HEADERS.success,
+        'cache-tag': 'release-worker,release-worker:origin',
       },
     });
   }

@@ -4,11 +4,6 @@ export interface Env {
    */
   ENVIRONMENT: 'dev' | 'staging' | 'prod' | 'e2e-tests';
 
-  /**
-   * Should caching be enabled?
-   */
-  CACHING: boolean;
-
   LOG_ERRORS?: boolean;
 
   /**
