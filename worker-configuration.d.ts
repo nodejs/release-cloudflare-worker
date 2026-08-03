@@ -75,7 +75,7 @@ declare abstract class WorkerGlobalScope extends EventTarget<WorkerGlobalScopeEv
 }
 /* [MDN Reference](https://developer.mozilla.org/docs/Web/API/console) */
 interface Console {
-  'assert'(condition?: boolean, ...data: any[]): void;
+  assert(condition?: boolean, ...data: any[]): void;
   /* [MDN Reference](https://developer.mozilla.org/docs/Web/API/console/clear_static) */
   clear(): void;
   /* [MDN Reference](https://developer.mozilla.org/docs/Web/API/console/count_static) */
@@ -136,13 +136,7 @@ declare namespace WebAssembly {
     constructor(message?: string);
   }
   type ValueType =
-    | 'anyfunc'
-    | 'externref'
-    | 'f32'
-    | 'f64'
-    | 'i32'
-    | 'i64'
-    | 'v128';
+    'anyfunc' | 'externref' | 'f32' | 'f64' | 'i32' | 'i64' | 'v128';
   interface GlobalDescriptor {
     value: ValueType;
     mutable?: boolean;
@@ -538,15 +532,7 @@ interface DurableObjectNamespaceNewUniqueIdOptions {
   jurisdiction?: DurableObjectJurisdiction;
 }
 type DurableObjectLocationHint =
-  | 'wnam'
-  | 'enam'
-  | 'sam'
-  | 'weur'
-  | 'eeur'
-  | 'apac'
-  | 'oc'
-  | 'afr'
-  | 'me';
+  'wnam' | 'enam' | 'sam' | 'weur' | 'eeur' | 'apac' | 'oc' | 'afr' | 'me';
 interface DurableObjectNamespaceGetDurableObjectOptions {
   locationHint?: DurableObjectLocationHint;
 }
@@ -808,8 +794,7 @@ interface EventListenerObject<EventType extends Event = Event> {
   handleEvent(event: EventType): void;
 }
 type EventListenerOrEventListenerObject<EventType extends Event = Event> =
-  | EventListener<EventType>
-  | EventListenerObject<EventType>;
+  EventListener<EventType> | EventListenerObject<EventType>;
 /**
  * EventTarget is a DOM interface implemented by objects that can receive events and may have listeners for them.
  *
@@ -1528,9 +1513,7 @@ declare abstract class FetchEvent extends ExtendableEvent {
   passThroughOnException(): void;
 }
 type HeadersInit =
-  | Headers
-  | Iterable<Iterable<string>>
-  | Record<string, string>;
+  Headers | Iterable<Iterable<string>> | Record<string, string>;
 /**
  * This Fetch API interface allows you to perform various actions on HTTP request and response headers. These actions include retrieving, setting, adding to, and removing. A Headers object has an associated header list, which is initially empty and consists of zero or more name and value pairs.  You can add to this using methods like append() (see Examples.) In all methods of this interface, header names are matched by case-insensitive byte sequence.
  *
@@ -1635,8 +1618,7 @@ interface ResponseInit {
   encodeBody?: 'automatic' | 'manual';
 }
 type RequestInfo<CfHostMetadata = unknown, Cf = CfProperties<CfHostMetadata>> =
-  | Request<CfHostMetadata, Cf>
-  | string;
+  Request<CfHostMetadata, Cf> | string;
 /**
  * This Fetch API interface represents a resource request.
  *
@@ -1954,12 +1936,7 @@ declare abstract class R2Bucket {
   put(
     key: string,
     value:
-      | ReadableStream
-      | ArrayBuffer
-      | ArrayBufferView
-      | string
-      | null
-      | Blob,
+      ReadableStream | ArrayBuffer | ArrayBufferView | string | null | Blob,
     options?: R2PutOptions & {
       onlyIf: R2Conditional | Headers;
     }
@@ -1967,12 +1944,7 @@ declare abstract class R2Bucket {
   put(
     key: string,
     value:
-      | ReadableStream
-      | ArrayBuffer
-      | ArrayBufferView
-      | string
-      | null
-      | Blob,
+      ReadableStream | ArrayBuffer | ArrayBufferView | string | null | Blob,
     options?: R2PutOptions
   ): Promise<R2Object>;
   createMultipartUpload(
@@ -3138,11 +3110,7 @@ declare abstract class BaseAiTextEmbeddings {
 }
 type RoleScopedChatInput = {
   role:
-    | 'user'
-    | 'assistant'
-    | 'system'
-    | 'tool'
-    | (string & NonNullable<unknown>);
+    'user' | 'assistant' | 'system' | 'tool' | (string & NonNullable<unknown>);
   content: string;
   name?: string;
 };
@@ -4407,8 +4375,7 @@ declare abstract class Base_Ai_Cf_Baai_Bge_Reranker_Base {
   postProcessedOutputs: Ai_Cf_Baai_Bge_Reranker_Base_Output;
 }
 type Ai_Cf_Qwen_Qwen2_5_Coder_32B_Instruct_Input =
-  | Qwen2_5_Coder_32B_Instruct_Prompt
-  | Qwen2_5_Coder_32B_Instruct_Messages;
+  Qwen2_5_Coder_32B_Instruct_Prompt | Qwen2_5_Coder_32B_Instruct_Messages;
 interface Qwen2_5_Coder_32B_Instruct_Prompt {
   /**
    * The input text prompt for the model to generate a response.
@@ -5197,8 +5164,7 @@ declare abstract class Base_Ai_Cf_Mistralai_Mistral_Small_3_1_24B_Instruct {
   postProcessedOutputs: Ai_Cf_Mistralai_Mistral_Small_3_1_24B_Instruct_Output;
 }
 type Ai_Cf_Google_Gemma_3_12B_It_Input =
-  | Google_Gemma_3_12B_It_Prompt
-  | Google_Gemma_3_12B_It_Messages;
+  Google_Gemma_3_12B_It_Prompt | Google_Gemma_3_12B_It_Messages;
 interface Google_Gemma_3_12B_It_Prompt {
   /**
    * The input text prompt for the model to generate a response.
@@ -5467,8 +5433,7 @@ declare abstract class Base_Ai_Cf_Google_Gemma_3_12B_It {
   postProcessedOutputs: Ai_Cf_Google_Gemma_3_12B_It_Output;
 }
 type Ai_Cf_Meta_Llama_4_Scout_17B_16E_Instruct_Input =
-  | Ai_Cf_Meta_Llama_4_Prompt
-  | Ai_Cf_Meta_Llama_4_Messages;
+  Ai_Cf_Meta_Llama_4_Prompt | Ai_Cf_Meta_Llama_4_Messages;
 interface Ai_Cf_Meta_Llama_4_Prompt {
   /**
    * The input text prompt for the model to generate a response.
@@ -5989,8 +5954,7 @@ type AIGatewayProviders =
   | 'adobe-firefly';
 type AIGatewayHeaders = {
   'cf-aig-metadata':
-    | Record<string, number | string | boolean | null | bigint>
-    | string;
+    Record<string, number | string | boolean | null | bigint> | string;
   'cf-aig-custom-cost':
     | {
         per_token_in?: number;
@@ -7116,8 +7080,7 @@ declare type Iso3166Alpha2Code =
 /** The 2-letter continent codes Cloudflare uses */
 declare type ContinentCode = 'AF' | 'AN' | 'AS' | 'EU' | 'NA' | 'OC' | 'SA';
 type CfProperties<HostMetadata = unknown> =
-  | IncomingRequestCfProperties<HostMetadata>
-  | RequestInitCfProperties;
+  IncomingRequestCfProperties<HostMetadata> | RequestInitCfProperties;
 interface D1Meta {
   duration: number;
   size_after: number;
@@ -7642,9 +7605,7 @@ declare namespace Rpc {
     [__WORKFLOW_ENTRYPOINT_BRAND]: never;
   }
   export type EntrypointBranded =
-    | WorkerEntrypointBranded
-    | DurableObjectBranded
-    | WorkflowEntrypointBranded;
+    WorkerEntrypointBranded | DurableObjectBranded | WorkflowEntrypointBranded;
   // Types that can be used through `Stub`s
   export type Stubable = RpcTargetBranded | ((...args: any[]) => any);
   // Types that can be passed over RPC
@@ -7747,10 +7708,9 @@ declare namespace Rpc {
     T extends object,
     Reserved extends string = never,
   > = MaybeCallableProvider<T> & {
-    [K in Exclude<
-      keyof T,
-      Reserved | symbol | keyof StubBase<never>
-    >]: MethodOrProperty<T[K]>;
+    [
+      K in Exclude<keyof T, Reserved | symbol | keyof StubBase<never>>
+    ]: MethodOrProperty<T[K]>;
   };
 }
 declare namespace Cloudflare {
@@ -7801,16 +7761,9 @@ declare module 'cloudflare:workers' {
     webSocketError?(ws: WebSocket, error: unknown): void | Promise<void>;
   }
   export type WorkflowDurationLabel =
-    | 'second'
-    | 'minute'
-    | 'hour'
-    | 'day'
-    | 'week'
-    | 'month'
-    | 'year';
+    'second' | 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year';
   export type WorkflowSleepDuration =
-    | `${number} ${WorkflowDurationLabel}${'s' | ''}`
-    | number;
+    `${number} ${WorkflowDurationLabel}${'s' | ''}` | number;
   export type WorkflowDelayDuration = WorkflowSleepDuration;
   export type WorkflowTimeoutDuration = WorkflowSleepDuration;
   export type WorkflowRetentionDuration = WorkflowSleepDuration;
@@ -8104,8 +8057,7 @@ type VectorizeVectorMetadataValue = string | number | boolean | string[];
  * Additional information to associate with a vector.
  */
 type VectorizeVectorMetadata =
-  | VectorizeVectorMetadataValue
-  | Record<string, VectorizeVectorMetadataValue>;
+  VectorizeVectorMetadataValue | Record<string, VectorizeVectorMetadataValue>;
 type VectorFloatArray = Float32Array | Float64Array;
 interface VectorizeError {
   code?: number;
@@ -8432,16 +8384,9 @@ declare abstract class Workflow<PARAMS = unknown> {
   ): Promise<WorkflowInstance[]>;
 }
 type WorkflowDurationLabel =
-  | 'second'
-  | 'minute'
-  | 'hour'
-  | 'day'
-  | 'week'
-  | 'month'
-  | 'year';
+  'second' | 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year';
 type WorkflowSleepDuration =
-  | `${number} ${WorkflowDurationLabel}${'s' | ''}`
-  | number;
+  `${number} ${WorkflowDurationLabel}${'s' | ''}` | number;
 type WorkflowRetentionDuration = WorkflowSleepDuration;
 interface WorkflowInstanceCreateOptions<PARAMS = unknown> {
   /**
