@@ -16,7 +16,7 @@
     "deploy:staging": "wrangler deploy --env staging --outdir=./dist --upload-source-maps --var SENTRY_RELEASE:$(npx sentry-cli releases propose-version)"
   },
   "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "^0.10.1",
+    "@cloudflare/vitest-pool-workers": "^0.18.8",
     "@eslint/eslintrc": "^3.3.6",
     "@eslint/js": "^10.0.1",
     "@reporters/github": "^2.0.1",
@@ -36,7 +36,7 @@
     "prettier": "^3.9.6",
     "tsx": "^4.20.6",
     "typescript": "^5.8.3",
-    "vitest": "^3.2.4",
+    "vitest": "^4.1.10",
     "wrangler": "^4.103.0"
   },
   "dependencies": {
