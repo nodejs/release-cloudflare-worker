@@ -87,6 +87,17 @@
         "S3_ENDPOINT": "https://07be8d2fbc940503ca1be344714cb0d1.r2.cloudflarestorage.com",
         "BUCKET_NAME": "dist-prod",
         "ORIGIN_HOST": "https://origin.nodejs.org",
+        "KV_DIRECTORIES": [
+          "metrics/",
+          "nodejs/chakracore-nightly/",
+          "nodejs/chakracore-rc/",
+          "nodejs/chakracore-release/",
+          "nodejs/docs/",
+          "nodejs/nightly/",
+          "nodejs/rc/",
+          "nodejs/test/",
+          "nodejs/v8-canary/"
+        ]
       },
       "r2_buckets": [
         {

@@ -107,7 +107,15 @@ export class R2Provider implements Provider {
     });
 
     if (this.ctx.env.USE_KV) {
-      return await kvProvider.readDirectory(path);
+      if (this.ctx.env.KV_DIRECTORIES !== undefined) {
+        for (const prefix of this.ctx.env.KV_DIRECTORIES) {
+          if (path.startsWith(prefix)) {
+            return await kvProvider.readDirectory(path);
+          }
+        }
+      } else {
+        return await kvProvider.readDirectory(path);
+      }
     }
 
     let result: ReadDirectoryResult | undefined;
