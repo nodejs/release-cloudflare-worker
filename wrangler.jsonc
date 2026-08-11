@@ -8,8 +8,8 @@
   ],
   "logpush": true,
   "preview_urls": false,
+  "workers_dev": true,
   "vars": {
-    "workers_dev": true,
     "ENVIRONMENT": "dev",
     "LOG_ERRORS": true,
     "S3_ENDPOINT": "https://07be8d2fbc940503ca1be344714cb0d1.r2.cloudflarestorage.com",
@@ -26,8 +26,10 @@
   "env": {
     "staging": {
       "account_id": "07be8d2fbc940503ca1be344714cb0d1",
+      "routes": [
+        { "pattern": "r2-staging.nodejs.org/*", "zone_name": "nodejs.org" },
+      ],
       "vars": {
-        "workers_dev": true,
         "ENVIRONMENT": "staging",
         "USE_KV": true,
         "LOG_ERRORS": false,
@@ -35,6 +37,7 @@
         "BUCKET_NAME": "dist-prod",
         "ORIGIN_HOST": "https://origin.nodejs.org",
       },
+      "workers_dev": true,
       "r2_buckets": [
         {
           "binding": "R2_BUCKET",
@@ -80,8 +83,8 @@
           "service": "dist-worker-prod-tail",
         },
       ],
+      "workers_dev": false,
       "vars": {
-        "workers_dev": false,
         "ENVIRONMENT": "prod",
         "LOG_ERRORS": false,
         "S3_ENDPOINT": "https://07be8d2fbc940503ca1be344714cb0d1.r2.cloudflarestorage.com",
