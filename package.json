@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "prepare": "node --run build:workers-types",
     "start": "wrangler dev --remote",
     "format": "prettier --check --write \"**/*.{ts,js,mjs,json,jsonc,md,yml}\"",
     "prettier": "prettier --check \"**/*.{ts,js,mjs,json,md}\"",
