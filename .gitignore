@@ -4,3 +4,4 @@ dist/
 .dev.vars
 .sentryclirc
 .env
+worker-configuration.d.ts
