@@ -39,7 +39,7 @@ export class OriginMiddleware implements Middleware {
       status: res.status,
       headers: {
         etag: res.headers.get('etag') ?? '',
-        'accept-range': res.headers.get('accept-range') ?? '',
+        'accept-ranges': res.headers.get('accept-ranges') ?? '',
         'access-control-allow-origin':
           res.headers.get('access-control-allow-origin') ?? '',
         expires: res.headers.get('expires') ?? '',
