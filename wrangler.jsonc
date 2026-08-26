@@ -100,8 +100,8 @@
           "nodejs/nightly/",
           "nodejs/rc/",
           "nodejs/test/",
-          "nodejs/v8-canary/"
-        ]
+          "nodejs/v8-canary/",
+        ],
       },
       "r2_buckets": [
         {
