@@ -152,7 +152,15 @@ function getR2Path({
   if (pathname.startsWith('/dist')) {
     return `nodejs/release/${filePath}`;
   } else if (pathname.startsWith('/download')) {
-    return `nodejs/${filePath}`;
+    if (pathname.startsWith('/download/docs/')) {
+      if (params.version !== undefined && !docsDirectory.includes(params.version)) {
+        return `nodejs/release/${params.version}/docs/${filePath}`;
+      } else {
+        return `nodejs/docs/${filePath}`;
+      }
+    } else {
+      return `nodejs/${filePath}`;
+    }
   } else if (pathname.startsWith('/api')) {
     return `nodejs/release/${latestVersions['latest']}/docs/api/${filePath}`;
   } else if (pathname.startsWith('/docs')) {
