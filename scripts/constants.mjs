@@ -20,6 +20,7 @@ export const STAGING_BUCKET = process.env.STAGING_BUCKET ?? 'dist-staging';
 
 export const RELEASE_DIR = 'nodejs/release/';
 export const DOCS_DIR = 'nodejs/docs/';
+export const NIGHTLY_RELEASES_DIR = 'nodejs/nightly';
 
 export const NODE_LATEST_FILE_NAME = 'node-latest.tar.gz';
 
@@ -57,4 +58,4 @@ export const STATIC_FILE_SYMLINKS_PATH = join(
  * Paths in the R2 bucket that we should always be updating whenever a new
  * version releases.
  */
-export const ALWAYS_UPDATED_PATHS = [RELEASE_DIR, DOCS_DIR];
+export const ALWAYS_UPDATED_PATHS = [RELEASE_DIR, DOCS_DIR, NIGHTLY_RELEASES_DIR];
