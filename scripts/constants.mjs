@@ -58,4 +58,8 @@ export const STATIC_FILE_SYMLINKS_PATH = join(
  * Paths in the R2 bucket that we should always be updating whenever a new
  * version releases.
  */
-export const ALWAYS_UPDATED_PATHS = [RELEASE_DIR, DOCS_DIR, NIGHTLY_RELEASES_DIR];
+export const ALWAYS_UPDATED_PATHS = [
+  RELEASE_DIR,
+  DOCS_DIR,
+  NIGHTLY_RELEASES_DIR,
+];
