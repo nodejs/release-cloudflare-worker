@@ -73,14 +73,21 @@ async function handleDirectory(
   });
 }
 
-function setCacheControl(
+/**
+ * Provider headers plus the `cache-control` only we can decide, since it
+ *  depends on the original (unsubstituted) request URL.
+ */
+function responseHeaders(
   result: GetFileResult | HeadFileResult,
   request: Request
-): void {
-  result.httpHeaders['cache-control'] = cacheControlFor(
-    getOriginalUrl(request).pathname,
-    result.httpStatusCode
-  );
+): Record<string, string> {
+  return {
+    ...result.httpHeaders,
+    'cache-control': cacheControlFor(
+      getOriginalUrl(request).pathname,
+      result.httpStatusCode
+    ),
+  };
 }
 
 function handleFile(
@@ -109,11 +116,9 @@ async function headFile(
     return responses.fileNotFound(request.method);
   }
 
-  setCacheControl(result, request);
-
   return new Response(undefined, {
     status: result.httpStatusCode,
-    headers: result.httpHeaders,
+    headers: responseHeaders(result, request),
   });
 }
 
@@ -133,10 +138,7 @@ async function getFile(
     if (err instanceof Error) {
       if (err.message.includes('10020')) {
         // Object name not valid, url probably has some weirdness in it
-        return new Response(undefined, {
-          status: 400,
-          headers: { 'cache-control': CACHE_HEADERS.failure },
-        });
+        return responses.badRequest();
       } else if (err.message.includes('10039')) {
         // Range not compatible, probably out of bounds
         return new Response(undefined, {
@@ -153,11 +155,9 @@ async function getFile(
     return responses.fileNotFound(request.method);
   }
 
-  setCacheControl(result, request);
-
   return new Response(result.contents, {
     status: result.httpStatusCode,
-    headers: result.httpHeaders,
+    headers: responseHeaders(result, request),
   });
 }
 

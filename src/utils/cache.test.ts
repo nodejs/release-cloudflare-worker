@@ -7,7 +7,6 @@ describe('isImmutablePath', () => {
     '/dist/v20.0.0/node-v20.0.0-linux-x64.tar.gz',
     '/download/release/v20.0.0/node-v20.0.0.pkg',
     '/docs/v18.0.0/api/fs.html',
-    '/metrics/processed/total-csv.csv',
   ])('returns true for immutable asset `%s`', path => {
     expect(isImmutablePath(path)).toEqual(true);
   });
@@ -24,6 +23,11 @@ describe('isImmutablePath', () => {
     // `/api/*` always serves the latest version's docs
     '/api',
     '/api/fs.html',
+    // `/metrics/*` is rewritten in place by the download-counts run
+    '/metrics/summaries/total.csv',
+    '/metrics/summaries/total.png',
+    '/metrics/summaries/total/nodejs.org-access.log.20240101.1704067200.csv',
+    '/metrics/logs/nodejs.org-access.log.csv',
     // `latest` aliases point at moving content
     '/dist/latest/node-v20.0.0-linux-x64.tar.gz',
     '/docs/latest/api/fs.html',
