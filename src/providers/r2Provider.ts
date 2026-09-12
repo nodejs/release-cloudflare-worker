@@ -107,7 +107,15 @@ export class R2Provider implements Provider {
     });
 
     if (this.ctx.env.USE_KV) {
-      return await kvProvider.readDirectory(path);
+      if (this.ctx.env.KV_DIRECTORIES !== undefined) {
+        for (const prefix of this.ctx.env.KV_DIRECTORIES) {
+          if (path.startsWith(prefix)) {
+            return await kvProvider.readDirectory(path);
+          }
+        }
+      } else {
+        return await kvProvider.readDirectory(path);
+      }
     }
 
     let result: ReadDirectoryResult | undefined;
@@ -161,7 +169,7 @@ function r2MetadataToHeaders(
   return {
     etag: object.httpEtag,
     'content-type': contentType,
-    'accept-range': 'bytes',
+    'accept-ranges': 'bytes',
     // https://github.com/nodejs/build/blob/e3df25d6a23f033db317a53ab1e904c953ba1f00/ansible/www-standalone/resources/config/nodejs.org?plain=1#L194-L196
     'access-control-allow-origin': object.key.endsWith('.json') ? '*' : '',
     'cache-control':

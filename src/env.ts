@@ -22,6 +22,11 @@ export interface Env {
   USE_KV: boolean;
 
   /**
+   * Temp list of directory prefixes that KV should be used for listing
+   */
+  KV_DIRECTORIES?: Array<string>;
+
+  /**
    * Endpoint to hit when using the S3 api.
    */
   S3_ENDPOINT: string;

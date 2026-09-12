@@ -21,7 +21,7 @@ export interface Provider {
  */
 export type HttpResponseHeaders = {
   etag: string;
-  'accept-range': string;
+  'accept-ranges': string;
   'access-control-allow-origin': string;
   'cache-control': string;
   'cache-tag': string;
