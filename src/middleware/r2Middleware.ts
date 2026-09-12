@@ -2,15 +2,16 @@ import * as Sentry from '@sentry/cloudflare';
 import { CACHE_HEADERS } from '../constants/cache';
 import docsDirectory from '../constants/docsDirectory.json' assert { type: 'json' };
 import type { Context } from '../context';
-import type { GetFileResult } from '../providers/provider';
+import type { GetFileResult, HeadFileResult } from '../providers/provider';
 import { R2Provider } from '../providers/r2Provider';
 import responses from '../responses';
 import { hasTrailingSlash, isDirectoryPath } from '../utils/path';
+import { cacheControlFor } from '../utils/cache';
 import type { Middleware } from './middleware';
 import latestVersions from '../constants/latestVersions.json' assert { type: 'json' };
 import type { Request } from '../routes/request';
 import { renderDirectoryListing } from '../utils/directoryListing';
-import { parseConditionalHeaders } from '../utils/request';
+import { getOriginalUrl, parseConditionalHeaders } from '../utils/request';
 import { once } from '../utils/memo';
 
 const getProvider = once((ctx: Context) => new R2Provider({ ctx }));
@@ -41,7 +42,7 @@ async function handleDirectory(
 ): Promise<Response> {
   if (!hasTrailingSlash(request.urlObj.pathname)) {
     // We always want directory listing requests to have a trailing slash
-    const url = request.unsubstitutedUrl ?? request.urlObj;
+    const url = getOriginalUrl(request);
     return Response.redirect(`${url}/`, 301);
   }
 
@@ -58,20 +59,35 @@ async function handleDirectory(
 
   let responseBody;
   if (request.method === 'GET') {
-    responseBody = renderDirectoryListing(
-      request.unsubstitutedUrl ?? request.urlObj,
-      result
-    );
+    responseBody = renderDirectoryListing(getOriginalUrl(request), result);
   }
 
   return new Response(responseBody, {
     headers: {
       'last-modified': result.lastModified.toUTCString(),
       'content-type': 'text/html',
-      'cache-control': CACHE_HEADERS.success,
+      // Directory listings change as files are added.
+      'cache-control': CACHE_HEADERS.mutable,
       'cache-tag': 'release-worker,release-worker:directory',
     },
   });
+}
+
+/**
+ * Provider headers plus the `cache-control` only we can decide, since it
+ *  depends on the original (unsubstituted) request URL.
+ */
+function responseHeaders(
+  result: GetFileResult | HeadFileResult,
+  request: Request
+): Record<string, string> {
+  return {
+    ...result.httpHeaders,
+    'cache-control': cacheControlFor(
+      getOriginalUrl(request).pathname,
+      result.httpStatusCode
+    ),
+  };
 }
 
 function handleFile(
@@ -102,7 +118,7 @@ async function headFile(
 
   return new Response(undefined, {
     status: result.httpStatusCode,
-    headers: result.httpHeaders,
+    headers: responseHeaders(result, request),
   });
 }
 
@@ -122,10 +138,13 @@ async function getFile(
     if (err instanceof Error) {
       if (err.message.includes('10020')) {
         // Object name not valid, url probably has some weirdness in it
-        return new Response(undefined, { status: 400 });
+        return responses.badRequest();
       } else if (err.message.includes('10039')) {
         // Range not compatible, probably out of bounds
-        return new Response(undefined, { status: 416 });
+        return new Response(undefined, {
+          status: 416,
+          headers: { 'cache-control': CACHE_HEADERS.failure },
+        });
       }
     }
 
@@ -138,7 +157,7 @@ async function getFile(
 
   return new Response(result.contents, {
     status: result.httpStatusCode,
-    headers: result.httpHeaders,
+    headers: responseHeaders(result, request),
   });
 }
 

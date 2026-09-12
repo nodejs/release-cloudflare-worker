@@ -61,7 +61,7 @@ test('grabs file from fallback server if r2 request fails', async () => {
   );
 
   expect(res.status).toBe(200);
-  expect(res.headers.get('cache-control')).toStrictEqual(CACHE_HEADERS.success);
+  expect(res.headers.get('cache-control')).toStrictEqual(CACHE_HEADERS.mutable);
   expect(originCalled).toBeTruthy();
   expect(await res.text()).toStrictEqual(originResponse);
 });
