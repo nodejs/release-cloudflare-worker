@@ -4,8 +4,10 @@
  * Update the most commonly updated paths in the directory cache for a Node.js
  * release.
  *
- * Usage: ./update-directory-cache.mjs <version>
+ * Usage: ./update-directory-cache.mjs [version]
  * Example: ./update-directory-cache.mjs v24.0.0
+ *
+ * If no version is provided, this just updates what's in {@link ALWAYS_UPDATED_PATHS}
  */
 
 import { listR2Directory } from '../lib/listR2Directory.mjs';
@@ -21,16 +23,6 @@ import { createCloudflareClient, writeKeysToKv } from './utils/kv.mjs';
 import { createS3Client, listR2DirectoryRecursive } from './utils/r2.mjs';
 
 const VERSION = process.argv[2]?.toLowerCase();
-
-if (!VERSION) {
-  throw new TypeError('version missing from args');
-}
-
-if (!VERSION.startsWith('v')) {
-  throw new TypeError(
-    'provided version not in correct format, expected vX.X.X'
-  );
-}
 
 // Ensure all necessary environment variables are set
 for (const envVar of [
@@ -51,12 +43,10 @@ const s3Client = createS3Client(
 
 const cfClient = createCloudflareClient();
 
-// List the directory of the new release (and subdirectories)
-const directories = await listR2DirectoryRecursive(
-  s3Client,
-  PROD_BUCKET,
-  `${RELEASE_DIR}${VERSION}/`
-);
+/**
+ * @type {import('./utils/r2.mjs').DirectoryListMapping}
+ */
+const directories = new Map();
 
 // Non-recursively list the paths that we always want to update
 await Promise.all(
@@ -76,6 +66,26 @@ await Promise.all(
       })
   )
 );
+
+if (VERSION !== undefined && VERSION !== '') {
+  if (!VERSION.startsWith('v')) {
+    throw new TypeError(
+      'provided version not in correct format, expected vX.X.X'
+    );
+  }
+
+  console.log(`Listing version ${VERSION}`);
+
+  const versionDirectory = await listR2DirectoryRecursive(
+    s3Client,
+    PROD_BUCKET,
+    `${RELEASE_DIR}${VERSION}/`
+  );
+
+  for (const [k, v] of versionDirectory.entries()) {
+    directories.set(k, v);
+  }
+}
 
 const latestVersions = await getLatestVersionMapping(
   s3Client,
