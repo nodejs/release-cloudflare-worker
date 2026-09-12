@@ -9,6 +9,7 @@
     "format": "prettier --check --write \"**/*.{ts,js,mjs,json,jsonc,md,yml}\"",
     "prettier": "prettier --check \"**/*.{ts,js,mjs,json,md}\"",
     "lint": "eslint ./src",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p e2e-tests",
     "test": "vitest --run",
     "test:watch": "vitest",
     "build:mustache": "node scripts/compile-mustache.mjs",
