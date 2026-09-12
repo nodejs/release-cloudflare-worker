@@ -7,7 +7,6 @@ import type { Env } from '../src/env';
 const mockedEnv: Env = {
   ...env,
   ENVIRONMENT: 'e2e-tests',
-  CACHING: false,
   LOG_ERRORS: true,
 };
 

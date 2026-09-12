@@ -8,7 +8,6 @@ import { CACHE_HEADERS } from '../src/constants/cache';
 const mockedEnv: Env = {
   ...env,
   ENVIRONMENT: 'e2e-tests',
-  CACHING: false,
   LOG_ERRORS: false,
   S3_ENDPOINT: 'https://s3.mock',
   S3_ACCESS_KEY_ID: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',

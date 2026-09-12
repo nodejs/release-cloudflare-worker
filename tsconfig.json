@@ -15,5 +15,6 @@
     "strict": true,
     "skipLibCheck": true,
     "erasableSyntaxOnly": true
-  }
+  },
+  "exclude": ["node_modules", "e2e-tests"]
 }

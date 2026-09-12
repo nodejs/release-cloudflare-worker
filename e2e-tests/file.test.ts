@@ -8,7 +8,6 @@ import { CACHE_HEADERS } from '../src/constants/cache';
 const mockedEnv: Env = {
   ...env,
   ENVIRONMENT: 'e2e-tests',
-  CACHING: false,
   LOG_ERRORS: true,
 };
 
