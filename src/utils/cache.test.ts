@@ -38,6 +38,12 @@ describe('isImmutablePath', () => {
     '/docs/latest-hydrogen/api/fs.html',
     // `node-latest.tar.gz` is a moving alias too
     '/dist/node-latest.tar.gz',
+    // SHASUMS files are re-generated in place after promotion/signing
+    '/dist/v20.0.0/SHASUMS256.txt',
+    '/dist/v20.0.0/SHASUMS256.txt.asc',
+    '/dist/v20.0.0/SHASUMS256.txt.sig',
+    '/dist/v0.10.48/SHASUMS.txt',
+    '/download/release/v20.0.0/SHASUMS256.txt',
   ])('returns false for mutable path `%s`', path => {
     expect(isImmutablePath(path)).toEqual(false);
   });
@@ -56,8 +62,21 @@ describe('cacheControlFor', () => {
     );
   });
 
-  test.each([206, 304, 412, 404, 500])(
-    'status %i always gets the failure policy',
+  test.each([206, 304])(
+    'status %i keeps the path policy so it does not evict the cached entry',
+    status => {
+      expect(
+        cacheControlFor('/dist/v20.0.0/node-v20.0.0.tar.gz', status)
+      ).toEqual(CACHE_HEADERS.immutable);
+
+      expect(cacheControlFor('/dist/index.json', status)).toEqual(
+        CACHE_HEADERS.mutable
+      );
+    }
+  );
+
+  test.each([400, 412, 416, 404, 500])(
+    'status %i gets the failure policy',
     status => {
       expect(
         cacheControlFor('/dist/v20.0.0/node-v20.0.0.tar.gz', status)

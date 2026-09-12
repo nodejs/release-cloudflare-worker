@@ -51,7 +51,16 @@ export function isImmutablePath(pathname: string): boolean {
     return false;
   }
 
-  if (MUTABLE_FILENAMES.has(segments[segments.length - 1])) {
+  const filename = segments[segments.length - 1];
+
+  // `SHASUMS*.txt` and their `.asc`/`.sig` signatures are regenerated in an
+  //  already-published version directory by the post-promotion re-sha and
+  //  signing steps, so they can change after we've already served them.
+  if (filename.startsWith('SHASUMS')) {
+    return false;
+  }
+
+  if (MUTABLE_FILENAMES.has(filename)) {
     return false;
   }
 
@@ -61,13 +70,16 @@ export function isImmutablePath(pathname: string): boolean {
 /**
  * Single source of truth for the `cache-control` header on a response.
  *
- * Only fully-successful (200) responses are given a long-lived cache policy.
- *  Conditional/range responses (206/304/412) and errors keep the `failure`
- *  policy, which is `no-store`: they aren't cached at all, so every such
- *  request goes back to the origin.
+ * Errors get the `failure` policy (`no-store`), so they aren't cached at all.
+ *
+ * 200, 206 and 304 all get the path's normal policy. A 304 must carry the same
+ *  `cache-control` the 200 would have: per RFC 9111 4.3.4 its header fields
+ *  update the stored response, so sending `no-store` on a 304 would evict the
+ *  very entry being revalidated. 206 carries it for the same reason - the range
+ *  belongs to a cacheable representation.
  */
 export function cacheControlFor(pathname: string, statusCode: number): string {
-  if (statusCode !== 200) {
+  if (statusCode >= 400) {
     return CACHE_HEADERS.failure;
   }
 
