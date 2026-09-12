@@ -1,5 +1,6 @@
 import { R2_RETRY_LIMIT } from '../../lib/limits.mjs';
 import CACHED_DIRECTORIES from '../constants/cachedDirectories.json' assert { type: 'json' };
+import { CACHE_HEADERS } from '../constants/cache';
 import { CONTENT_TYPE_OVERRIDES } from '../constants/contentTypeOverrides';
 import fileSymlinks from '../constants/fileSymlinks.json' assert { type: 'json' };
 import type { Context } from '../context';
@@ -168,9 +169,10 @@ function r2MetadataToHeaders(object: R2Object): HttpResponseHeaders {
     'accept-ranges': 'bytes',
     // https://github.com/nodejs/build/blob/e3df25d6a23f033db317a53ab1e904c953ba1f00/ansible/www-standalone/resources/config/nodejs.org?plain=1#L194-L196
     'access-control-allow-origin': object.key.endsWith('.json') ? '*' : '',
-    // Set by R2Middleware, which has access to the original request URL needed
-    //  to decide between immutable/mutable/failure cache policies.
-    'cache-control': '',
+    // Conservative default. R2Middleware overwrites this, since it has access
+    //  to the original request URL needed to decide between the
+    //  immutable/mutable/failure cache policies.
+    'cache-control': CACHE_HEADERS.failure,
     'cache-tag': 'release-worker,release-worker:file',
     expires: httpMetadata?.cacheExpiry?.toUTCString() ?? '',
     'last-modified': getLastModified(object),

@@ -43,14 +43,15 @@ export function isImmutablePath(pathname: string): boolean {
     return false;
   }
 
+  const segments = pathname.split('/');
+
   // `/dist/latest/`, `/docs/latest-v18.x/`, `/dist/latest-argon/`, etc. are
   //  moving aliases. Any path segment matching a known alias is mutable.
-  if (pathname.split('/').some(segment => MOVING_ALIASES.has(segment))) {
+  if (segments.some(segment => MOVING_ALIASES.has(segment))) {
     return false;
   }
 
-  const filename = pathname.slice(pathname.lastIndexOf('/') + 1);
-  if (MUTABLE_FILENAMES.has(filename)) {
+  if (MUTABLE_FILENAMES.has(segments[segments.length - 1])) {
     return false;
   }
 
@@ -62,7 +63,8 @@ export function isImmutablePath(pathname: string): boolean {
  *
  * Only fully-successful (200) responses are given a long-lived cache policy.
  *  Conditional/range responses (206/304/412) and errors keep the `failure`
- *  policy so they're always re-validated.
+ *  policy, which is `no-store`: they aren't cached at all, so every such
+ *  request goes back to the origin.
  */
 export function cacheControlFor(pathname: string, statusCode: number): string {
   if (statusCode !== 200) {
