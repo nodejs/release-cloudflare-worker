@@ -1,4 +1,3 @@
-import { CACHE_HEADERS } from '../constants/cache';
 import { R2_RETRY_LIMIT } from '../../lib/limits.mjs';
 import CACHED_DIRECTORIES from '../constants/cachedDirectories.json' assert { type: 'json' };
 import { CONTENT_TYPE_OVERRIDES } from '../constants/contentTypeOverrides';
@@ -58,7 +57,7 @@ export class R2Provider implements Provider {
 
     return {
       httpStatusCode: 200,
-      httpHeaders: r2MetadataToHeaders(object, 200),
+      httpHeaders: r2MetadataToHeaders(object),
     };
   }
 
@@ -97,7 +96,7 @@ export class R2Provider implements Provider {
     return {
       contents: hasBody ? (object as R2ObjectBody).body : undefined,
       httpStatusCode,
-      httpHeaders: r2MetadataToHeaders(object, httpStatusCode),
+      httpHeaders: r2MetadataToHeaders(object),
     };
   }
 
@@ -151,10 +150,7 @@ export class R2Provider implements Provider {
   }
 }
 
-function r2MetadataToHeaders(
-  object: R2Object,
-  httpStatusCode: number
-): HttpResponseHeaders {
+function r2MetadataToHeaders(object: R2Object): HttpResponseHeaders {
   const { httpMetadata } = object;
 
   const fileExtension = object.key.substring(object.key.lastIndexOf('.') + 1);
@@ -172,8 +168,6 @@ function r2MetadataToHeaders(
     'accept-ranges': 'bytes',
     // https://github.com/nodejs/build/blob/e3df25d6a23f033db317a53ab1e904c953ba1f00/ansible/www-standalone/resources/config/nodejs.org?plain=1#L194-L196
     'access-control-allow-origin': object.key.endsWith('.json') ? '*' : '',
-    'cache-control':
-      httpStatusCode === 200 ? CACHE_HEADERS.success : CACHE_HEADERS.failure,
     'cache-tag': 'release-worker,release-worker:file',
     expires: httpMetadata?.cacheExpiry?.toUTCString() ?? '',
     'last-modified': getLastModified(object),

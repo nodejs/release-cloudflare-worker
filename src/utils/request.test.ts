@@ -1,5 +1,26 @@
 import { describe, expect, test } from 'vitest';
-import { parseConditionalHeaders, parseRangeHeader } from './request';
+import {
+  getOriginalUrl,
+  parseConditionalHeaders,
+  parseRangeHeader,
+} from './request';
+
+describe('getOriginalUrl', () => {
+  test('returns the unsubstituted url when an alias was substituted', () => {
+    const unsubstitutedUrl = new URL('https://localhost/dist/latest/');
+    const urlObj = new URL('https://localhost/dist/v20.0.0/');
+
+    expect(getOriginalUrl({ unsubstitutedUrl, urlObj })).toBe(unsubstitutedUrl);
+  });
+
+  test('falls back to urlObj when no substitution happened', () => {
+    const urlObj = new URL('https://localhost/dist/v20.0.0/');
+
+    expect(getOriginalUrl({ unsubstitutedUrl: undefined, urlObj })).toBe(
+      urlObj
+    );
+  });
+});
 
 describe('parseRangeHeader', () => {
   test('`bytes=0-10`', () => {

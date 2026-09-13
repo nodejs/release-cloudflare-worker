@@ -72,6 +72,10 @@ for (const path of ['/dist/', '/docs/']) {
     await res.text();
 
     expect(res.status).toBe(200);
+    // Directory listings change as files are added, so they're cached mutably.
+    expect(res.headers.get('cache-control')).toStrictEqual(
+      CACHE_HEADERS.mutable
+    );
   });
 }
 

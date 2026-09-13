@@ -18,12 +18,14 @@ export interface Provider {
 /**
  * Headers returned by the http request made by the Provider to its data source.
  *  Can be be forwarded to the client.
+ *
+ * Deliberately has no `cache-control`: only the middleware knows the original
+ *  request URL that the cache policy depends on, so it owns that header.
  */
 export type HttpResponseHeaders = {
   etag: string;
   'accept-ranges': string;
   'access-control-allow-origin': string;
-  'cache-control': string;
   'cache-tag': string;
   expires: string;
   'last-modified': string;
