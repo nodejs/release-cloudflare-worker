@@ -6,7 +6,7 @@ const byteUnits = ['B', 'KB', 'MB', 'GB', 'TB'];
 export function objectHasBody(
   object: R2Object | R2ObjectBody
 ): object is R2ObjectBody {
-  return (<R2ObjectBody>object).body !== undefined;
+  return (object as R2ObjectBody).body !== undefined;
 }
 
 /**

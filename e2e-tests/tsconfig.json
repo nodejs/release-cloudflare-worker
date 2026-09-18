@@ -1,6 +1,11 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "types": ["@cloudflare/vitest-pool-workers", "../vitest-types.d.ts"]
-  }
+    "types": [
+      "../worker-configuration.d.ts",
+      "@cloudflare/vitest-pool-workers",
+      "../vitest-types.d.ts"
+    ]
+  },
+  "exclude": ["node_modules"]
 }

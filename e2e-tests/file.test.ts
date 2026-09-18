@@ -9,7 +9,6 @@ import latestVersions from '../src/constants/latestVersions.json' assert { type:
 const mockedEnv: Env = {
   ...env,
   ENVIRONMENT: 'e2e-tests',
-  CACHING: false,
   LOG_ERRORS: true,
 };
 
