@@ -20,7 +20,7 @@ export const STAGING_BUCKET = process.env.STAGING_BUCKET ?? 'dist-staging';
 
 export const RELEASE_DIR = 'nodejs/release/';
 export const DOCS_DIR = 'nodejs/docs/';
-export const NIGHTLY_RELEASES_DIR = 'nodejs/nightly';
+export const NIGHTLY_RELEASES_DIR = 'nodejs/nightly/';
 
 export const NODE_LATEST_FILE_NAME = 'node-latest.tar.gz';
 
