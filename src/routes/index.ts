@@ -42,6 +42,9 @@ export function registerRoutes(router: Router): void {
 
     router.head(`/docs/${branch}*`, subtitutionMiddleware);
     router.get(`/docs/${branch}*`, subtitutionMiddleware);
+
+    router.head(`/download/docs/${branch}*`, subtitutionMiddleware);
+    router.get(`/download/docs/${branch}*`, subtitutionMiddleware);
   }
 
   router.head('/node-config-schema.json', r2Middleware);
@@ -52,6 +55,9 @@ export function registerRoutes(router: Router): void {
 
   router.head('/dist/?:filePath+', r2Middleware, originMiddleware);
   router.get('/dist/?:filePath+', r2Middleware, originMiddleware);
+
+  router.head('/download/docs/?:version?/:filePath+?', r2Middleware, originMiddleware);
+  router.get('/download/docs/?:version?/:filePath+?', r2Middleware, originMiddleware);
 
   router.head('/download/?:filePath+', r2Middleware, originMiddleware);
   router.get('/download/?:filePath+', r2Middleware, originMiddleware);
