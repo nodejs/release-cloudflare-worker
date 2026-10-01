@@ -2,11 +2,24 @@ import * as Sentry from '@sentry/cloudflare';
 import type { Env } from './env';
 import responses from './responses';
 import type { Context } from './context';
-import { Router } from './routes/router';
-import { registerRoutes } from './routes';
+import {
+  getMainlineRouter,
+  getUnofficialBuildsRouter,
+  type Router,
+} from './routes';
 
-const router: Router = new Router();
-registerRoutes(router);
+const mainlineRouter = getMainlineRouter();
+const unofficialBuildsRouter = getUnofficialBuildsRouter();
+
+// TODO better place for this?
+const hostnameToRouterMap: Record<string, Router> = {
+  'nodejs.org': mainlineRouter,
+  'r2.nodejs.org': mainlineRouter,
+  'dist-worker-prod.nodejs.workers.dev': mainlineRouter,
+  'r2-staging.nodejs.org': mainlineRouter,
+  'dist-worker-staging.nodejs.workers.dev': mainlineRouter,
+  'unofficial-builds.nodejs.org': unofficialBuildsRouter,
+};
 
 const handler = {
   async fetch(
@@ -28,6 +41,17 @@ const handler = {
       env: env,
       execution: ctx,
     };
+
+    // todo pass this to the router so we're not doing it multiple times
+    const url = URL.parse(request.url);
+    if (url === null) {
+      return responses.badRequest();
+    }
+
+    const router = hostnameToRouterMap[url.hostname];
+    if (router === undefined) {
+      return responses.badRequest();
+    }
 
     try {
       const response: unknown = await router.fetch(request, context);

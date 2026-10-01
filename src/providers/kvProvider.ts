@@ -1,5 +1,4 @@
 import { KV_RETRY_LIMIT } from '../../lib/limits.mjs';
-import type { Context } from '../context';
 import { retryWrapper } from '../utils/provider';
 import type {
   GetFileOptions,
@@ -9,15 +8,11 @@ import type {
   ReadDirectoryResult,
 } from './provider';
 
-type KvProviderCtorOptions = {
-  ctx: Context;
-};
-
 export class KvProvider implements Provider {
-  #ctx: Context;
+  #kvNamespace: KVNamespace;
 
-  constructor({ ctx }: KvProviderCtorOptions) {
-    this.#ctx = ctx;
+  constructor(kvNamespace: KVNamespace) {
+    this.#kvNamespace = kvNamespace;
   }
 
   headFile(_: string): Promise<HeadFileResult | undefined> {
@@ -30,10 +25,7 @@ export class KvProvider implements Provider {
 
   async readDirectory(path: string): Promise<ReadDirectoryResult | undefined> {
     const result = await retryWrapper(async () => {
-      return this.#ctx.env.DIRECTORY_CACHE.get<ReadDirectoryResult>(
-        path,
-        'json'
-      );
+      return this.#kvNamespace.get<ReadDirectoryResult>(path, 'json');
     }, KV_RETRY_LIMIT);
 
     if (result === null) {

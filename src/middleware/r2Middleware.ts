@@ -13,10 +13,19 @@ import type { Request } from '../routes/request';
 import { renderDirectoryListing } from '../utils/directoryListing';
 import { getOriginalUrl, parseConditionalHeaders } from '../utils/request';
 import { once } from '../utils/memo';
-
-const getProvider = once((ctx: Context) => new R2Provider({ ctx }));
+import { type ReleaseConfig } from '../constants/release-config';
 
 export class R2Middleware implements Middleware {
+  #releaseConfig: ReleaseConfig;
+  #getProvider = once(
+    (ctx: Context) =>
+      new R2Provider({ ctx, releaseConfig: this.#releaseConfig })
+  );
+
+  constructor(releaseConfig: ReleaseConfig) {
+    this.#releaseConfig = releaseConfig;
+  }
+
   async handle(request: Request, ctx: Context): Promise<Response> {
     const path = getR2Path(request);
     const isPathADirectory = isDirectoryPath(path);
@@ -29,16 +38,17 @@ export class R2Middleware implements Middleware {
       },
     });
 
+    const provider = this.#getProvider(ctx);
     return isPathADirectory
-      ? handleDirectory(request, path, ctx)
-      : handleFile(request, path, ctx);
+      ? handleDirectory(request, path, provider)
+      : handleFile(request, path, provider);
   }
 }
 
 async function handleDirectory(
   request: Request,
   r2Path: string,
-  ctx: Context
+  provider: R2Provider
 ): Promise<Response> {
   if (!hasTrailingSlash(request.urlObj.pathname)) {
     // We always want directory listing requests to have a trailing slash
@@ -46,7 +56,7 @@ async function handleDirectory(
     return Response.redirect(`${url}/`, 301);
   }
 
-  const result = await getProvider(ctx).readDirectory(r2Path);
+  const result = await provider.readDirectory(r2Path);
 
   if (result === undefined) {
     return responses.directoryNotFound(request.method);
@@ -54,7 +64,7 @@ async function handleDirectory(
 
   if (result.hasIndexHtmlFile) {
     // Prioritize showing index files over directory listings
-    return handleFile(request, r2Path + 'index.html', ctx);
+    return handleFile(request, r2Path + 'index.html', provider);
   }
 
   let responseBody;
@@ -93,13 +103,13 @@ function responseHeaders(
 function handleFile(
   request: Request,
   r2Path: string,
-  ctx: Context
+  provider: R2Provider
 ): Promise<Response> {
   switch (request.method) {
     case 'HEAD':
-      return headFile(request, r2Path, ctx);
+      return headFile(request, r2Path, provider);
     case 'GET':
-      return getFile(request, r2Path, ctx);
+      return getFile(request, r2Path, provider);
   }
 
   throw new Error('R2Middleware handleFile unsupported method');
@@ -108,9 +118,9 @@ function handleFile(
 async function headFile(
   request: Request,
   r2Path: string,
-  ctx: Context
+  provider: R2Provider
 ): Promise<Response> {
-  const result = await getProvider(ctx).headFile(r2Path);
+  const result = await provider.headFile(r2Path);
 
   if (result === undefined) {
     return responses.fileNotFound(request.method);
@@ -125,10 +135,8 @@ async function headFile(
 async function getFile(
   request: Request,
   r2Path: string,
-  ctx: Context
+  provider: R2Provider
 ): Promise<Response> {
-  const provider = getProvider(ctx);
-
   let result: GetFileResult | undefined;
   try {
     result = await provider.getFile(r2Path, {
@@ -161,6 +169,7 @@ async function getFile(
   });
 }
 
+// TODO what to do here cause this is very dist-prod specific
 function getR2Path({
   urlObj,
   params,
