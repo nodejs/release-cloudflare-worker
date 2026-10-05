@@ -21,6 +21,9 @@ export const STAGING_BUCKET = process.env.STAGING_BUCKET ?? 'dist-staging';
 export const RELEASE_DIR = 'nodejs/release/';
 export const DOCS_DIR = 'nodejs/docs/';
 export const NIGHTLY_RELEASES_DIR = 'nodejs/nightly/';
+export const RC_RELEASES_DIR = 'nodejs/rc/';
+export const TEST_RELEASES_DIR = 'nodejs/test/';
+export const V8_CANARY_RELEASES_DIR = 'nodejs/v8-canary/';
 
 export const NODE_LATEST_FILE_NAME = 'node-latest.tar.gz';
 
@@ -62,4 +65,7 @@ export const ALWAYS_UPDATED_PATHS = [
   RELEASE_DIR,
   DOCS_DIR,
   NIGHTLY_RELEASES_DIR,
+  RC_RELEASES_DIR,
+  TEST_RELEASES_DIR,
+  V8_CANARY_RELEASES_DIR,
 ];
