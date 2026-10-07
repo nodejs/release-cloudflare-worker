@@ -28,6 +28,7 @@
       "account_id": "07be8d2fbc940503ca1be344714cb0d1",
       "routes": [
         { "pattern": "r2-staging.nodejs.org/*", "zone_name": "nodejs.org" },
+        { "pattern": "unofficial-builds-staging.nodejs.org/*", "zone_name": "nodejs.org" },
       ],
       "vars": {
         "ENVIRONMENT": "staging",
@@ -44,11 +45,21 @@
           "preview_bucket_name": "dist-prod",
           "bucket_name": "dist-prod",
         },
+        {
+          // TODO bucket needs creating
+          "binding": "R2_BUCKET",
+          "preview_bucket_name": "unofficial-builds",
+          "bucket_name": "unofficial-builds",
+        },
       ],
       "kv_namespaces": [
         {
           "binding": "DIRECTORY_CACHE",
           "id": "a8378d5444a2465ca7202ebaa5d8deb1",
+        },
+        {
+          "binding": "UNOFFICIAL_BUILDS_DIRECTORY_CACHE",
+          "id": "TODO",
         },
       ],
       "cache": {
@@ -77,6 +88,7 @@
           "zone_name": "nodejs.org",
         },
         { "pattern": "r2.nodejs.org/*", "zone_name": "nodejs.org" },
+        { "pattern": "unofficial-builds.nodejs.org/*", "zone_name": "nodejs.org" },
       ],
       "tail_consumers": [
         {
@@ -90,6 +102,7 @@
         "S3_ENDPOINT": "https://07be8d2fbc940503ca1be344714cb0d1.r2.cloudflarestorage.com",
         "BUCKET_NAME": "dist-prod",
         "ORIGIN_HOST": "https://origin.nodejs.org",
+        // TODO atm this needs kv to be unconditionally used in prod
         "USE_KV": true,
         "KV_DIRECTORIES": [
           "metrics/",
@@ -109,11 +122,21 @@
           "preview_bucket_name": "dist-prod",
           "bucket_name": "dist-prod",
         },
+        {
+          // TODO bucket needs creating
+          "binding": "R2_BUCKET",
+          "preview_bucket_name": "unofficial-builds",
+          "bucket_name": "unofficial-builds",
+        },
       ],
       "kv_namespaces": [
         {
           "binding": "DIRECTORY_CACHE",
           "id": "a8378d5444a2465ca7202ebaa5d8deb1",
+        },
+        {
+          "binding": "UNOFFICIAL_BUILDS_DIRECTORY_CACHE",
+          "id": "TODO",
         },
       ],
       "cache": {

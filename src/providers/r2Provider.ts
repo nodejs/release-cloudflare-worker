@@ -15,6 +15,7 @@ import type {
 } from './provider';
 import { S3Provider } from './s3Provider';
 import { KvProvider } from './kvProvider';
+import { type ReleaseConfig } from '../constants/release-config';
 
 type CachedFile = {
   name: string;
@@ -31,13 +32,18 @@ type CachedDirectory = {
 
 type R2ProviderCtorOptions = {
   ctx: Context;
+  releaseConfig: ReleaseConfig;
 };
 
 export class R2Provider implements Provider {
   private ctx: Context;
+  #bucket: R2Bucket;
+  #kvProvider: KvProvider;
 
-  constructor({ ctx }: R2ProviderCtorOptions) {
+  constructor({ ctx, releaseConfig }: R2ProviderCtorOptions) {
     this.ctx = ctx;
+    this.#bucket = releaseConfig.bucket;
+    this.#kvProvider = new KvProvider(releaseConfig.directoryCache);
   }
 
   async headFile(path: string): Promise<HeadFileResult | undefined> {
@@ -47,7 +53,7 @@ export class R2Provider implements Provider {
     }
 
     const object = await retryWrapper(
-      async () => await this.ctx.env.R2_BUCKET.head(path),
+      async () => await this.#bucket.head(path),
       R2_RETRY_LIMIT
     );
 
@@ -75,7 +81,7 @@ export class R2Provider implements Provider {
     }
 
     const object = await retryWrapper(async () => {
-      return this.ctx.env.R2_BUCKET.get(path, {
+      return this.#bucket.get(path, {
         onlyIf: {
           etagMatches: options?.conditionalHeaders?.ifMatch,
           etagDoesNotMatch: options?.conditionalHeaders?.ifNoneMatch,
@@ -101,19 +107,15 @@ export class R2Provider implements Provider {
   }
 
   async readDirectory(path: string): Promise<ReadDirectoryResult | undefined> {
-    const kvProvider = new KvProvider({
-      ctx: this.ctx,
-    });
-
     if (this.ctx.env.USE_KV) {
       if (this.ctx.env.KV_DIRECTORIES !== undefined) {
         for (const prefix of this.ctx.env.KV_DIRECTORIES) {
           if (path.startsWith(prefix)) {
-            return await kvProvider.readDirectory(path);
+            return await this.#kvProvider.readDirectory(path);
           }
         }
       } else {
-        return await kvProvider.readDirectory(path);
+        return await this.#kvProvider.readDirectory(path);
       }
     }
 
