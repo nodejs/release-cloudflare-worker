@@ -1,4 +1,8 @@
 import latestVersions from '../constants/latestVersions.json' assert { type: 'json' };
+import {
+  MAINLINE_RELEASE_CONFIG,
+  UNOFFICIAL_BUILDS_RELEASE_CONFIG,
+} from '../constants/release-config';
 import { MethodNotAllowedMiddleware } from '../middleware/methodNotAllowedMiddleware';
 import { NotFoundMiddleware } from '../middleware/notFoundMiddleware';
 import { OptionsMiddleware } from '../middleware/optionsMiddleware';
@@ -7,17 +11,27 @@ import { R2Middleware } from '../middleware/r2Middleware';
 import { RedirectionMiddleware } from '../middleware/redirectionMiddleware';
 import { SubtitutionMiddleware } from '../middleware/subtituteMiddleware';
 import { ThrowMiddleware } from '../middleware/throwMiddleware';
-import type { Router } from './router';
+import { Router } from './router';
 
-export function registerRoutes(router: Router): void {
-  const r2Middleware = new R2Middleware();
+/**
+ * Register routes shared by all routers
+ */
+function registerCommonRoutes(router: Router): void {
+  router.options('*', new OptionsMiddleware());
+  router.get('*', new NotFoundMiddleware());
+  router.head('*', new NotFoundMiddleware());
+  router.all('*', new MethodNotAllowedMiddleware());
+}
+
+export function getMainlineRouter(): Router {
+  const router = new Router();
+
+  const r2Middleware = new R2Middleware(MAINLINE_RELEASE_CONFIG);
   const originMiddleware = new OriginMiddleware();
 
   const corepackRedirectMiddleware = new RedirectionMiddleware(
     'https://github.com/nodejs/corepack#readme'
   );
-
-  router.options('*', new OptionsMiddleware());
 
   router.head('/metrics/?:filePath+', r2Middleware, originMiddleware);
   router.get('/metrics/?:filePath+', r2Middleware, originMiddleware);
@@ -64,9 +78,25 @@ export function registerRoutes(router: Router): void {
 
   router.post('/_throw', new ThrowMiddleware());
 
-  router.get('*', new NotFoundMiddleware());
+  registerCommonRoutes(router);
 
-  router.all('*', new MethodNotAllowedMiddleware());
+  return router;
+}
+
+/**
+ * @see https://github.com/nodejs/build/blob/e4d53ee871b08a5ab34b0cde5727476db23b0c42/ansible/roles/nginx/templates/unofficial-builds.nodejs.org.conf.j2#L11
+ */
+export function getUnofficialBuildsRouter(): Router {
+  const router = new Router();
+
+  const r2Middleware = new R2Middleware(UNOFFICIAL_BUILDS_RELEASE_CONFIG);
+
+  router.head('*', r2Middleware);
+  router.get('*', r2Middleware);
+
+  registerCommonRoutes(router);
+
+  return router;
 }
 
 export * from './router';

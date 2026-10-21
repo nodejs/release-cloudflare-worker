@@ -16,6 +16,10 @@ export interface Env {
    */
   DIRECTORY_CACHE: KVNamespace;
 
+  UNOFFICIAL_BUILDS_BUCKET: R2Bucket;
+
+  UNOFFICIAL_BUILDS_DIRECTORY_CACHE: KVNamespace;
+
   /**
    * Temp flag for whether or not to use KV instead of S3
    */
