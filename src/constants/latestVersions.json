@@ -28,13 +28,13 @@
   "latest-v20.x": "v20.20.2",
   "latest-iron": "v20.20.2",
   "latest-v21.x": "v21.7.3",
-  "latest-v22.x": "v22.23.3",
-  "latest-jod": "v22.23.3",
+  "latest-v22.x": "v22.23.4",
+  "latest-jod": "v22.23.4",
   "latest-v23.x": "v23.11.1",
-  "latest-v24.x": "v24.22.0",
-  "latest-krypton": "v24.22.0",
+  "latest-v24.x": "v24.22.1",
+  "latest-krypton": "v24.22.1",
   "latest-v25.x": "v25.9.0",
-  "latest-v26.x": "v26.12.0",
-  "latest": "v26.12.0",
-  "node-latest.tar.gz": "latest/node-v26.12.0.tar.gz"
+  "latest-v26.x": "v26.12.1",
+  "latest": "v26.12.1",
+  "node-latest.tar.gz": "latest/node-v26.12.1.tar.gz"
 }
