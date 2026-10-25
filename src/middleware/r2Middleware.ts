@@ -2,7 +2,11 @@ import * as Sentry from '@sentry/cloudflare';
 import { CACHE_HEADERS } from '../constants/cache';
 import docsDirectory from '../constants/docsDirectory.json' assert { type: 'json' };
 import type { Context } from '../context';
-import type { GetFileResult, HeadFileResult } from '../providers/provider';
+import type {
+  GetFileResult,
+  HeadFileResult,
+  Provider,
+} from '../providers/provider';
 import { R2Provider } from '../providers/r2Provider';
 import responses from '../responses';
 import { hasTrailingSlash, isDirectoryPath } from '../utils/path';
@@ -16,8 +20,12 @@ import { getOriginalUrl, parseConditionalHeaders } from '../utils/request';
 import { once } from '../utils/memo';
 import internalServerError from '../responses/internalServerError';
 import type { Env } from '../env';
+import { KvProvider } from '../providers/kvProvider';
 
-const getProvider = once((ctx: Context) => new R2Provider({ ctx }));
+const getR2Provider = once((ctx: Context) => new R2Provider({ ctx }));
+const getKvProvider = once(
+  (ctx: Context, r2Provider: R2Provider) => new KvProvider(ctx, r2Provider)
+);
 
 export class R2Middleware implements Middleware {
   async handle(request: Request, ctx: Context): Promise<Response> {
@@ -77,6 +85,32 @@ async function wrapR2Call<T>(fn: () => Promise<T>): Promise<T | Response> {
   }
 }
 
+/*
+ * Temp helper function for deciding if we wanna use the KV directory cache or
+ * just R2
+ */
+function determineDirectoryProvider(path: string, ctx: Context): Provider {
+  const r2Provider = getR2Provider(ctx);
+
+  if (ctx.env.USE_KV) {
+    if (ctx.env.KV_DIRECTORIES === undefined) {
+      // Using kv for all directories
+      return getKvProvider(ctx, r2Provider);
+    }
+
+    for (const prefix of ctx.env.KV_DIRECTORIES) {
+      if (path.startsWith(prefix)) {
+        // A path we wanna use kv for
+        return getKvProvider(ctx, r2Provider);
+      }
+    }
+
+    // If we're here then it's not a directory we wanna use kv for
+  }
+
+  return r2Provider;
+}
+
 async function handleDirectory(
   request: Request,
   r2Path: string,
@@ -88,7 +122,9 @@ async function handleDirectory(
     return Response.redirect(`${url}/`, 301);
   }
 
-  const result = await getProvider(ctx).readDirectory(r2Path);
+  const result = await determineDirectoryProvider(r2Path, ctx).readDirectory(
+    r2Path
+  );
 
   if (result === undefined) {
     return responses.directoryNotFound(request.method);
@@ -152,7 +188,7 @@ async function headFile(
   r2Path: string,
   ctx: Context
 ): Promise<Response> {
-  const result = await wrapR2Call(() => getProvider(ctx).headFile(r2Path));
+  const result = await wrapR2Call(() => getR2Provider(ctx).headFile(r2Path));
 
   if (result instanceof Response) {
     return result;
@@ -173,7 +209,7 @@ async function getFile(
   r2Path: string,
   ctx: Context
 ): Promise<Response> {
-  const provider = getProvider(ctx);
+  const provider = getR2Provider(ctx);
 
   const result = await wrapR2Call(() =>
     provider.getFile(r2Path, {
