@@ -14,7 +14,6 @@ import type {
   ReadDirectoryResult,
 } from './provider';
 import { S3Provider } from './s3Provider';
-import { KvProvider } from './kvProvider';
 
 type CachedFile = {
   name: string;
@@ -101,22 +100,6 @@ export class R2Provider implements Provider {
   }
 
   async readDirectory(path: string): Promise<ReadDirectoryResult | undefined> {
-    const kvProvider = new KvProvider({
-      ctx: this.ctx,
-    });
-
-    if (this.ctx.env.USE_KV) {
-      if (this.ctx.env.KV_DIRECTORIES !== undefined) {
-        for (const prefix of this.ctx.env.KV_DIRECTORIES) {
-          if (path.startsWith(prefix)) {
-            return await kvProvider.readDirectory(path);
-          }
-        }
-      } else {
-        return await kvProvider.readDirectory(path);
-      }
-    }
-
     let result: ReadDirectoryResult | undefined;
     if (path in CACHED_DIRECTORIES) {
       const cachedResult: CachedDirectory =
