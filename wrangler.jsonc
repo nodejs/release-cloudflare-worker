@@ -14,7 +14,6 @@
     "LOG_ERRORS": true,
     "S3_ENDPOINT": "https://07be8d2fbc940503ca1be344714cb0d1.r2.cloudflarestorage.com",
     "BUCKET_NAME": "dist-prod",
-    "ORIGIN_HOST": "https://origin.nodejs.org",
   },
   "r2_buckets": [
     {
@@ -35,7 +34,6 @@
         "LOG_ERRORS": false,
         "S3_ENDPOINT": "https://07be8d2fbc940503ca1be344714cb0d1.r2.cloudflarestorage.com",
         "BUCKET_NAME": "dist-prod",
-        "ORIGIN_HOST": "https://origin.nodejs.org",
       },
       "workers_dev": true,
       "r2_buckets": [
@@ -89,7 +87,6 @@
         "LOG_ERRORS": false,
         "S3_ENDPOINT": "https://07be8d2fbc940503ca1be344714cb0d1.r2.cloudflarestorage.com",
         "BUCKET_NAME": "dist-prod",
-        "ORIGIN_HOST": "https://origin.nodejs.org",
         "USE_KV": true,
         "KV_DIRECTORIES": [
           "metrics/",

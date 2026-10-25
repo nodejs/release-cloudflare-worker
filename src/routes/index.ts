@@ -2,7 +2,6 @@ import latestVersions from '../constants/latestVersions.json' assert { type: 'js
 import { MethodNotAllowedMiddleware } from '../middleware/methodNotAllowedMiddleware';
 import { NotFoundMiddleware } from '../middleware/notFoundMiddleware';
 import { OptionsMiddleware } from '../middleware/optionsMiddleware';
-import { OriginMiddleware } from '../middleware/originMiddleware';
 import { R2Middleware } from '../middleware/r2Middleware';
 import { RedirectionMiddleware } from '../middleware/redirectionMiddleware';
 import { SubtitutionMiddleware } from '../middleware/subtituteMiddleware';
@@ -11,7 +10,6 @@ import type { Router } from './router';
 
 export function registerRoutes(router: Router): void {
   const r2Middleware = new R2Middleware();
-  const originMiddleware = new OriginMiddleware();
 
   const corepackRedirectMiddleware = new RedirectionMiddleware(
     'https://github.com/nodejs/corepack#readme'
@@ -19,8 +17,8 @@ export function registerRoutes(router: Router): void {
 
   router.options('*', new OptionsMiddleware());
 
-  router.head('/metrics/?:filePath+', r2Middleware, originMiddleware);
-  router.get('/metrics/?:filePath+', r2Middleware, originMiddleware);
+  router.head('/metrics/?:filePath+', r2Middleware);
+  router.get('/metrics/?:filePath+', r2Middleware);
 
   router.all('/api/corepack.html', corepackRedirectMiddleware);
   router.all('/docs/latest/api/corepack.html', corepackRedirectMiddleware);
@@ -50,17 +48,17 @@ export function registerRoutes(router: Router): void {
   router.head('/llms.txt', r2Middleware);
   router.get('/llms.txt', r2Middleware);
 
-  router.head('/dist/?:filePath+', r2Middleware, originMiddleware);
-  router.get('/dist/?:filePath+', r2Middleware, originMiddleware);
+  router.head('/dist/?:filePath+', r2Middleware);
+  router.get('/dist/?:filePath+', r2Middleware);
 
-  router.head('/download/?:filePath+', r2Middleware, originMiddleware);
-  router.get('/download/?:filePath+', r2Middleware, originMiddleware);
+  router.head('/download/?:filePath+', r2Middleware);
+  router.get('/download/?:filePath+', r2Middleware);
 
-  router.head('/api/?:filePath+', r2Middleware, originMiddleware);
-  router.get('/api/?:filePath+', r2Middleware, originMiddleware);
+  router.head('/api/?:filePath+', r2Middleware);
+  router.get('/api/?:filePath+', r2Middleware);
 
-  router.head('/docs/?:version?/:filePath+?', r2Middleware, originMiddleware);
-  router.get('/docs/?:version?/:filePath+?', r2Middleware, originMiddleware);
+  router.head('/docs/?:version?/:filePath+?', r2Middleware);
+  router.get('/docs/?:version?/:filePath+?', r2Middleware);
 
   router.post('/_throw', new ThrowMiddleware());
 
