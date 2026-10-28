@@ -12,6 +12,7 @@
       "latest-iron/",
       "latest-jod/",
       "latest-krypton/",
+      "latest-lithium/",
       "latest-v0.10.x/",
       "latest-v0.12.x/",
       "latest-v10.x/",
@@ -729,6 +730,7 @@
       "v26.11.1/",
       "v26.12.0/",
       "v26.12.1/",
+      "v26.13.0/",
       "v26.2.0/",
       "v26.3.0/",
       "v26.3.1/",
@@ -921,13 +923,13 @@
     "files": [
       {
         "name": "index.json",
-        "lastModified": "2026-10-21T10:37:23.577Z",
-        "size": 334935
+        "lastModified": "2026-10-28T16:54:56.343Z",
+        "size": 335360
       },
       {
         "name": "index.tab",
-        "lastModified": "2026-10-21T10:37:24.264Z",
-        "size": 212334
+        "lastModified": "2026-10-28T16:55:07.613Z",
+        "size": 212613
       },
       {
         "name": "node-0.0.1.tar.gz",
@@ -1431,8 +1433,8 @@
       },
       {
         "name": "node-latest.tar.gz",
-        "lastModified": "2026-10-21T10:36:59.000Z",
-        "size": 127166097
+        "lastModified": "2026-10-28T12:59:55.000Z",
+        "size": 127162302
       },
       {
         "name": "node-v0.10.14.tar.gz",
@@ -1440,7 +1442,7 @@
         "size": 13782897
       }
     ],
-    "lastModified": "2026-10-21T10:37:24.264Z"
+    "lastModified": "2026-10-28T16:55:07.613Z"
   },
   "nodejs/docs/": {
     "subdirectories": [
@@ -1455,6 +1457,7 @@
       "latest-iron/",
       "latest-jod/",
       "latest-krypton/",
+      "latest-lithium/",
       "latest-v0.10.x/",
       "latest-v0.12.x/",
       "latest-v10.x/",
@@ -2190,6 +2193,7 @@
       "v26.11.1/",
       "v26.12.0/",
       "v26.12.1/",
+      "v26.13.0/",
       "v26.2.0/",
       "v26.3.0/",
       "v26.3.1/",

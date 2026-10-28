@@ -34,7 +34,8 @@
   "latest-v24.x": "v24.22.1",
   "latest-krypton": "v24.22.1",
   "latest-v25.x": "v25.9.0",
-  "latest-v26.x": "v26.12.1",
-  "latest": "v26.12.1",
-  "node-latest.tar.gz": "latest/node-v26.12.1.tar.gz"
+  "latest-v26.x": "v26.13.0",
+  "latest-lithium": "v26.13.0",
+  "latest": "v26.13.0",
+  "node-latest.tar.gz": "latest/node-v26.13.0.tar.gz"
 }
