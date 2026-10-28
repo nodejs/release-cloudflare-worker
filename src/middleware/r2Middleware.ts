@@ -11,8 +11,11 @@ import type { Middleware } from './middleware';
 import latestVersions from '../constants/latestVersions.json' assert { type: 'json' };
 import type { Request } from '../routes/request';
 import { renderDirectoryListing } from '../utils/directoryListing';
+import { env } from 'cloudflare:workers';
 import { getOriginalUrl, parseConditionalHeaders } from '../utils/request';
 import { once } from '../utils/memo';
+import internalServerError from '../responses/internalServerError';
+import type { Env } from '../env';
 
 const getProvider = once((ctx: Context) => new R2Provider({ ctx }));
 
@@ -32,6 +35,45 @@ export class R2Middleware implements Middleware {
     return isPathADirectory
       ? handleDirectory(request, path, ctx)
       : handleFile(request, path, ctx);
+  }
+}
+
+/**
+ * Wrap an R2 call with common error handling
+ * @param fn
+ * @returns <T> if fn didn't throw, a {@link Reponse} otherwise
+ * @throws anything that's thrown by fn and isn't an error
+ */
+async function wrapR2Call<T>(fn: () => Promise<T>): Promise<T | Response> {
+  try {
+    const result = await fn();
+
+    return result;
+  } catch (err) {
+    if (err instanceof Error) {
+      // Error object likely from R2, let's handle it here
+
+      // See https://developers.cloudflare.com/r2/api/error-codes/#error-code-reference
+      if (err.message.includes('10020')) {
+        // R2 error: object name not valid, url probably has some weirdness in it
+        return responses.badRequest();
+      } else if (err.message.includes('10039')) {
+        // R2 error: range not compatible, probably out of bounds
+        return new Response(undefined, {
+          status: 416,
+          headers: { 'cache-control': CACHE_HEADERS.failure },
+        });
+      }
+
+      // We need to report it ourselves since we're not throwing it to the
+      // router
+      Sentry.captureException(err);
+
+      return internalServerError(err, env as Env);
+    }
+
+    // Not an error, throw just for visibility
+    throw err;
   }
 }
 
@@ -110,7 +152,11 @@ async function headFile(
   r2Path: string,
   ctx: Context
 ): Promise<Response> {
-  const result = await getProvider(ctx).headFile(r2Path);
+  const result = await wrapR2Call(() => getProvider(ctx).headFile(r2Path));
+
+  if (result instanceof Response) {
+    return result;
+  }
 
   if (result === undefined) {
     return responses.fileNotFound(request.method);
@@ -129,26 +175,14 @@ async function getFile(
 ): Promise<Response> {
   const provider = getProvider(ctx);
 
-  let result: GetFileResult | undefined;
-  try {
-    result = await provider.getFile(r2Path, {
+  const result = await wrapR2Call(() =>
+    provider.getFile(r2Path, {
       conditionalHeaders: parseConditionalHeaders(request.headers),
-    });
-  } catch (err) {
-    if (err instanceof Error) {
-      if (err.message.includes('10020')) {
-        // Object name not valid, url probably has some weirdness in it
-        return responses.badRequest();
-      } else if (err.message.includes('10039')) {
-        // Range not compatible, probably out of bounds
-        return new Response(undefined, {
-          status: 416,
-          headers: { 'cache-control': CACHE_HEADERS.failure },
-        });
-      }
-    }
+    })
+  );
 
-    throw err;
+  if (result instanceof Response) {
+    return result;
   }
 
   if (result === undefined) {
