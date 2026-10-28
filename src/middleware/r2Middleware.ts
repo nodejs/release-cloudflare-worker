@@ -53,6 +53,7 @@ async function wrapR2Call<T>(fn: () => Promise<T>): Promise<T | Response> {
     if (err instanceof Error) {
       // Error object likely from R2, let's handle it here
 
+      // See https://developers.cloudflare.com/r2/api/error-codes/#error-code-reference
       if (err.message.includes('10020')) {
         // R2 error: object name not valid, url probably has some weirdness in it
         return responses.badRequest();
