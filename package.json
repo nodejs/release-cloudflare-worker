@@ -32,7 +32,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.7",
     "glob": "^11.1.0",
-    "globals": "^17.6.0",
+    "globals": "^17.13.0",
     "html-minifier-terser": "^7.2.0",
     "nodejs-latest-linker": "^1.10.0",
     "prettier": "^3.9.10",
