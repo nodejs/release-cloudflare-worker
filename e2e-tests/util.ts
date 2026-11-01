@@ -1,7 +1,7 @@
-import { env } from 'cloudflare:test';
+import { env } from 'cloudflare:workers';
 import { join } from 'node:path';
 import { inject } from 'vitest';
-import type { Env } from '../src/env';
+import type { Env as WorkerEnv } from '../src/env';
 import type { Directory } from '../vitest-setup';
 import type { ReadDirectoryResult, File } from '../src/providers/provider';
 
@@ -83,7 +83,9 @@ export async function populateDirectoryCacheWithDevBucket(): Promise<void> {
   await populateDirectoryCache(devBucket);
 }
 
-declare module 'cloudflare:test' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  interface ProvidedEnv extends Env {}
+declare global {
+  namespace Cloudflare {
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+    interface Env extends WorkerEnv {}
+  }
 }

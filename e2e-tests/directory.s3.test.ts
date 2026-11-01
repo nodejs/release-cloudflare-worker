@@ -1,5 +1,7 @@
-import { env, fetchMock, createExecutionContext } from 'cloudflare:test';
-import { test, beforeAll, afterEach, expect } from 'vitest';
+import { createExecutionContext } from 'cloudflare:test';
+import { env } from 'cloudflare:workers';
+import { test, beforeAll, beforeEach, afterEach, expect, vi } from 'vitest';
+import type { MockInstance } from 'vitest';
 import { populateR2WithDevBucket } from './util';
 import worker from '../src/worker';
 import type { Env } from '../src/env';
@@ -45,16 +47,36 @@ const S3_EMPTY_DIRECTORY_RESULT = `
   <IsTruncated>false</IsTruncated>
 </ListBucketResult>`;
 
-beforeAll(async () => {
-  fetchMock.activate();
-  fetchMock.disableNetConnect();
+let fetchSpy: MockInstance<typeof fetch>;
 
+beforeAll(async () => {
   await populateR2WithDevBucket();
 });
 
-afterEach(() => {
-  fetchMock.assertNoPendingInterceptors();
+beforeEach(() => {
+  fetchSpy = vi
+    .spyOn(globalThis, 'fetch')
+    .mockRejectedValue(new Error('Unexpected outbound request'));
 });
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
+function mockS3Response(body: string, prefix?: string): void {
+  fetchSpy.mockImplementationOnce(async (input, init) => {
+    const url = new URL(new Request(input, init).url);
+
+    if (
+      url.origin !== s3Url.origin ||
+      (prefix !== undefined && url.searchParams.get('prefix') !== prefix)
+    ) {
+      throw new Error(`Unexpected request to ${url}`);
+    }
+
+    return new Response(body);
+  });
+}
 
 // These paths are cached and don't send requests to S3
 for (const path of ['/dist/', '/docs/']) {
@@ -75,17 +97,13 @@ for (const path of ['/dist/', '/docs/']) {
     expect(res.headers.get('cache-control')).toStrictEqual(
       CACHE_HEADERS.mutable
     );
+    expect(fetchSpy).not.toHaveBeenCalled();
   });
 }
 
 for (const path of ['/api/', '/download/', '/metrics/']) {
   test(`GET \`${path}\` returns 200`, async () => {
-    fetchMock
-      .get(s3Url.origin)
-      .intercept({
-        path: /.*/,
-      })
-      .reply(200, S3_DIRECTORY_RESULT);
+    mockS3Response(S3_DIRECTORY_RESULT);
 
     const ctx = createExecutionContext();
 
@@ -99,19 +117,15 @@ for (const path of ['/api/', '/download/', '/metrics/']) {
     await res.text();
 
     expect(res.status).toBe(200);
+    expect(fetchSpy).toHaveBeenCalledOnce();
   });
 }
 
 test('GET `/dist/unknown-directory/` returns 404', async () => {
-  fetchMock
-    .get(s3Url.origin)
-    .intercept({
-      path: /.*/,
-      query: {
-        prefix: 'nodejs/release/unknown-directory/',
-      },
-    })
-    .reply(200, S3_EMPTY_DIRECTORY_RESULT);
+  mockS3Response(
+    S3_EMPTY_DIRECTORY_RESULT,
+    'nodejs/release/unknown-directory/'
+  );
 
   const ctx = createExecutionContext();
 
@@ -124,6 +138,7 @@ test('GET `/dist/unknown-directory/` returns 404', async () => {
   expect(res.status).toBe(404);
   expect(res.headers.get('cache-control')).toStrictEqual(CACHE_HEADERS.failure);
   expect(await res.text()).toStrictEqual('Directory not found');
+  expect(fetchSpy).toHaveBeenCalledOnce();
 });
 
 test('GET `/dist` redirects to `/dist/`', async () => {

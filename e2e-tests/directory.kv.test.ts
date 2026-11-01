@@ -1,4 +1,5 @@
-import { env, createExecutionContext } from 'cloudflare:test';
+import { createExecutionContext } from 'cloudflare:test';
+import { env } from 'cloudflare:workers';
 import { test, beforeAll, expect, vi } from 'vitest';
 import {
   populateDirectoryCacheWithDevBucket,
@@ -15,31 +16,31 @@ const mockedEnv: Env = {
   USE_KV: true,
 };
 
+vi.mock(
+  import('../src/constants/latestVersions.json'),
+  async importOriginal => {
+    const original = await importOriginal();
+
+    // Point all `latest-` directories to one that exists in the dev bucket
+    Object.keys(original.default).forEach(branch => {
+      let updatedValue: string;
+      if (branch === 'node-latest.tar.gz') {
+        updatedValue = 'latest/node-v20.0.0.tar.gz';
+      } else {
+        updatedValue = 'v20.0.0';
+      }
+
+      // @ts-expect-error
+      original.default[branch] = updatedValue;
+    });
+
+    return original;
+  }
+);
+
 beforeAll(async () => {
   await populateR2WithDevBucket();
   await populateDirectoryCacheWithDevBucket();
-
-  vi.mock(
-    import('../src/constants/latestVersions.json'),
-    async importOriginal => {
-      const original = await importOriginal();
-
-      // Point all `latest-` directories to one that exists in the dev bucket
-      Object.keys(original.default).forEach(branch => {
-        let updatedValue: string;
-        if (branch === 'node-latest.tar.gz') {
-          updatedValue = 'latest/node-v20.0.0.tar.gz';
-        } else {
-          updatedValue = 'v20.0.0';
-        }
-
-        // @ts-expect-error
-        original.default[branch] = updatedValue;
-      });
-
-      return original;
-    }
-  );
 });
 
 // Ensure essential endpoints are routable
