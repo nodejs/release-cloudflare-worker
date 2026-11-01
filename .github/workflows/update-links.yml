@@ -7,12 +7,11 @@ on:
   # Triggered by https://github.com/nodejs/node/blob/main/.github/workflows/update-release-links.yml
   workflow_dispatch:
     inputs:
+      # Not used but kept around to not break Node core ci since it passes this
       version:
         description: 'Node.js version (ex/ `v20.0.0`)'
-        required: true
+        required: false
         type: string
-  schedule:
-    - cron: '0 0 * * *'
 
 concurrency:
   group: update-redirect-links
@@ -60,7 +59,7 @@ jobs:
         run: npm ci && npm update nodejs-latest-linker --save
 
       - name: Update Directory Cache
-        run: node scripts/update-directory-cache.mjs "$VERSION_INPUT" && node --run format
+        run: node scripts/handle-mainline-release.mjs && node --run format
         env:
           VERSION_INPUT: "${{ inputs.version || '' }}"
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
