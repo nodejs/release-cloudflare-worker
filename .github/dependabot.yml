@@ -43,6 +43,6 @@ updates:
       vitest:
         patterns:
           - 'vitest'
-          - '@cloudflare/vitest-pool-workers'
+          - '@cloudflare/vitest-plugin'
     ignore:
       - dependency-name: nodejs-latest-linker

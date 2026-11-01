@@ -1,5 +1,6 @@
-import { env, fetchMock, createExecutionContext } from 'cloudflare:test';
-import { test, beforeAll, expect } from 'vitest';
+import { createExecutionContext } from 'cloudflare:test';
+import { env } from 'cloudflare:workers';
+import { test, beforeAll, expect, vi } from 'vitest';
 import { populateR2WithDevBucket } from './util';
 import worker from '../src/worker';
 import type { Env } from '../src/env';
@@ -11,8 +12,9 @@ const mockedEnv: Env = {
 };
 
 beforeAll(async () => {
-  fetchMock.activate();
-  fetchMock.disableNetConnect();
+  vi.spyOn(globalThis, 'fetch').mockRejectedValue(
+    new Error('Unexpected outbound request')
+  );
 
   await populateR2WithDevBucket();
 });

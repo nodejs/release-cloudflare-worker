@@ -13,6 +13,19 @@ import {
 } from './addSymlinksToDirectoryCache.mjs';
 import { LatestVersionMapping } from './getLatestVersionMapping.mjs';
 
+vi.mock('node:fs/promises', async importOriginal => {
+  const original = await importOriginal();
+
+  return {
+    // @ts-expect-error
+    ...original,
+    writeFile: async (file: string, data: string) => {
+      expect(file).toStrictEqual(DOCS_DIRECTORY_PATH);
+      expect(JSON.parse(data)).toStrictEqual(['v0.0.1']);
+    },
+  };
+});
+
 describe('addLatestTarSymlinkToCache', () => {
   test('adds `node-latest.tar.gz` to release directory', async () => {
     const now = new Date();
@@ -145,19 +158,6 @@ test('addVersionSymlinksToCachedDocsDirectory', async () => {
     files: [],
     lastModified: now,
   };
-
-  vi.mock('node:fs/promises', async importOriginal => {
-    const original = await importOriginal();
-
-    return {
-      // @ts-expect-error
-      ...original,
-      writeFile: async (file: string, data: string) => {
-        expect(file).toStrictEqual(DOCS_DIRECTORY_PATH);
-        expect(JSON.parse(data)).toStrictEqual(['v0.0.1']);
-      },
-    };
-  });
 
   await addVersionSymlinksToCachedDocsDirectory(
     releaseDirectory,

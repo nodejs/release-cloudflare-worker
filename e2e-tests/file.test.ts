@@ -1,4 +1,5 @@
-import { env, createExecutionContext } from 'cloudflare:test';
+import { createExecutionContext } from 'cloudflare:test';
+import { env } from 'cloudflare:workers';
 import { test, beforeAll, afterEach, expect, vi } from 'vitest';
 import { populateR2WithDevBucket } from './util';
 import worker from '../src/worker';

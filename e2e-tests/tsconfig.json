@@ -3,7 +3,7 @@
   "compilerOptions": {
     "types": [
       "../worker-configuration.d.ts",
-      "@cloudflare/vitest-pool-workers",
+      "@cloudflare/vitest-plugin/types",
       "../vitest-types.d.ts"
     ]
   },
