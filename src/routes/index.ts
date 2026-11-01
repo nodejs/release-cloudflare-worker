@@ -17,8 +17,8 @@ export function registerRoutes(router: Router): void {
 
   router.options('*', new OptionsMiddleware());
 
-  router.head('/metrics/?:filePath+', r2Middleware);
-  router.get('/metrics/?:filePath+', r2Middleware);
+  router.head('/metrics/:filePath+?', r2Middleware);
+  router.get('/metrics/:filePath+?', r2Middleware);
 
   router.all('/api/corepack.html', corepackRedirectMiddleware);
   router.all('/docs/latest/api/corepack.html', corepackRedirectMiddleware);
@@ -48,14 +48,14 @@ export function registerRoutes(router: Router): void {
   router.head('/llms.txt', r2Middleware);
   router.get('/llms.txt', r2Middleware);
 
-  router.head('/dist/?:filePath+', r2Middleware);
-  router.get('/dist/?:filePath+', r2Middleware);
+  router.head('/dist/:filePath+?', r2Middleware);
+  router.get('/dist/:filePath+?', r2Middleware);
 
-  router.head('/download/?:filePath+', r2Middleware);
-  router.get('/download/?:filePath+', r2Middleware);
+  router.head('/download/:filePath+?', r2Middleware);
+  router.get('/download/:filePath+?', r2Middleware);
 
-  router.head('/api/?:filePath+', r2Middleware);
-  router.get('/api/?:filePath+', r2Middleware);
+  router.head('/api/:filePath+?', r2Middleware);
+  router.get('/api/:filePath+?', r2Middleware);
 
   router.head('/docs/?:version?/:filePath+?', r2Middleware);
   router.get('/docs/?:version?/:filePath+?', r2Middleware);
