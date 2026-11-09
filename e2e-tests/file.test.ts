@@ -185,11 +185,11 @@ test('GET `/dist/asd123.json` returns 404', async () => {
 });
 
 for (const prefix of ['/dist', '/download/release']) {
-  test(`GET \`${prefix}/docs/\` returns 200`, async () => {
+  test(`GET \`${prefix}/docs/index.html\` returns 200`, async () => {
     const ctx = createExecutionContext();
 
     const res = await worker.fetch(
-      new Request(`https://localhost${prefix}/docs/v0.0.1/`),
+      new Request(`https://localhost${prefix}/docs/v0.0.1/index.html`),
       mockedEnv,
       ctx
     );
@@ -204,11 +204,11 @@ for (const prefix of ['/dist', '/download/release']) {
   });
 
   // Dir that actually exists in `nodejs/docs/`
-  test(`GET \`${prefix}/docs/v0.0.1/\` returns 200`, async () => {
+  test(`GET \`${prefix}/docs/v0.0.1/index.html\` returns 200`, async () => {
     const ctx = createExecutionContext();
 
     const res = await worker.fetch(
-      new Request(`https://localhost${prefix}/docs/v0.0.1/`),
+      new Request(`https://localhost${prefix}/docs/v0.0.1/index.html`),
       mockedEnv,
       ctx
     );
@@ -223,11 +223,11 @@ for (const prefix of ['/dist', '/download/release']) {
   });
 
   // Dir that's just a symlink `nodejs/docs/` -> `nodejs/release/v20.0.0/docs/`
-  test(`GET \`${prefix}/docs/v20.0.0/\` returns 200`, async () => {
+  test(`GET \`${prefix}/docs/v20.0.0/index.html\` returns 200`, async () => {
     const ctx = createExecutionContext();
 
     const res = await worker.fetch(
-      new Request(`https://localhost${prefix}/docs/v20.0.0/`),
+      new Request(`https://localhost${prefix}/docs/v20.0.0/index.html`),
       mockedEnv,
       ctx
     );
