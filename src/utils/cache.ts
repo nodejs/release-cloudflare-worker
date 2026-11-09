@@ -44,10 +44,6 @@ export function isImmutablePath(pathname: string): boolean {
     return false;
   }
 
-  // if (pathname.startsWith('/download/docs') || pathname.startsWith('/dist/docs')) {
-  //   return false;
-  // }
-
   // The periodic download-counts run rewrites files under `/metrics/` at stable
   //  URLs: the `summaries/<type>.csv`/`.png` aggregates every run, and
   //  `logs/nodejs.org-access.log.csv` for the current (not yet final) day. The
