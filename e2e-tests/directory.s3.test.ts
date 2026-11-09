@@ -156,6 +156,8 @@ test('GET `/dist` redirects to `/dist/`', async () => {
 
 for (const prefix of ['/dist', '/download/release']) {
   test(`GET \`${prefix}/docs/\` returns 200`, async () => {
+    mockS3Response(S3_DIRECTORY_RESULT);
+
     const ctx = createExecutionContext();
 
     const res = await worker.fetch(
@@ -175,6 +177,8 @@ for (const prefix of ['/dist', '/download/release']) {
 
   // Dir that actually exists in `nodejs/docs/`
   test(`GET \`${prefix}/docs/v0.0.1/\` returns 200`, async () => {
+    mockS3Response(S3_DIRECTORY_RESULT);
+
     const ctx = createExecutionContext();
 
     const res = await worker.fetch(
@@ -194,6 +198,8 @@ for (const prefix of ['/dist', '/download/release']) {
 
   // Dir that's just a symlink `nodejs/docs/` -> `nodejs/release/v20.0.0/docs/`
   test(`GET \`${prefix}/docs/v20.0.0/\` returns 200`, async () => {
+    mockS3Response(S3_DIRECTORY_RESULT);
+
     const ctx = createExecutionContext();
 
     const res = await worker.fetch(

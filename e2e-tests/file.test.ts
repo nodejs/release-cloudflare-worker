@@ -199,7 +199,7 @@ for (const prefix of ['/dist', '/download/release']) {
 
     expect(res.status).toBe(200);
     expect(res.headers.get('cache-control')).toStrictEqual(
-      CACHE_HEADERS.mutable
+      CACHE_HEADERS.immutable
     );
   });
 
@@ -218,16 +218,16 @@ for (const prefix of ['/dist', '/download/release']) {
 
     expect(res.status).toBe(200);
     expect(res.headers.get('cache-control')).toStrictEqual(
-      CACHE_HEADERS.mutable
+      CACHE_HEADERS.immutable
     );
   });
 
   // Dir that's just a symlink `nodejs/docs/` -> `nodejs/release/v20.0.0/docs/`
-  test(`GET \`${prefix}/docs/v20.0.0/index.html\` returns 200`, async () => {
+  test(`GET \`${prefix}/docs/v20.0.0/api/index.html\` returns 200`, async () => {
     const ctx = createExecutionContext();
 
     const res = await worker.fetch(
-      new Request(`https://localhost${prefix}/docs/v20.0.0/index.html`),
+      new Request(`https://localhost${prefix}/docs/v20.0.0/api/index.html`),
       mockedEnv,
       ctx
     );
@@ -237,7 +237,7 @@ for (const prefix of ['/dist', '/download/release']) {
 
     expect(res.status).toBe(200);
     expect(res.headers.get('cache-control')).toStrictEqual(
-      CACHE_HEADERS.mutable
+      CACHE_HEADERS.immutable
     );
   });
 }
