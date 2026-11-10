@@ -124,10 +124,10 @@ export async function addStaticFileSymlinksToCache(
    */
   const fileSymlinks = JSON.parse(fileSymlinksFile);
 
-  // This file is an exception for two reasons:
-  //  1. It's dynamic and points to the latest Node version
-  //  2. It's handled specially and is technically in the root directory,
-  //     which we should never be listing thus don't need to add it to the
+  // These files are an exception for two reasons:
+  //  1. They're dynamic and point to the latest Node version
+  //  2. They're handled specially and are technically in the root directory,
+  //     which we should never be listing thus don't need to add them to the
   //     directory cache.
   // So, let's remove them then add them back once we're done handling the rest
   // of the static file symlinks.

@@ -1,11 +1,10 @@
 #!/usr/bin/env node
 
 /**
- * Update the most commonly updated paths in the directory cache for a Node.js
- * release.
+ * Updates the cached directory listings for paths that have symlinks for the
+ * mainline release bucket.
  *
- * Usage: ./update-directory-cache.mjs [version]
- * Example: ./update-directory-cache.mjs v24.0.0
+ * Usage: ./handle-mainline-release.mjs
  *
  * If no version is provided, this just updates what's in {@link ALWAYS_UPDATED_PATHS}
  */
@@ -21,8 +20,6 @@ import { addSymlinksToDirectoryCache } from './utils/addSymlinksToDirectoryCache
 import { getLatestVersionMapping } from './utils/getLatestVersionMapping.mjs';
 import { createCloudflareClient, writeKeysToKv } from './utils/kv.mjs';
 import { createS3Client, listR2DirectoryRecursive } from './utils/r2.mjs';
-
-const VERSION = process.argv[2]?.toLowerCase();
 
 // Ensure all necessary environment variables are set
 for (const envVar of [
@@ -67,26 +64,6 @@ await Promise.all(
   )
 );
 
-if (VERSION !== undefined && VERSION !== '') {
-  if (!VERSION.startsWith('v')) {
-    throw new TypeError(
-      'provided version not in correct format, expected vX.X.X'
-    );
-  }
-
-  console.log(`Listing version ${VERSION}`);
-
-  const versionDirectory = await listR2DirectoryRecursive(
-    s3Client,
-    PROD_BUCKET,
-    `${RELEASE_DIR}${VERSION}/`
-  );
-
-  for (const [k, v] of versionDirectory.entries()) {
-    directories.set(k, v);
-  }
-}
-
 const latestVersions = await getLatestVersionMapping(
   s3Client,
   directories.get(RELEASE_DIR),
@@ -95,6 +72,8 @@ const latestVersions = await getLatestVersionMapping(
 
 await addSymlinksToDirectoryCache(s3Client, directories, latestVersions);
 
-// Update keys in the directory cache
+// Update keys in the directory cache. These intentionally do not have an
+// expiration set since they were made with info that the worker doesn't have
+// when deployed.
 console.log(`Writing ${directories.size} keys to directory cache...`);
 await writeKeysToKv(cfClient, DIRECTORY_CACHE_NAMESPACE_ID, directories);
