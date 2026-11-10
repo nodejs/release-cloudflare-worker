@@ -184,6 +184,64 @@ test('GET `/dist/asd123.json` returns 404', async () => {
   expect(await res.text()).toStrictEqual('File not found');
 });
 
+for (const prefix of ['/dist', '/download/release']) {
+  test(`GET \`${prefix}/docs/index.html\` returns 200`, async () => {
+    const ctx = createExecutionContext();
+
+    const res = await worker.fetch(
+      new Request(`https://localhost${prefix}/docs/v0.0.1/index.html`),
+      mockedEnv,
+      ctx
+    );
+
+    // Consume the body promise
+    await res.text();
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get('cache-control')).toStrictEqual(
+      CACHE_HEADERS.immutable
+    );
+  });
+
+  // Dir that actually exists in `nodejs/docs/`
+  test(`GET \`${prefix}/docs/v0.0.1/index.html\` returns 200`, async () => {
+    const ctx = createExecutionContext();
+
+    const res = await worker.fetch(
+      new Request(`https://localhost${prefix}/docs/v0.0.1/index.html`),
+      mockedEnv,
+      ctx
+    );
+
+    // Consume the body promise
+    await res.text();
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get('cache-control')).toStrictEqual(
+      CACHE_HEADERS.immutable
+    );
+  });
+
+  // Dir that's just a symlink `nodejs/docs/` -> `nodejs/release/v20.0.0/docs/`
+  test(`GET \`${prefix}/docs/v20.0.0/api/index.html\` returns 200`, async () => {
+    const ctx = createExecutionContext();
+
+    const res = await worker.fetch(
+      new Request(`https://localhost${prefix}/docs/v20.0.0/api/index.html`),
+      mockedEnv,
+      ctx
+    );
+
+    // Consume the body promise
+    await res.text();
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get('cache-control')).toStrictEqual(
+      CACHE_HEADERS.immutable
+    );
+  });
+}
+
 test('`if-modified-since` header', async () => {
   const ctx = createExecutionContext();
 

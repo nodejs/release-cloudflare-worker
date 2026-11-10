@@ -48,6 +48,27 @@ export function registerRoutes(router: Router): void {
   router.head('/llms.txt', r2Middleware);
   router.get('/llms.txt', r2Middleware);
 
+  // `/dist/docs/...` is a symlink to `nodejs/docs/`
+  const distDocsDirToDocsDirRewrite = new SubtitutionMiddleware(
+    router,
+    '/dist/docs',
+    '/docs'
+  );
+  router.head('/dist/docs*', distDocsDirToDocsDirRewrite);
+  router.get('/dist/docs*', distDocsDirToDocsDirRewrite);
+
+  // `/download/release/docs/...` is a symlink to `nodejs/docs/`
+  const mainlineReleaseDocsDirToDocsDirRewrite = new SubtitutionMiddleware(
+    router,
+    '/download/release/docs',
+    '/docs'
+  );
+  router.head(
+    '/download/release/docs*',
+    mainlineReleaseDocsDirToDocsDirRewrite
+  );
+  router.get('/download/release/docs*', mainlineReleaseDocsDirToDocsDirRewrite);
+
   router.head('/dist/:filePath+?', r2Middleware);
   router.get('/dist/:filePath+?', r2Middleware);
 

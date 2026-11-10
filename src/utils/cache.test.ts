@@ -7,6 +7,8 @@ describe('isImmutablePath', () => {
     '/dist/v20.0.0/node-v20.0.0-linux-x64.tar.gz',
     '/download/release/v20.0.0/node-v20.0.0.pkg',
     '/docs/v18.0.0/api/fs.html',
+    '/dist/docs/v20.0.0/api/index.html',
+    '/download/release/v20.0.0/api/index.html',
   ])('returns true for immutable asset `%s`', path => {
     expect(isImmutablePath(path)).toEqual(true);
   });
@@ -31,6 +33,10 @@ describe('isImmutablePath', () => {
     // `latest` aliases point at moving content
     '/dist/latest/node-v20.0.0-linux-x64.tar.gz',
     '/docs/latest/api/fs.html',
+    '/dist/docs/latest/api/index.html',
+    '/download/release/latest/api/index.html',
+    '/dist/docs/',
+    '/download/docs/',
     '/download/release/latest/win-x64/node_pdb.7z',
     '/dist/latest-v20.x/node-v20.0.0.tar.gz',
     // Legacy `latest-v0.X.x` aliases
