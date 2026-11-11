@@ -113,32 +113,34 @@ describe('readDirectory', () => {
             directoryCachePutInvoked = true;
 
             expect(key).toStrictEqual('some/directory/path/');
-            expect(value).toStrictEqual(JSON.stringify({
-              subdirectories: [
-                'subdirectory1/',
-                'subdirectory2/',
-                'subdirectory3/',
-              ],
-              hasIndexHtmlFile: false,
-              files: [
-                {
-                  name: 'file1.txt',
-                  lastModified: '2024-11-04T16:21:30.218Z',
-                  size: 123,
-                },
-                {
-                  name: 'file2.txt',
-                  lastModified: '2024-11-04T16:21:30.218Z',
-                  size: 321,
-                },
-                {
-                  name: 'file3.txt',
-                  lastModified: '2024-11-04T16:21:30.218Z',
-                  size: 456,
-                },
-              ],
-              lastModified: '2024-11-04T16:21:30.218Z',
-            }));
+            expect(value).toStrictEqual(
+              JSON.stringify({
+                subdirectories: [
+                  'subdirectory1/',
+                  'subdirectory2/',
+                  'subdirectory3/',
+                ],
+                hasIndexHtmlFile: false,
+                files: [
+                  {
+                    name: 'file1.txt',
+                    lastModified: '2024-11-04T16:21:30.218Z',
+                    size: 123,
+                  },
+                  {
+                    name: 'file2.txt',
+                    lastModified: '2024-11-04T16:21:30.218Z',
+                    size: 321,
+                  },
+                  {
+                    name: 'file3.txt',
+                    lastModified: '2024-11-04T16:21:30.218Z',
+                    size: 456,
+                  },
+                ],
+                lastModified: '2024-11-04T16:21:30.218Z',
+              })
+            );
             expect(settings?.expirationTtl).toEqual(KV_CACHE_TTL);
           },
         },
