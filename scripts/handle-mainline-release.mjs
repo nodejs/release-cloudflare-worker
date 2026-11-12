@@ -4,7 +4,8 @@
  * Updates the cached directory listings for paths that have symlinks for the
  * mainline release bucket.
  *
- * Usage: ./handle-mainline-release.mjs
+ * Usage: ./handle-mainline-release.mjs [--purge]
+ *  --purge: Delete all elements in the cache before writing the new keys.
  *
  * If no version is provided, this just updates what's in {@link ALWAYS_UPDATED_PATHS}
  */
@@ -18,7 +19,12 @@ import {
 } from './constants.mjs';
 import { addSymlinksToDirectoryCache } from './utils/addSymlinksToDirectoryCache.mjs';
 import { getLatestVersionMapping } from './utils/getLatestVersionMapping.mjs';
-import { createCloudflareClient, writeKeysToKv } from './utils/kv.mjs';
+import {
+  createCloudflareClient,
+  deleteKvNamespaceKeys,
+  listKvNamespace,
+  writeKeysToKv,
+} from './utils/kv.mjs';
 import { createS3Client, listR2DirectoryRecursive } from './utils/r2.mjs';
 
 // Ensure all necessary environment variables are set
@@ -71,6 +77,21 @@ const latestVersions = await getLatestVersionMapping(
 );
 
 await addSymlinksToDirectoryCache(s3Client, directories, latestVersions);
+
+// Purge directory cache if wanted
+if (process.argv[2] === '--purge') {
+  const cachedDirectoryKeys = await listKvNamespace(
+    cfClient,
+    DIRECTORY_CACHE_NAMESPACE_ID
+  );
+  console.log(`Purging ${cachedDirectoryKeys.size} keys`);
+
+  await deleteKvNamespaceKeys(
+    cfClient,
+    DIRECTORY_CACHE_NAMESPACE_ID,
+    Array.from(cachedDirectoryKeys)
+  );
+}
 
 // Update keys in the directory cache. These intentionally do not have an
 // expiration set since they were made with info that the worker doesn't have
