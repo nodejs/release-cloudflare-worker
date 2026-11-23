@@ -11,6 +11,14 @@ import type {
 } from './provider';
 import type { R2Provider } from './r2Provider';
 
+/**
+ * Workers KV rejects keys longer than 512 bytes (UTF-8 encoded)
+ * @see https://developers.cloudflare.com/kv/platform/limits/
+ */
+const KV_MAX_KEY_BYTES = 512;
+
+const textEncoder = new TextEncoder();
+
 export class KvProvider implements Provider {
   #ctx: Context;
   #r2Provider?: R2Provider;
@@ -29,6 +37,12 @@ export class KvProvider implements Provider {
   }
 
   async readDirectory(path: string): Promise<ReadDirectoryResult | undefined> {
+    if (textEncoder.encode(path).length > KV_MAX_KEY_BYTES) {
+      // KV can't store or look up a key this long, and no directory with a
+      // path this long exists, so treat it as not found
+      return undefined;
+    }
+
     const result = await retryWrapper(async () => {
       return this.#ctx.env.DIRECTORY_CACHE.get<ReadDirectoryResult>(
         path,
