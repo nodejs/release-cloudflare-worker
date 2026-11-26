@@ -223,4 +223,63 @@ describe('readDirectory', () => {
     expect(directoryCachePutInvoked).toBeTruthy();
     expect(r2ProviderInvoked).toBeTruthy();
   });
+
+  test('returns `undefined` without hitting KV or R2 when the path exceeds the KV key limit', async () => {
+    let directoryCacheInvoked = false;
+    let r2ProviderInvoked = false;
+
+    const ctx: Context = {
+      env: {
+        DIRECTORY_CACHE: {
+          // @ts-expect-error don't need actual type info here
+          async get(): Promise<object | null> {
+            directoryCacheInvoked = true;
+            return null;
+          },
+        },
+      },
+    };
+
+    const r2Provider = {
+      async readDirectory(): Promise<ReadDirectoryResult | undefined> {
+        r2ProviderInvoked = true;
+        return undefined;
+      },
+    } as unknown as R2Provider;
+
+    const kvProvider = new KvProvider(ctx, r2Provider);
+
+    // 513 ASCII bytes
+    expect(await kvProvider.readDirectory('a'.repeat(513))).toBeUndefined();
+    // 171 three-byte characters is 513 bytes, but only 171 characters
+    expect(
+      await kvProvider.readDirectory('\u3042'.repeat(171))
+    ).toBeUndefined();
+
+    expect(directoryCacheInvoked).toBeFalsy();
+    expect(r2ProviderInvoked).toBeFalsy();
+  });
+
+  test('still looks up a path that is exactly at the KV key limit', async () => {
+    let directoryCacheInvoked = false;
+    const path = 'a'.repeat(512);
+
+    const ctx: Context = {
+      env: {
+        DIRECTORY_CACHE: {
+          // @ts-expect-error don't need actual type info here
+          async get(key: string): Promise<object | null> {
+            directoryCacheInvoked = true;
+            expect(key).toStrictEqual(path);
+            return null;
+          },
+        },
+      },
+    };
+
+    const kvProvider = new KvProvider(ctx, undefined);
+
+    expect(await kvProvider.readDirectory(path)).toBeUndefined();
+    expect(directoryCacheInvoked).toBeTruthy();
+  });
 });
